@@ -1,0 +1,552 @@
+[
+  {
+    "step": "Login Admin",
+    "endpoint": "POST /auth/admin/login",
+    "payload": {
+      "email": "admin@neonarena.com",
+      "password": "Admin123!"
+    },
+    "correlationId": "a211a804-a70a-44e8-8619-2c7230acfc8d",
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "user": {
+          "id": "22222222-2222-2222-2222-222222222222",
+          "email": "admin@neonarena.com",
+          "fullName": "System Admin",
+          "username": null,
+          "role": "super_admin",
+          "branchId": null,
+          "branchName": null,
+          "shiftId": null,
+          "dashboardPermissions": null,
+          "status": "active",
+          "lastLogin": "2026-06-04T08:35:23.253928+00:00",
+          "activeShift": null
+        },
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlMzNiNTk1NC02OTc5LTRlOTItOGI2Zi1jNDJmNGNiMjE5MWYiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIyMjIyMjIyLTIyMjItMjIyMi0yMjIyLTIyMjIyMjIyMjIyMiIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6InN1cGVyX2FkbWluIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IlN5c3RlbSBBZG1pbiIsImV4cCI6MTc4MDU2NTcyMywiaXNzIjoiTmVvbkFyZW5hRXJwIiwiYXVkIjoiTmVvbkFyZW5hRXJwQ2xpZW50In0.Wcot4_8JV-MhZvKPlLndcCIrM-0c8jrhz25vEgTIOCQ",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDIxNTczNi0zYmY4LTRkYjEtYmNkYi0wNjNkMmU5MmYzMWQiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIyMjIyMjIyLTIyMjItMjIyMi0yMjIyLTIyMjIyMjIyMjIyMiIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6InN1cGVyX2FkbWluIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IlN5c3RlbSBBZG1pbiIsImV4cCI6MTc4MTE2NjkyMywiaXNzIjoiTmVvbkFyZW5hRXJwIiwiYXVkIjoiTmVvbkFyZW5hRXJwQ2xpZW50In0.OtBIv_GlzhbFDkFtkK9Xcn4ls1NQldfiVKCZb-lH54Q"
+      },
+      "error": null,
+      "code": null
+    },
+    "passed": true
+  },
+  {
+    "step": "Login Operator",
+    "endpoint": "POST /auth/operator/login",
+    "payload": {
+      "branchId": "11111111-1111-1111-1111-111111111111",
+      "username": "op1",
+      "password": "1234"
+    },
+    "correlationId": "43e68e8a-98c5-4bcf-82ff-0e50cbe6cb42",
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "user": {
+          "id": "33333333-3333-3333-3333-333333333333",
+          "email": null,
+          "fullName": "John Operator",
+          "username": "op1",
+          "role": "operator",
+          "branchId": "11111111-1111-1111-1111-111111111111",
+          "branchName": "Main Branch",
+          "shiftId": "a8fcd71d-2fa1-4360-bd20-fa8497c812c9",
+          "dashboardPermissions": {
+            "eod": true,
+            "members": true,
+            "sessions": true,
+            "cash_desk": true,
+            "pc_status": true,
+            "food_orders": true,
+            "menu_editor": true,
+            "reservations": true,
+            "cash_register": true,
+            "main_dashboard": true,
+            "billing_counter": true
+          },
+          "status": "active",
+          "lastLogin": "2026-06-04T08:35:23.463684+00:00",
+          "activeShift": {
+            "id": "a8fcd71d-2fa1-4360-bd20-fa8497c812c9",
+            "loginTime": "2026-06-04T08:35:23.4634473+00:00"
+          }
+        },
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3ODkyNDg2Zi03NDFjLTQ1MzEtYjk0OS04N2RmNzJhNGQwZTciLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMzMzMzMzMzLTMzMzMtMzMzMy0zMzMzLTMzMzMzMzMzMzMzMyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Im9wZXJhdG9yIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IkpvaG4gT3BlcmF0b3IiLCJicmFuY2hJZCI6IjExMTExMTExLTExMTEtMTExMS0xMTExLTExMTExMTExMTExMSIsInNoaWZ0SWQiOiJhOGZjZDcxZC0yZmExLTQzNjAtYmQyMC1mYTg0OTdjODEyYzkiLCJkYXNoYm9hcmRQZXJtaXNzaW9ucyI6IntcImVvZFwiOiB0cnVlLCBcIm1lbWJlcnNcIjogdHJ1ZSwgXCJzZXNzaW9uc1wiOiB0cnVlLCBcImNhc2hfZGVza1wiOiB0cnVlLCBcInBjX3N0YXR1c1wiOiB0cnVlLCBcImZvb2Rfb3JkZXJzXCI6IHRydWUsIFwibWVudV9lZGl0b3JcIjogdHJ1ZSwgXCJyZXNlcnZhdGlvbnNcIjogdHJ1ZSwgXCJjYXNoX3JlZ2lzdGVyXCI6IHRydWUsIFwibWFpbl9kYXNoYm9hcmRcIjogdHJ1ZSwgXCJiaWxsaW5nX2NvdW50ZXJcIjogdHJ1ZX0iLCJleHAiOjE3ODA1NjU3MjMsImlzcyI6Ik5lb25BcmVuYUVycCIsImF1ZCI6Ik5lb25BcmVuYUVycENsaWVudCJ9._xQtKQuQjxWAkFdSuKCYfbET4tD5I3an4aD7fNO-Fmw",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2NWM3NTcwNC03NTBmLTQ4MzUtODljMS02NzU3NGI4MTI1NzIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMzMzMzMzMzLTMzMzMtMzMzMy0zMzMzLTMzMzMzMzMzMzMzMyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Im9wZXJhdG9yIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IkpvaG4gT3BlcmF0b3IiLCJicmFuY2hJZCI6IjExMTExMTExLTExMTEtMTExMS0xMTExLTExMTExMTExMTExMSIsInNoaWZ0SWQiOiJhOGZjZDcxZC0yZmExLTQzNjAtYmQyMC1mYTg0OTdjODEyYzkiLCJkYXNoYm9hcmRQZXJtaXNzaW9ucyI6IntcImVvZFwiOiB0cnVlLCBcIm1lbWJlcnNcIjogdHJ1ZSwgXCJzZXNzaW9uc1wiOiB0cnVlLCBcImNhc2hfZGVza1wiOiB0cnVlLCBcInBjX3N0YXR1c1wiOiB0cnVlLCBcImZvb2Rfb3JkZXJzXCI6IHRydWUsIFwibWVudV9lZGl0b3JcIjogdHJ1ZSwgXCJyZXNlcnZhdGlvbnNcIjogdHJ1ZSwgXCJjYXNoX3JlZ2lzdGVyXCI6IHRydWUsIFwibWFpbl9kYXNoYm9hcmRcIjogdHJ1ZSwgXCJiaWxsaW5nX2NvdW50ZXJcIjogdHJ1ZX0iLCJleHAiOjE3ODExNjY5MjMsImlzcyI6Ik5lb25BcmVuYUVycCIsImF1ZCI6Ik5lb25BcmVuYUVycENsaWVudCJ9.IdZAXj7II8Yr2-IUAkAp7x3oKQZbeKiZT7MNFnpPm9s"
+      },
+      "error": null,
+      "code": null
+    },
+    "passed": true
+  },
+  {
+    "step": "Open Cash Register",
+    "endpoint": "POST /cash/open?branchId=11111111-1111-1111-1111-111111111111",
+    "payload": {
+      "openingBalance": 1500
+    },
+    "correlationId": "65e93898-8e4a-428e-aa75-02652c3e66d1",
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "id": "b8ae6088-73be-4945-83b7-c61660f2b69f",
+        "shiftId": "a8fcd71d-2fa1-4360-bd20-fa8497c812c9",
+        "branchId": "11111111-1111-1111-1111-111111111111",
+        "operatorId": "33333333-3333-3333-3333-333333333333",
+        "openingBalance": 1500,
+        "totalCashSales": 0,
+        "totalSplitCash": 0,
+        "expectedDrawerCash": 1500,
+        "physicalCashCounted": null,
+        "cashDifference": null,
+        "mismatchReason": null,
+        "status": 0,
+        "openedAt": "2026-06-04T08:35:23.4753582+00:00",
+        "verifiedAt": null,
+        "closedAt": null,
+        "transactions": []
+      },
+      "error": null,
+      "code": null
+    },
+    "passed": true
+  },
+  {
+    "step": "Get PCs",
+    "endpoint": "GET /pcs?branchId=11111111-1111-1111-1111-111111111111",
+    "payload": null,
+    "correlationId": "603ca4a3-b100-4333-9d17-8996a5064346",
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": [
+        {
+          "id": "262bba57-a30b-5c35-aedf-3d4df871dfb0",
+          "name": "PC-01",
+          "ipAddress": "",
+          "state": 3,
+          "branchId": "11111111-1111-1111-1111-111111111111",
+          "activeSessionId": null,
+          "sessionEndTime": null,
+          "customerName": null,
+          "nextReservationId": null,
+          "nextReservationTime": null
+        },
+        {
+          "id": "38834e1c-68b8-50aa-9ce5-6d4f9e106395",
+          "name": "PC-02",
+          "ipAddress": "",
+          "state": 3,
+          "branchId": "11111111-1111-1111-1111-111111111111",
+          "activeSessionId": null,
+          "sessionEndTime": null,
+          "customerName": null,
+          "nextReservationId": null,
+          "nextReservationTime": null
+        },
+        {
+          "id": "c739b721-a31f-5b67-adcc-7b0c650f7b77",
+          "name": "PC-03",
+          "ipAddress": "",
+          "state": 0,
+          "branchId": "11111111-1111-1111-1111-111111111111",
+          "activeSessionId": null,
+          "sessionEndTime": null,
+          "customerName": null,
+          "nextReservationId": null,
+          "nextReservationTime": null
+        },
+        {
+          "id": "7d511cfe-8b8e-5cc5-8458-65fbddcb30a3",
+          "name": "PC-04",
+          "ipAddress": "",
+          "state": 0,
+          "branchId": "11111111-1111-1111-1111-111111111111",
+          "activeSessionId": null,
+          "sessionEndTime": null,
+          "customerName": null,
+          "nextReservationId": null,
+          "nextReservationTime": null
+        },
+        {
+          "id": "0aef377d-a20e-59a4-9ac6-2fe0b2e6ad6d",
+          "name": "PC-05",
+          "ipAddress": "",
+          "state": 0,
+          "branchId": "11111111-1111-1111-1111-111111111111",
+          "activeSessionId": null,
+          "sessionEndTime": null,
+          "customerName": null,
+          "nextReservationId": null,
+          "nextReservationTime": null
+        },
+        {
+          "id": "19df426a-cb5d-51fc-bbee-983ed69b2231",
+          "name": "PC-06",
+          "ipAddress": "",
+          "state": 0,
+          "branchId": "11111111-1111-1111-1111-111111111111",
+          "activeSessionId": null,
+          "sessionEndTime": null,
+          "customerName": null,
+          "nextReservationId": null,
+          "nextReservationTime": null
+        },
+        {
+          "id": "3f9768cf-491d-5ea8-b77c-fa35eecfe5ec",
+          "name": "PC-07",
+          "ipAddress": "",
+          "state": 0,
+          "branchId": "11111111-1111-1111-1111-111111111111",
+          "activeSessionId": null,
+          "sessionEndTime": null,
+          "customerName": null,
+          "nextReservationId": null,
+          "nextReservationTime": null
+        },
+        {
+          "id": "d1e7642d-e6e2-5cc0-b92f-36348f5848bf",
+          "name": "PC-08",
+          "ipAddress": "",
+          "state": 0,
+          "branchId": "11111111-1111-1111-1111-111111111111",
+          "activeSessionId": null,
+          "sessionEndTime": null,
+          "customerName": null,
+          "nextReservationId": null,
+          "nextReservationTime": null
+        },
+        {
+          "id": "742d6b43-ec83-5c55-8972-3d4446feb401",
+          "name": "PC-09",
+          "ipAddress": "",
+          "state": 0,
+          "branchId": "11111111-1111-1111-1111-111111111111",
+          "activeSessionId": null,
+          "sessionEndTime": null,
+          "customerName": null,
+          "nextReservationId": null,
+          "nextReservationTime": null
+        },
+        {
+          "id": "ea398681-f806-5b44-b804-925a89a7aca8",
+          "name": "PC-10",
+          "ipAddress": "",
+          "state": 0,
+          "branchId": "11111111-1111-1111-1111-111111111111",
+          "activeSessionId": null,
+          "sessionEndTime": null,
+          "customerName": null,
+          "nextReservationId": null,
+          "nextReservationTime": null
+        }
+      ],
+      "error": null,
+      "code": null
+    },
+    "passed": true
+  },
+  {
+    "step": "Start Session",
+    "endpoint": "POST /sessions/start?branchId=11111111-1111-1111-1111-111111111111",
+    "payload": {
+      "pcId": "c739b721-a31f-5b67-adcc-7b0c650f7b77",
+      "sessionType": "guest",
+      "guestName": "John Doe",
+      "packageName": "1 Hour Pack",
+      "durationMinutes": 60,
+      "expectedAmount": 100
+    },
+    "correlationId": "9e53ce36-249a-48ea-9e3a-95c3e95d5db3",
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "id": "94ff6aaf-8f41-412a-aa65-b80b9ab8d52a",
+        "pcId": "c739b721-a31f-5b67-adcc-7b0c650f7b77",
+        "pcName": "PC-03",
+        "branchId": "11111111-1111-1111-1111-111111111111",
+        "operatorId": "33333333-3333-3333-3333-333333333333",
+        "shiftId": "a8fcd71d-2fa1-4360-bd20-fa8497c812c9",
+        "customerName": null,
+        "memberId": null,
+        "startTime": "2026-06-04T08:35:23.489507+00:00",
+        "endTime": "2026-06-04T09:35:23.489507+00:00",
+        "durationMinutes": 60,
+        "expectedAmount": 100,
+        "packageName": "1 Hour Pack",
+        "status": 0,
+        "billId": "c56ed2ae-74e5-4a9a-b183-516a5ac0b14a"
+      },
+      "error": null,
+      "code": null
+    },
+    "passed": true
+  },
+  {
+    "step": "Get Inventory",
+    "endpoint": "GET /inventory?branchId=11111111-1111-1111-1111-111111111111",
+    "payload": null,
+    "correlationId": "1e785862-fd40-442b-836d-f031379ec3c5",
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": [
+        {
+          "id": "8aac35cf-4c91-5cd8-8cb8-443d3de0238f",
+          "itemName": "Cola",
+          "category": "Beverage",
+          "price": 50,
+          "currentStock": 96,
+          "minStockLimit": 10,
+          "status": "Available",
+          "isLowStock": false
+        },
+        {
+          "id": "099e9210-7e17-518a-8610-0c5800df4d73",
+          "itemName": "Burger",
+          "category": "Food",
+          "price": 150,
+          "currentStock": 20,
+          "minStockLimit": 2,
+          "status": "Available",
+          "isLowStock": false
+        },
+        {
+          "id": "a22f1b87-a569-5459-bcbb-fea705c49bc4",
+          "itemName": "Chips",
+          "category": "Snack",
+          "price": 30,
+          "currentStock": 50,
+          "minStockLimit": 5,
+          "status": "Available",
+          "isLowStock": false
+        }
+      ],
+      "error": null,
+      "code": null
+    },
+    "passed": true
+  },
+  {
+    "step": "Food Order",
+    "endpoint": "POST /food-orders?branchId=11111111-1111-1111-1111-111111111111",
+    "payload": {
+      "pcId": "c739b721-a31f-5b67-adcc-7b0c650f7b77",
+      "customerName": "John Doe",
+      "items": [
+        {
+          "inventoryId": "8aac35cf-4c91-5cd8-8cb8-443d3de0238f",
+          "quantity": 2
+        }
+      ]
+    },
+    "correlationId": "5ae6126c-d871-48b1-8901-9bec71314e09",
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "id": "d5dd9390-e5b5-4995-ba8e-1f3c9063a16c",
+        "orderNumber": "ORD-260604-0003",
+        "sessionId": null,
+        "pcId": "c739b721-a31f-5b67-adcc-7b0c650f7b77",
+        "pcNumber": null,
+        "branchId": "11111111-1111-1111-1111-111111111111",
+        "operatorId": "33333333-3333-3333-3333-333333333333",
+        "customerName": "John Doe",
+        "totalAmount": 100,
+        "paymentType": null,
+        "status": 0,
+        "cancelledReason": null,
+        "orderTime": "2026-06-04T08:35:23.5043642+00:00",
+        "deliveredAt": null,
+        "items": [
+          {
+            "id": "ddadd710-935f-4563-becb-1dfe3fd28215",
+            "inventoryId": "8aac35cf-4c91-5cd8-8cb8-443d3de0238f",
+            "itemName": "Cola",
+            "quantity": 2,
+            "unitPrice": 50,
+            "totalPrice": 100
+          }
+        ]
+      },
+      "error": null,
+      "code": null
+    },
+    "passed": true
+  },
+  {
+    "step": "Stop Session",
+    "endpoint": "POST /sessions/94ff6aaf-8f41-412a-aa65-b80b9ab8d52a/stop?branchId=11111111-1111-1111-1111-111111111111",
+    "payload": null,
+    "correlationId": "8254a763-8cba-494f-bddb-fdb6b1509549",
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "id": "94ff6aaf-8f41-412a-aa65-b80b9ab8d52a",
+        "pcId": "c739b721-a31f-5b67-adcc-7b0c650f7b77",
+        "pcName": "PC-03",
+        "branchId": "11111111-1111-1111-1111-111111111111",
+        "operatorId": "33333333-3333-3333-3333-333333333333",
+        "shiftId": "a8fcd71d-2fa1-4360-bd20-fa8497c812c9",
+        "customerName": null,
+        "memberId": null,
+        "startTime": "2026-06-04T08:35:23.489507+00:00",
+        "endTime": "2026-06-04T08:35:23.5189413+00:00",
+        "durationMinutes": 0,
+        "expectedAmount": 100,
+        "packageName": "1 Hour Pack",
+        "status": 3,
+        "billId": "c56ed2ae-74e5-4a9a-b183-516a5ac0b14a"
+      },
+      "error": null,
+      "code": null
+    },
+    "passed": true
+  },
+  {
+    "step": "Billing Checkout",
+    "endpoint": "POST /bills/c56ed2ae-74e5-4a9a-b183-516a5ac0b14a/pay?branchId=11111111-1111-1111-1111-111111111111",
+    "payload": {
+      "paymentType": "Cash",
+      "cashAmount": 100,
+      "cashReceived": 400
+    },
+    "correlationId": "360f0737-fd61-4140-86d0-637eccdce929",
+    "status": 400,
+    "response": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+      "title": "One or more validation errors occurred.",
+      "status": 400,
+      "errors": {
+        "dto": [
+          "The dto field is required."
+        ],
+        "$.paymentType": [
+          "The JSON value could not be converted to NeonArenaErp.Domain.Enums.PaymentType. Path: $.paymentType | LineNumber: 0 | BytePositionInLine: 21."
+        ]
+      },
+      "traceId": "00-ef290c49a830ad31299772e93d5c2fe9-b11531b6a0d0cecc-00"
+    },
+    "passed": false
+  },
+  {
+    "step": "EOD Preview",
+    "endpoint": "GET /eod/preview?branchId=11111111-1111-1111-1111-111111111111&targetDate=2026-06-04T08:35:23.536Z",
+    "payload": null,
+    "correlationId": "569b27ce-3d95-4c15-b0cf-d200b8f1d462",
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "branchId": "11111111-1111-1111-1111-111111111111",
+        "reportDate": "2026-06-04T00:00:00+00:00",
+        "generatedAt": "2026-06-04T08:35:23.543205+00:00",
+        "revenue": {
+          "totalGamingRevenue": 0,
+          "totalFoodRevenue": 0,
+          "totalDiscounts": 0,
+          "netRevenue": 0
+        },
+        "cash": {
+          "totalOpeningBalance": 7500,
+          "totalCashSales": 0,
+          "totalCashInwards": 0,
+          "totalPettyExpenses": 0,
+          "totalOwnerWithdrawals": 0,
+          "expectedCashInDrawer": 7500,
+          "actualPhysicalCashCounted": 0,
+          "totalDiscrepancy": 0
+        },
+        "paymentMethods": {
+          "totalCash": 0,
+          "totalOnline": 0,
+          "totalWalletDeductions": 0,
+          "totalWalletTopUps": 0
+        },
+        "shifts": {
+          "totalShifts": 6,
+          "shiftDetails": [
+            {
+              "shiftId": "b0840abf-0bf7-4b85-8871-37972747ee56",
+              "operatorId": "33333333-3333-3333-3333-333333333333",
+              "operatorName": "John Operator",
+              "totalSales": 0,
+              "cashDiscrepancy": 0
+            },
+            {
+              "shiftId": "3e78d009-77d1-429b-8341-948476a8c5ab",
+              "operatorId": "33333333-3333-3333-3333-333333333333",
+              "operatorName": "John Operator",
+              "totalSales": 0,
+              "cashDiscrepancy": 0
+            },
+            {
+              "shiftId": "a8fcd71d-2fa1-4360-bd20-fa8497c812c9",
+              "operatorId": "33333333-3333-3333-3333-333333333333",
+              "operatorName": "John Operator",
+              "totalSales": 0,
+              "cashDiscrepancy": 0
+            },
+            {
+              "shiftId": "72a086b4-c7d6-4e86-949d-e92e8721f9b2",
+              "operatorId": "33333333-3333-3333-3333-333333333333",
+              "operatorName": "John Operator",
+              "totalSales": 0,
+              "cashDiscrepancy": 0
+            },
+            {
+              "shiftId": "32b32fc4-1017-4b5f-91e2-35919cc40cdc",
+              "operatorId": "33333333-3333-3333-3333-333333333333",
+              "operatorName": "John Operator",
+              "totalSales": 0,
+              "cashDiscrepancy": 0
+            },
+            {
+              "shiftId": "364b224a-76dc-45fe-8e34-628e1b964e68",
+              "operatorId": "33333333-3333-3333-3333-333333333333",
+              "operatorName": "John Operator",
+              "totalSales": 0,
+              "cashDiscrepancy": 0
+            }
+          ]
+        },
+        "operations": {
+          "totalSessions": 3,
+          "totalReservations": 0,
+          "totalFoodOrders": 3,
+          "newMembersRegistered": 0
+        }
+      },
+      "error": null,
+      "code": null
+    },
+    "passed": true
+  },
+  {
+    "step": "EOD Finalization",
+    "endpoint": "POST /eod/finalize?branch_id=11111111-1111-1111-1111-111111111111",
+    "payload": {
+      "targetDate": "2026-06-04T08:35:23.548Z",
+      "expectedCash": 1500,
+      "actualCash": 1700,
+      "notes": "Verified by E2E script"
+    },
+    "correlationId": "1a489f83-43fb-43e0-8807-2f24d0d5b391",
+    "status": 400,
+    "response": {
+      "success": false,
+      "error": "Cannot finalize EOD due to unresolved blockers: 15 shift(s) are not yet Completed/Closed.; 6 cash register(s) have not finalized end-of-shift verification.; 3 bill(s) are still pending/unpaid.",
+      "code": "APP_ERROR",
+      "correlationId": "1a489f83-43fb-43e0-8807-2f24d0d5b391"
+    },
+    "passed": false
+  }
+]

@@ -1,0 +1,40 @@
+using System.ComponentModel.DataAnnotations;
+using NeonArenaErp.Domain.Enums;
+
+namespace NeonArenaErp.Application.DTOs.Reservations;
+
+public class ReservationDto
+{
+    public Guid Id { get; set; }
+    public Guid PcId { get; set; }
+    public string CustomerName { get; set; } = null!;
+    public Guid? MemberId { get; set; }
+    public DateTimeOffset ReservationTime { get; set; }
+    public int? DurationMin { get; set; }
+    public ReservationState State { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class CreateReservationDto
+{
+    [Required]
+    public Guid PcId { get; set; }
+    [Required]
+    public string CustomerName { get; set; } = null!;
+    public Guid? MemberId { get; set; }
+    [Required]
+    public DateTimeOffset ReservationTime { get; set; }
+    public int? DurationMin { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class CancelReservationDto
+{
+    public string? Reason { get; set; }
+}
+
+public class OverrideReservationDto
+{
+    [Required]
+    public string Reason { get; set; } = null!;
+}

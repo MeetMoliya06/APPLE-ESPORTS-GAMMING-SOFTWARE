@@ -1,0 +1,276 @@
+using Microsoft.EntityFrameworkCore;
+using NeonArenaErp.Application.Constants;
+using NeonArenaErp.Application.DTOs.Common;
+using NeonArenaErp.Application.DTOs.FoodOrders;
+using NeonArenaErp.Application.Exceptions;
+using NeonArenaErp.Application.Interfaces;
+using NeonArenaErp.Domain.Entities;
+using NeonArenaErp.Domain.Enums;
+
+namespace NeonArenaErp.Infrastructure.Services;
+
+public class FoodOrderService : IFoodOrderService
+{
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IAuditService _auditService;
+    private readonly IHubNotificationService _hubNotification;
+
+    public FoodOrderService(
+        IUnitOfWork unitOfWork,
+        IAuditService auditService,
+        IHubNotificationService hubNotification)
+    {
+        _unitOfWork = unitOfWork;
+        _auditService = auditService;
+        _hubNotification = hubNotification;
+    }
+
+    public async Task<PaginatedResult<FoodOrderDto>> GetActiveOrdersAsync(Guid branchId, int page = 1, int pageSize = 50)
+    {
+        var query = _unitOfWork.Repository<FoodOrder>().Query()
+            .Include(o => o.Items)
+            .Include(o => o.Pc)
+            .Where(o => o.BranchId == branchId && o.Status != OrderStatus.Completed && o.Status != OrderStatus.Cancelled)
+            .OrderByDescending(o => o.OrderTime);
+
+        var total = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        var dtos = items.Select(MapToDto).ToList();
+        return new PaginatedResult<FoodOrderDto>(dtos, total, page, pageSize);
+    }
+
+    public async Task<FoodOrderDto> GetOrderAsync(Guid branchId, Guid id)
+    {
+        var order = await _unitOfWork.Repository<FoodOrder>().Query()
+            .Include(o => o.Items)
+            .Include(o => o.Pc)
+            .FirstOrDefaultAsync(o => o.Id == id && o.BranchId == branchId)
+            ?? throw new NotFoundException("Order not found.");
+
+        return MapToDto(order);
+    }
+
+    public async Task<FoodOrderDto> PlaceOrderAsync(Guid branchId, Guid operatorId, Guid shiftId, CreateFoodOrderDto dto)
+    {
+        await _unitOfWork.BeginTransactionAsync();
+        try
+        {
+            var now = DateTimeOffset.UtcNow;
+            
+            // Generate order number
+            var count = await _unitOfWork.Repository<FoodOrder>().Query().CountAsync(o => o.OrderTime >= new DateTimeOffset(now.UtcDateTime.Date, TimeSpan.Zero));
+            var orderNum = $"ORD-{now:yyMMdd}-{count + 1:D4}";
+
+            var order = new FoodOrder
+            {
+                OrderNumber = orderNum,
+                SessionId = dto.SessionId,
+                PcId = dto.PcId,
+                BranchId = branchId,
+                OperatorId = operatorId,
+                CustomerName = dto.CustomerName,
+                OrderTime = now,
+                Status = OrderStatus.Pending,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            decimal totalAmount = 0;
+
+            foreach (var itemDto in dto.Items)
+            {
+                var inventoryItem = await _unitOfWork.Repository<InventoryItem>().GetByIdAsync(itemDto.InventoryId)
+                    ?? throw new NotFoundException($"Inventory item {itemDto.InventoryId} not found.");
+
+                if (inventoryItem.CurrentStock < itemDto.Quantity)
+                    throw new AppException($"Insufficient stock for {inventoryItem.ItemName}. Available: {inventoryItem.CurrentStock}");
+
+                // Deduct stock
+                inventoryItem.CurrentStock -= itemDto.Quantity;
+                inventoryItem.UpdatedAt = now;
+                _unitOfWork.Repository<InventoryItem>().Update(inventoryItem);
+
+                // Add order item
+                var totalPrice = inventoryItem.Price * itemDto.Quantity;
+                totalAmount += totalPrice;
+                
+                order.Items.Add(new FoodOrderItem
+                {
+                    InventoryId = inventoryItem.Id,
+                    ItemName = inventoryItem.ItemName,
+                    Quantity = itemDto.Quantity,
+                    UnitPrice = inventoryItem.Price,
+                    TotalPrice = totalPrice,
+                    CreatedAt = now
+                });
+            }
+
+            order.TotalAmount = totalAmount;
+
+            // If linked to a Session, add this to the active Bill
+            Bill? activeBill = null;
+            if (dto.SessionId.HasValue)
+            {
+                activeBill = await _unitOfWork.Repository<Bill>().Query()
+                    .Include(b => b.Items)
+                    .FirstOrDefaultAsync(b => b.SessionId == dto.SessionId && b.Status != BillStatus.Completed);
+
+                if (activeBill == null)
+                    throw new AppException("Cannot attach order to session. No active bill found.");
+
+                foreach (var oi in order.Items)
+                {
+                    activeBill.Items.Add(new BillItem
+                    {
+                        ItemType = "food",
+                        ItemName = oi.ItemName,
+                        Quantity = oi.Quantity,
+                        UnitPrice = oi.UnitPrice,
+                        TotalPrice = oi.TotalPrice,
+                        InventoryId = oi.InventoryId,
+                        CreatedAt = now
+                    });
+                }
+
+                activeBill.FoodAmount += totalAmount;
+                activeBill.Subtotal += totalAmount;
+                activeBill.TotalAmount += totalAmount;
+                activeBill.UpdatedAt = now;
+                _unitOfWork.Repository<Bill>().Update(activeBill);
+                
+                order.PaymentType = "session_bill";
+                order.MemberId = activeBill.MemberId;
+            }
+
+            await _unitOfWork.Repository<FoodOrder>().AddAsync(order);
+
+            // Audit
+            await _auditService.LogAsync(new AuditEntry
+            {
+                OperatorId = operatorId,
+                UserRole = "Operator",
+                UserName = "System",
+                Action = "food_order_create",
+                BranchId = branchId,
+                TargetType = "food_order",
+                TargetId = order.Id,
+                Details = new { OrderNumber = orderNum, Total = totalAmount, ItemCount = order.Items.Count }
+            });
+
+            await _unitOfWork.CommitTransactionAsync();
+            
+            await _hubNotification.BroadcastFoodOrderUpdateAsync(branchId, order.Id);
+            if (activeBill != null)
+            {
+                await _hubNotification.BroadcastBillingUpdateAsync(branchId, activeBill.Id);
+            }
+
+            return MapToDto(order);
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+    }
+
+    public async Task<FoodOrderDto> UpdateOrderStatusAsync(Guid branchId, Guid operatorId, Guid id, UpdateOrderStatusDto dto)
+    {
+        await _unitOfWork.BeginTransactionAsync();
+        try
+        {
+            var order = await _unitOfWork.Repository<FoodOrder>().Query()
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.Id == id && o.BranchId == branchId)
+                ?? throw new NotFoundException("Order not found.");
+
+            if (order.Status == OrderStatus.Completed || order.Status == OrderStatus.Cancelled)
+                throw new AppException($"Order is already {order.Status} and cannot be changed.");
+
+            var now = DateTimeOffset.UtcNow;
+            order.Status = dto.Status;
+            order.UpdatedAt = now;
+
+            if (dto.Status == OrderStatus.Preparing)
+                order.AcceptedAt = now;
+            else if (dto.Status == OrderStatus.Delivered)
+                order.DeliveredAt = now;
+            else if (dto.Status == OrderStatus.Completed)
+                order.CompletedAt = now;
+            else if (dto.Status == OrderStatus.Cancelled)
+            {
+                order.CancelledReason = dto.Reason;
+                
+                // Restore Inventory
+                foreach (var item in order.Items)
+                {
+                    var inventoryItem = await _unitOfWork.Repository<InventoryItem>().GetByIdAsync(item.InventoryId);
+                    if (inventoryItem != null)
+                    {
+                        inventoryItem.CurrentStock += item.Quantity;
+                        inventoryItem.UpdatedAt = now;
+                        _unitOfWork.Repository<InventoryItem>().Update(inventoryItem);
+                    }
+                }
+
+                // If linked to a bill, we should ideally reverse the bill items, but SOP says food items on bill are immutable.
+                // We'll trust the operator to apply a discount or adjustment to the bill for cancelled food.
+            }
+
+            _unitOfWork.Repository<FoodOrder>().Update(order);
+
+            await _auditService.LogAsync(new AuditEntry
+            {
+                OperatorId = operatorId,
+                UserRole = "Operator",
+                UserName = "System",
+                Action = "food_order_update",
+                BranchId = branchId,
+                TargetType = "food_order",
+                TargetId = order.Id,
+                Details = new { Status = dto.Status.ToString(), Reason = dto.Reason }
+            });
+
+            await _unitOfWork.CommitTransactionAsync();
+            await _hubNotification.BroadcastFoodOrderUpdateAsync(branchId, order.Id);
+
+            return MapToDto(order);
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+    }
+
+    private static FoodOrderDto MapToDto(FoodOrder o)
+    {
+        return new FoodOrderDto
+        {
+            Id = o.Id,
+            OrderNumber = o.OrderNumber,
+            SessionId = o.SessionId,
+            PcId = o.PcId,
+            PcNumber = o.Pc?.PcNumber,
+            BranchId = o.BranchId,
+            OperatorId = o.OperatorId,
+            CustomerName = o.CustomerName,
+            TotalAmount = o.TotalAmount,
+            PaymentType = o.PaymentType,
+            Status = o.Status,
+            CancelledReason = o.CancelledReason,
+            OrderTime = o.OrderTime,
+            DeliveredAt = o.DeliveredAt,
+            Items = o.Items?.Select(i => new FoodOrderItemDto
+            {
+                Id = i.Id,
+                InventoryId = i.InventoryId,
+                ItemName = i.ItemName,
+                Quantity = i.Quantity,
+                UnitPrice = i.UnitPrice,
+                TotalPrice = i.TotalPrice
+            }).ToList() ?? new List<FoodOrderItemDto>()
+        };
+    }
+}
