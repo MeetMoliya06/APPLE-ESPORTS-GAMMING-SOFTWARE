@@ -1,0 +1,212 @@
+{
+  "pages": [
+    {
+      "name": "Operator Dashboard",
+      "role": "Operator",
+      "urlPath": "/app/dashboard",
+      "screenshot": "media_Operator_Dashboard_1780563158947.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/unauthorized"
+    },
+    {
+      "name": "Sessions",
+      "role": "Operator",
+      "urlPath": "/app/sessions",
+      "screenshot": "media_Sessions_1780563160639.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/app/sessions"
+    },
+    {
+      "name": "Billing",
+      "role": "Operator",
+      "urlPath": "/app/billing",
+      "screenshot": "media_Billing_1780563162384.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/app/billing"
+    },
+    {
+      "name": "Food Orders",
+      "role": "Operator",
+      "urlPath": "/app/food",
+      "screenshot": "media_Food_Orders_1780563164107.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/app/food"
+    },
+    {
+      "name": "Cash Register",
+      "role": "Operator",
+      "urlPath": "/app/cash/register",
+      "screenshot": "media_Cash_Register_1780563165854.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/app/cash/register"
+    },
+    {
+      "name": "Cash Desk",
+      "role": "Operator",
+      "urlPath": "/app/cash/desk",
+      "screenshot": "media_Cash_Desk_1780563167551.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/app/cash/desk"
+    },
+    {
+      "name": "Shift Management",
+      "role": "Operator",
+      "urlPath": "/app/shifts",
+      "screenshot": "media_Shift_Management_1780563169248.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/app/shifts"
+    },
+    {
+      "name": "Admin Dashboard",
+      "role": "Admin",
+      "urlPath": "/admin/dashboard",
+      "screenshot": "media_Admin_Dashboard_1780563175569.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/admin/dashboard"
+    },
+    {
+      "name": "Branch Management",
+      "role": "Admin",
+      "urlPath": "/admin/branches",
+      "screenshot": "media_Branch_Management_1780563177237.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/admin/branches"
+    },
+    {
+      "name": "Operators",
+      "role": "Admin",
+      "urlPath": "/admin/operators",
+      "screenshot": "media_Operators_1780563178933.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/admin/operators"
+    },
+    {
+      "name": "Inventory",
+      "role": "Admin",
+      "urlPath": "/admin/inventory",
+      "screenshot": "media_Inventory_1780563180622.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/admin/inventory"
+    },
+    {
+      "name": "Pricing",
+      "role": "Admin",
+      "urlPath": "/admin/pricing",
+      "screenshot": "media_Pricing_1780563182309.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/admin/pricing"
+    },
+    {
+      "name": "Reservations",
+      "role": "Admin",
+      "urlPath": "/app/reservations",
+      "screenshot": "media_Reservations_1780563183980.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/login"
+    },
+    {
+      "name": "EOD Dashboard",
+      "role": "Admin",
+      "urlPath": "/app/eod",
+      "screenshot": "media_EOD_Dashboard_1780563185695.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/login"
+    },
+    {
+      "name": "Historical Reports",
+      "role": "Admin",
+      "urlPath": "/admin/reports",
+      "screenshot": "media_Historical_Reports_1780563187432.png",
+      "hasPlaceholder": false,
+      "foundPlaceholders": [],
+      "urlAfterNav": "http://localhost:5173/admin/reports"
+    }
+  ],
+  "placeholders": [],
+  "errors": [
+    {
+      "type": "console",
+      "text": "[2026-06-04T08:52:37.510Z] Error: Failed to start the HttpConnection before stop() was called."
+    },
+    {
+      "type": "console",
+      "text": "SignalR Connection Error: AbortError: Failed to start the HttpConnection before stop() was called."
+    },
+    {
+      "type": "console",
+      "text": "[2026-06-04T08:52:37.518Z] Error: Failed to start the connection: Error: The connection was stopped during negotiation."
+    },
+    {
+      "type": "console",
+      "text": "SignalR Connection Error: AbortError: The connection was stopped during negotiation."
+    },
+    {
+      "type": "console",
+      "text": "[2026-06-04T08:52:39.178Z] Error: Failed to start the HttpConnection before stop() was called."
+    },
+    {
+      "type": "console",
+      "text": "SignalR Connection Error: AbortError: Failed to start the HttpConnection before stop() was called."
+    },
+    {
+      "type": "console",
+      "text": "[2026-06-04T08:52:39.187Z] Error: Failed to start the connection: Error: The connection was stopped during negotiation."
+    },
+    {
+      "type": "console",
+      "text": "SignalR Connection Error: AbortError: The connection was stopped during negotiation."
+    },
+    {
+      "type": "console",
+      "text": "SignalR Connection Error: AbortError: The connection was stopped before the hub handshake could complete."
+    },
+    {
+      "type": "console",
+      "text": "[2026-06-04T08:52:40.950Z] Error: Failed to start the connection: Error: The connection was stopped during negotiation."
+    },
+    {
+      "type": "console",
+      "text": "SignalR Connection Error: AbortError: The connection was stopped during negotiation."
+    },
+    {
+      "type": "console",
+      "text": "[2026-06-04T08:52:42.642Z] Error: Failed to start the HttpConnection before stop() was called."
+    },
+    {
+      "type": "console",
+      "text": "SignalR Connection Error: AbortError: Failed to start the HttpConnection before stop() was called."
+    },
+    {
+      "type": "console",
+      "text": "[2026-06-04T08:52:42.652Z] Error: Failed to start the connection: Error: The connection was stopped during negotiation."
+    },
+    {
+      "type": "console",
+      "text": "SignalR Connection Error: AbortError: The connection was stopped during negotiation."
+    }
+  ],
+  "signalr": [
+    "SignalR Connection Error: AbortError: Failed to start the HttpConnection before stop() was called.",
+    "SignalR Connection Error: AbortError: The connection was stopped during negotiation.",
+    "SignalR Connection Error: AbortError: Failed to start the HttpConnection before stop() was called.",
+    "SignalR Connection Error: AbortError: The connection was stopped during negotiation.",
+    "SignalR Connection Error: AbortError: The connection was stopped before the hub handshake could complete.",
+    "SignalR Connection Error: AbortError: The connection was stopped during negotiation.",
+    "SignalR Connection Error: AbortError: Failed to start the HttpConnection before stop() was called.",
+    "SignalR Connection Error: AbortError: The connection was stopped during negotiation."
+  ]
+}

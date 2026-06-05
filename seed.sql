@@ -37,3 +37,15 @@ VALUES (
     NOW(),
     NOW()
 ) ON CONFLICT DO NOTHING;
+
+-- 4. Insert Pricing Profile
+INSERT INTO "PricingProfiles" ("Id", "BranchId", "Name", "BaseHourlyRate", "IsActive", "CreatedAt", "UpdatedAt")
+VALUES ('44444444-4444-4444-4444-444444444444', '11111111-1111-1111-1111-111111111111', 'Standard', 100, true, NOW(), NOW()) ON CONFLICT DO NOTHING;
+
+-- 5. Insert PC
+INSERT INTO pcs ("Id", "BranchId", "PricingProfileId", "PcNumber", "PcName", "Zone", "Specs", "State", "IsActive", "IsDeleted", "CreatedAt", "UpdatedAt")
+VALUES ('55555555-5555-5555-5555-555555555555', '11111111-1111-1111-1111-111111111111', '44444444-4444-4444-4444-444444444444', 'PC-01', 'PC 01', 'VIP', '{}', 0, true, false, NOW(), NOW()) ON CONFLICT DO NOTHING;
+
+-- 6. Insert Inventory
+INSERT INTO inventory ("Id", "BranchId", "ItemName", "Category", "Price", "CurrentStock", "MinStockLimit", "Status", "CreatedAt", "UpdatedAt")
+VALUES ('66666666-6666-6666-6666-666666666666', '11111111-1111-1111-1111-111111111111', 'Coke', 'Beverage', 50, 100, 10, 'available', NOW(), NOW()) ON CONFLICT DO NOTHING;
