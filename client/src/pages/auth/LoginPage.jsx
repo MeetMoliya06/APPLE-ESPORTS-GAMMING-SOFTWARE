@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import api from '../../config/api';
 
 export default function LoginPage() {
-  const { loginAdmin, loginOperator, isAuthenticated } = useAuth();
+  const { loginAdmin, loginOperator, isAuthenticated, isSuperAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const reason = searchParams.get('reason');
@@ -26,9 +26,13 @@ export default function LoginPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/app/billing', { replace: true });
+      if (isSuperAdmin) {
+        navigate('/app/dashboard', { replace: true });
+      } else {
+        navigate('/app/billing', { replace: true });
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isSuperAdmin, navigate]);
 
   // Fetch active branches for Operator dropdown
   useEffect(() => {

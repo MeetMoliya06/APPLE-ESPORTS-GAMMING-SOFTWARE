@@ -11,11 +11,12 @@ import RecentTransactionsFeed from './RecentTransactionsFeed';
 
 export default function MainDashboardPage() {
   const { isSuperAdmin, user } = useAuth();
-  const { activeBranch } = useBranch();
+  const { activeBranch, switchBranch } = useBranch();
   const { subscribe, connected, SIGNALR_HUBS } = useSocket();
   
   const [summary, setSummary] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [branchSummaries, setBranchSummaries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // The branch we should fetch data for
@@ -26,19 +27,34 @@ export default function MainDashboardPage() {
   const fetchDashboardData = useCallback(async () => {
     try {
       const params = targetBranchId ? { branchId: targetBranchId } : {};
-      const [summaryRes, txRes] = await Promise.all([
+      
+      const promises = [
         api.get('/dashboard/summary', { params }),
         api.get('/dashboard/transactions', { params: { ...params, limit: 15 } })
-      ]);
+      ];
+
+      // If global view for Super Admin, fetch branch summaries
+      const fetchBranchBreakdown = isSuperAdmin && !targetBranchId;
+      if (fetchBranchBreakdown) {
+        promises.push(api.get('/dashboard/branches-summary'));
+      }
+
+      const results = await Promise.all(promises);
       
-      setSummary(summaryRes.data.data);
-      setTransactions(txRes.data.data);
+      setSummary(results[0].data.data);
+      setTransactions(results[1].data.data);
+      
+      if (fetchBranchBreakdown && results[2]) {
+        setBranchSummaries(results[2].data.data);
+      } else {
+        setBranchSummaries([]);
+      }
     } catch (err) {
       console.error("Failed to load dashboard data", err);
     } finally {
       setIsLoading(false);
     }
-  }, [targetBranchId]);
+  }, [targetBranchId, isSuperAdmin]);
 
   // Initial fetch
   useEffect(() => {
@@ -128,6 +144,113 @@ export default function MainDashboardPage() {
           delay={0.4}
         />
       </div>
+
+      {/* Branch Breakdown Table (Super Admin only - Global View) */}
+      {isSuperAdmin && !activeBranch && (
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="bg-bg-2 border border-border rounded-lg overflow-hidden shadow-xl"
+        >
+          <div className="px-5 py-4 border-b border-border flex items-center justify-between bg-bg-3">
+            <div>
+              <h2 className="text-base font-heading font-bold text-text tracking-wide flex items-center gap-2">
+                <Activity className="w-5 h-5 text-accent" />
+                BRANCH COMPARISON DASHBOARD
+              </h2>
+              <p className="text-text-2 text-xs mt-0.5">Real-time performance and financial metrics across all active branches</p>
+            </div>
+            <span className="text-[10px] font-mono bg-accent/10 border border-accent/20 text-accent px-2 py-0.5 rounded">
+              {branchSummaries.length} BRANCHES
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-bg-3/50 text-text-2 font-mono uppercase tracking-wider border-b border-border">
+                  <th className="py-3 px-4">Branch</th>
+                  <th className="py-3 px-4 text-center">PC Status (Active / Idle / Total)</th>
+                  <th className="py-3 px-4">Active Operator</th>
+                  <th className="py-3 px-4 text-right">Gaming Rev</th>
+                  <th className="py-3 px-4 text-right">Food Rev</th>
+                  <th className="py-3 px-4 text-right">Total Rev</th>
+                  <th className="py-3 px-4 text-right">Cash in Drawer</th>
+                  <th className="py-3 px-4 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/60">
+                {branchSummaries.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="py-8 text-center text-text-3 font-mono">
+                      No branch data available.
+                    </td>
+                  </tr>
+                ) : (
+                  branchSummaries.map((b) => (
+                    <tr 
+                      key={b.branchId} 
+                      className="hover:bg-bg-3/30 transition-colors"
+                    >
+                      <td className="py-3.5 px-4 font-semibold text-text font-heading text-sm">
+                        {b.branchName}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="flex items-center gap-1 font-semibold text-accent" title="Active PCs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block" />
+                            {b.activePcs}
+                          </span>
+                          <span className="text-text-3">/</span>
+                          <span className="flex items-center gap-1 text-text-2" title="Idle PCs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-text-3 inline-block" />
+                            {b.idlePcs}
+                          </span>
+                          <span className="text-text-3">/</span>
+                          <span className="text-text-3 font-mono font-medium" title="Total PCs">
+                            {b.totalPcs}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 text-text-2">
+                        {b.activeOperator !== "None" ? (
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-accent/5 border border-accent/20 text-accent font-medium">
+                            <Users className="w-3.5 h-3.5" />
+                            {b.activeOperator}
+                          </span>
+                        ) : (
+                          <span className="text-text-3 italic">No Active Operator</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 text-right text-text-2 font-mono">
+                        ₹{b.gamingSales.toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-4 text-right text-text-2 font-mono">
+                        ₹{b.foodSales.toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-4 text-right text-accent font-bold font-mono">
+                        ₹{b.totalSales.toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-4 text-right text-text font-mono">
+                        ₹{b.cashInDrawer.toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <button
+                          onClick={() => switchBranch(b.branchId)}
+                          className="px-2.5 py-1 bg-bg-3 border border-border rounded text-[11px] font-semibold text-accent hover:bg-accent hover:text-bg transition-colors"
+                        >
+                          Manage Branch
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      )}
 
       {/* Financial Overview - Split Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

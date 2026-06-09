@@ -47,12 +47,12 @@ export function BranchProvider({ children }) {
       const branchList = response.data.data;
       setBranches(branchList);
 
-      // Restore previously selected branch or default to first
+      // Restore previously selected branch or default to 'All Branches' (null)
       const savedBranch = localStorage.getItem('activeBranchId');
       if (savedBranch && branchList.find((b) => b.id === savedBranch)) {
         switchBranch(savedBranch, branchList);
-      } else if (branchList.length > 0) {
-        switchBranch(branchList[0].id, branchList);
+      } else {
+        switchBranch(null, branchList);
       }
     } catch (error) {
       console.error('Failed to load branches:', error);
@@ -64,7 +64,11 @@ export function BranchProvider({ children }) {
   // ── Switch active branch (Super Admin only) ──
   const switchBranch = useCallback((branchId, branchList = branches) => {
     setActiveBranchId(branchId);
-    localStorage.setItem('activeBranchId', branchId);
+    if (branchId) {
+      localStorage.setItem('activeBranchId', branchId);
+    } else {
+      localStorage.removeItem('activeBranchId');
+    }
 
     const branch = branchList.find((b) => b.id === branchId);
     setActiveBranch(branch || null);

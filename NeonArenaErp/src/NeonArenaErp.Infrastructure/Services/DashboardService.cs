@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using NeonArenaErp.Application.DTOs.Dashboard;
 using NeonArenaErp.Application.Interfaces;
+using NeonArenaErp.Domain.Entities;
 using NeonArenaErp.Domain.Enums;
 using NeonArenaErp.Infrastructure.Data;
 
@@ -129,6 +130,63 @@ public class DashboardService : IDashboardService
         if (action.Contains("Session") || action.Contains("Pc")) return "Gaming";
         if (action.Contains("Food")) return "Food";
         return "Operational";
+    }
+
+    public async Task<IEnumerable<BranchDashboardSummaryDto>> GetBranchSummariesAsync()
+    {
+        var branches = await _context.Branches
+            .Where(b => b.Status == BranchStatus.Active)
+            .OrderBy(b => b.Name)
+            .ToListAsync();
+
+        var today = new DateTimeOffset(DateTime.UtcNow.Date, TimeSpan.Zero);
+        var summaries = new List<BranchDashboardSummaryDto>();
+
+        foreach (var branch in branches)
+        {
+            var branchId = branch.Id;
+
+            // PCs count
+            var totalPcs = await _context.Pcs.CountAsync(p => p.BranchId == branchId && !p.IsDeleted);
+            var activePcs = await _context.Pcs.CountAsync(p => p.BranchId == branchId && !p.IsDeleted && p.State == PcState.Active);
+            var idlePcs = await _context.Pcs.CountAsync(p => p.BranchId == branchId && !p.IsDeleted && p.State == PcState.Idle);
+
+            // Active operator shift
+            var activeShift = await _context.Shifts
+                .Include(s => s.Operator)
+                .FirstOrDefaultAsync(s => s.BranchId == branchId && s.Status == ShiftStatus.Active);
+            var activeOperator = activeShift?.Operator?.FullName ?? "None";
+
+            // Sales (since midnight today)
+            var todaysBills = await _context.Bills
+                .Where(b => b.BranchId == branchId && b.CreatedAt >= today && b.Status == BillStatus.Completed)
+                .ToListAsync();
+
+            var totalSales = todaysBills.Sum(b => b.TotalAmount);
+            var gamingSales = todaysBills.Sum(b => b.GamingAmount);
+            var foodSales = todaysBills.Sum(b => b.FoodAmount);
+
+            // Cash in drawer (from active register)
+            var activeRegister = await _context.CashRegisters
+                .FirstOrDefaultAsync(r => r.BranchId == branchId && r.Status == CashRegisterStatus.Open);
+            var cashInDrawer = activeRegister?.ExpectedDrawerCash ?? 0m;
+
+            summaries.Add(new BranchDashboardSummaryDto
+            {
+                BranchId = branchId,
+                BranchName = branch.Name,
+                TotalPcs = totalPcs,
+                ActivePcs = activePcs,
+                IdlePcs = idlePcs,
+                ActiveOperator = activeOperator,
+                TotalSales = totalSales,
+                GamingSales = gamingSales,
+                FoodSales = foodSales,
+                CashInDrawer = cashInDrawer
+            });
+        }
+
+        return summaries;
     }
 
     public Task InvalidateCacheAsync(Guid? branchId = null)

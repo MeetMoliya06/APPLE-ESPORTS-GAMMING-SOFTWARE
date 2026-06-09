@@ -10,7 +10,7 @@ BEGIN
             uuid_generate_v5(uuid_ns_dns(), 'branch' || i), 
             'Branch ' || i, 
             i || '00 Gaming Ave', 
-            'Active',
+            'active',
             NOW(), 
             NOW()
         ) ON CONFLICT DO NOTHING;
@@ -25,7 +25,7 @@ VALUES (
     crypt('Admin123!', gen_salt('bf', 12)),
     'System Admin',
     'super_admin',
-    'Active',
+    'active',
     NOW(),
     NOW()
 ) ON CONFLICT DO NOTHING;
@@ -50,7 +50,7 @@ BEGIN
             'op_' || substr(branch_rec."Id"::text, 1, 4),
             crypt('1234', gen_salt('bf', 12)), 
             'Operator ' || substr(branch_rec."Id"::text, 1, 4),
-            'Active',
+            'active',
             '{"main_dashboard": true, "billing_counter": true, "cash_register": true, "food_orders": true, "pc_status": true}',
             NOW(),
             NOW()
@@ -80,7 +80,7 @@ BEGIN
                 'Gaming Rig ' || i,
                 'VIP Zone',
                 '{"gpu": "RTX 4090", "cpu": "i9"}',
-                0, -- Idle
+                'idle', -- Idle
                 true,
                 false,
                 NOW(),
@@ -91,9 +91,9 @@ BEGIN
         -- Inventory
         INSERT INTO inventory ("Id", "BranchId", "ItemName", "Category", "Price", "CurrentStock", "MinStockLimit", "Status", "CreatedAt", "UpdatedAt")
         VALUES 
-            (uuid_generate_v5(uuid_ns_dns(), 'inv1' || branch_rec."Id"), branch_rec."Id", 'Cola', 'Beverage', 50, 100, 10, 'Active', NOW(), NOW()),
-            (uuid_generate_v5(uuid_ns_dns(), 'inv2' || branch_rec."Id"), branch_rec."Id", 'Chips', 'Snack', 30, 50, 5, 'Active', NOW(), NOW()),
-            (uuid_generate_v5(uuid_ns_dns(), 'inv3' || branch_rec."Id"), branch_rec."Id", 'Burger', 'Food', 150, 20, 2, 'Active', NOW(), NOW())
+            (uuid_generate_v5(uuid_ns_dns(), 'inv1' || branch_rec."Id"), branch_rec."Id", 'Cola', 'Beverage', 50, 100, 10, 'available', NOW(), NOW()),
+            (uuid_generate_v5(uuid_ns_dns(), 'inv2' || branch_rec."Id"), branch_rec."Id", 'Chips', 'Snack', 30, 50, 5, 'available', NOW(), NOW()),
+            (uuid_generate_v5(uuid_ns_dns(), 'inv3' || branch_rec."Id"), branch_rec."Id", 'Burger', 'Food', 150, 20, 2, 'available', NOW(), NOW())
         ON CONFLICT DO NOTHING;
 
         -- Active Shift

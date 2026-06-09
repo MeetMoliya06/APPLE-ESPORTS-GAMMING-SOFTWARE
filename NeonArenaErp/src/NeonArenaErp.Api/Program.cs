@@ -43,7 +43,7 @@ builder.Host.UseSerilog();
 
 // ── Configuration sections ──
 var jwtConfig = builder.Configuration.GetSection("Jwt");
-var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:5173" };
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:5173", "http://127.0.0.1:5173" };
 
 // ═══════════════════════════════════════════════
 //  SERVICES — maps from server/src/index.js
@@ -223,7 +223,11 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IUnitOfWork, NeonArenaErp.Infrastructure.Repositories.UnitOfWork>();
 
 // ── 9. Controllers + Swagger ──
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {

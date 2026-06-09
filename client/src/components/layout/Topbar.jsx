@@ -113,6 +113,19 @@ export default function Topbar({ onToggleSidebar, sidebarOpen }) {
                 <div className="px-3 py-1.5 text-[10px] text-text-2 font-mono tracking-wider border-b border-border">
                   SWITCH BRANCH
                 </div>
+                
+                <button
+                  onClick={() => { switchBranch(null); setShowBranchMenu(false); }}
+                  className={`w-full text-left px-3 py-2 text-xs hover:bg-bg-3 transition-colors flex items-center gap-2 border-b border-border/40 ${
+                    activeBranch === null ? 'text-accent bg-accent/5' : 'text-text'
+                  }`}
+                >
+                  {activeBranch === null && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
+                  )}
+                  <span className="font-semibold">All Branches (Global)</span>
+                </button>
+
                 {branches.map((b) => (
                   <button
                     key={b.id}

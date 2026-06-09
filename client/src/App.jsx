@@ -5,7 +5,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SocketProvider } from './contexts/SocketContext';
 import { BranchProvider } from './contexts/BranchContext';
 import { ToastProvider } from './components/ui/Toast';
@@ -39,6 +39,14 @@ import PcStatusPage from './pages/admin/PcStatusPage';
 import SettingsPage from './pages/admin/SettingsPage';
 
 // ── End of imports ──
+function HomeRedirect() {
+  const { isSuperAdmin, isAuthenticated } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return isSuperAdmin ? <Navigate to="/app/dashboard" replace /> : <Navigate to="/app/billing" replace />;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -60,8 +68,8 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 >
-                  {/* Default redirect to billing counter (SOP §9: primary dashboard) */}
-                  <Route index element={<Navigate to="billing" replace />} />
+                  {/* Default redirect based on role */}
+                  <Route index element={<HomeRedirect />} />
 
                   {/* ── Operations Dashboards ── */}
                   <Route
@@ -172,7 +180,7 @@ export default function App() {
                 </Route>
 
                 {/* ══════════ Root Redirects ══════════ */}
-                <Route path="/" element={<Navigate to="/app/billing" replace />} />
+                <Route path="/" element={<HomeRedirect />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </ToastProvider>

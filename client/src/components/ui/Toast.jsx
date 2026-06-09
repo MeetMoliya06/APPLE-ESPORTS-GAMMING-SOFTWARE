@@ -1,9 +1,10 @@
 // ═══════════════════════════════════════════════════════════
 // Gaming Café ERP — Toast Notification Component
-// Apple Esports style: slide-in from top-right
+// Apple Esports style: slide-in from bottom-right, neon glow, progress bar
 // ═══════════════════════════════════════════════════════════
 
 import { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import { CheckCircle2, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
 const ToastContext = createContext(null);
 
@@ -34,7 +35,7 @@ export function ToastProvider({ children }) {
     <ToastContext.Provider value={toast}>
       {children}
       {/* Toast Container */}
-      <div className="fixed top-3 right-3 z-[999] flex flex-col gap-2 max-w-sm">
+      <div className="fixed bottom-4 right-4 z-[999] flex flex-col gap-2 max-w-sm">
         {toasts.map((t) => (
           <Toast key={t.id} toast={t} onClose={() => removeToast(t.id)} />
         ))}
@@ -44,32 +45,81 @@ export function ToastProvider({ children }) {
 }
 
 function Toast({ toast, onClose }) {
-  const typeStyles = {
-    success: 'border-accent text-accent bg-accent/5',
-    error: 'border-neon-red text-neon-red bg-neon-red/5',
-    info: 'border-neon-blue text-neon-blue bg-neon-blue/5',
-    warning: 'border-neon-orange text-neon-orange bg-neon-orange/5',
+  const [progress, setProgress] = useState(100);
+
+  useEffect(() => {
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, 100 - (elapsed / toast.duration) * 100);
+      setProgress(remaining);
+      if (remaining === 0) clearInterval(interval);
+    }, 30);
+    return () => clearInterval(interval);
+  }, [toast.duration]);
+
+  const configs = {
+    success: {
+      icon: <CheckCircle2 className="w-4 h-4 text-accent" />,
+      border: 'border-l-accent',
+      progressBarBg: 'bg-accent',
+      title: 'Success',
+      glow: 'shadow-[0_0_20px_rgba(220,38,38,0.18)]',
+      titleColor: 'text-accent'
+    },
+    error: {
+      icon: <XCircle className="w-4 h-4 text-neon-red" />,
+      border: 'border-l-neon-red',
+      progressBarBg: 'bg-neon-red',
+      title: 'Error',
+      glow: 'shadow-[0_0_20px_rgba(255,77,109,0.18)]',
+      titleColor: 'text-neon-red'
+    },
+    info: {
+      icon: <Info className="w-4 h-4 text-neon-blue" />,
+      border: 'border-l-neon-blue',
+      progressBarBg: 'bg-neon-blue',
+      title: 'Info',
+      glow: 'shadow-[0_0_20px_rgba(77,166,255,0.18)]',
+      titleColor: 'text-neon-blue'
+    },
+    warning: {
+      icon: <AlertTriangle className="w-4 h-4 text-neon-orange" />,
+      border: 'border-l-neon-orange',
+      progressBarBg: 'bg-neon-orange',
+      title: 'Warning',
+      glow: 'shadow-[0_0_20px_rgba(255,140,66,0.18)]',
+      titleColor: 'text-neon-orange'
+    }
   };
 
-  const icons = {
-    success: '✓',
-    error: '✕',
-    info: 'ℹ',
-    warning: '⚠',
-  };
+  const config = configs[toast.type] || configs.success;
 
   return (
     <div
-      className={`flex items-start gap-2.5 px-4 py-3 border rounded-md shadow-xl text-xs font-medium animate-[slideIn_0.2s_ease] ${typeStyles[toast.type]}`}
+      className={`relative flex items-start gap-3.5 px-4 py-3 bg-bg-2 border border-border/60 border-l-4 ${config.border} ${config.glow} rounded-sm text-xs max-w-sm w-80 shadow-2xl transition-all duration-300 animate-[slideIn_0.2s_ease] overflow-hidden`}
     >
-      <span className="text-sm flex-shrink-0 mt-px">{icons[toast.type]}</span>
-      <span className="flex-1">{toast.message}</span>
+      <div className="flex-shrink-0 mt-0.5">{config.icon}</div>
+      <div className="flex-1 space-y-0.5">
+        <div className={`font-heading font-bold uppercase tracking-wider text-[10px] ${config.titleColor}`}>
+          {config.title}
+        </div>
+        <p className="text-text-2 font-body font-medium leading-relaxed break-words text-[11px]">
+          {toast.message}
+        </p>
+      </div>
       <button
         onClick={onClose}
-        className="opacity-50 hover:opacity-100 transition-opacity text-sm flex-shrink-0"
+        className="text-text-3 hover:text-text-2 transition-colors flex-shrink-0 mt-0.5"
       >
-        ×
+        <X className="w-3.5 h-3.5" />
       </button>
+
+      {/* Progress Bar */}
+      <div 
+        className={`absolute bottom-0 left-0 h-[2px] ${config.progressBarBg} opacity-80`} 
+        style={{ width: `${progress}%` }}
+      />
     </div>
   );
 }

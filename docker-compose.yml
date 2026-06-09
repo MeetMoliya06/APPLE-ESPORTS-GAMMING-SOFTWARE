@@ -64,10 +64,12 @@ services:
   # ── .NET 8 Backend API ──
   api:
     build:
-      context: .
-      dockerfile: NeonArenaErp/Dockerfile
+      context: ./NeonArenaErp
+      dockerfile: Dockerfile
     container_name: neonarena-api
     restart: always
+    ports:
+      - "5015:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${DB_NAME:-NeonArenaErp};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres}
@@ -85,13 +87,29 @@ services:
       postgres:
         condition: service_healthy
 
-  # ── React Frontend ──
+  # ── React Frontend (Production Build) ──
   client:
     build:
       context: ./client
       dockerfile: Dockerfile
     container_name: neonarena-client
     restart: always
+    ports:
+      - "5174:80"
+    networks:
+      - neonarena_net
+
+  # ── React Frontend (Local Development) ──
+  client-dev:
+    image: node:20-alpine
+    container_name: neonarena-client-dev
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     networks:
       - neonarena_net
 

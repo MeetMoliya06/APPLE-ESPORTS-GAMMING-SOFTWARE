@@ -25,6 +25,7 @@ public class BranchIsolationAttribute : ActionFilterAttribute
         if (role == Roles.SuperAdmin)
         {
             var branchId = context.HttpContext.Request.Query["branch_id"].FirstOrDefault()
+                        ?? context.HttpContext.Request.Query["branchId"].FirstOrDefault()
                         ?? context.HttpContext.Request.Headers["X-Branch-Id"].FirstOrDefault();
             context.HttpContext.Items["BranchId"] = branchId;
             return;
@@ -39,6 +40,7 @@ public class BranchIsolationAttribute : ActionFilterAttribute
 
         // Check if operator tries to access another branch via params/query/body
         var requestedBranch = context.HttpContext.Request.Query["branch_id"].FirstOrDefault()
+                           ?? context.HttpContext.Request.Query["branchId"].FirstOrDefault()
                            ?? context.HttpContext.Request.RouteValues["branchId"]?.ToString();
 
         if (!string.IsNullOrEmpty(requestedBranch) && requestedBranch != assignedBranch)
