@@ -59,7 +59,7 @@ export default function EodDashboardPage() {
         }
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch EOD data.');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch EOD data.');
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +77,7 @@ export default function EodDashboardPage() {
       await api.post('/eod/finalize', { date: targetDate });
       await fetchEodData(); // Re-fetch to show historical locked view
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to finalize EOD.');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Failed to finalize EOD.');
     } finally {
       setIsFinalizing(false);
     }

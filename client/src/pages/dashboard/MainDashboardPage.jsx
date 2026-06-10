@@ -172,7 +172,7 @@ export default function MainDashboardPage() {
                 <tr className="bg-bg-3/50 text-text-2 font-mono uppercase tracking-wider border-b border-border">
                   <th className="py-3 px-4">Branch</th>
                   <th className="py-3 px-4 text-center">PC Status (Active / Idle / Total)</th>
-                  <th className="py-3 px-4">Active Operator</th>
+                  <th className="py-3 px-4">Operators</th>
                   <th className="py-3 px-4 text-right">Gaming Rev</th>
                   <th className="py-3 px-4 text-right">Food Rev</th>
                   <th className="py-3 px-4 text-right">Total Rev</th>
@@ -213,15 +213,20 @@ export default function MainDashboardPage() {
                           </span>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 text-text-2">
-                        {b.activeOperator !== "None" ? (
-                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-accent/5 border border-accent/20 text-accent font-medium">
-                            <Users className="w-3.5 h-3.5" />
-                            {b.activeOperator}
+                      <td className="py-3.5 px-4">
+                        <div className="flex flex-col gap-1">
+                          {b.activeOperator !== "None" ? (
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-accent/5 border border-accent/20 text-accent font-medium text-[11px]">
+                              <Users className="w-3 h-3" />
+                              {b.activeOperator}
+                            </span>
+                          ) : (
+                            <span className="text-text-3 italic text-[11px]">No shift active</span>
+                          )}
+                          <span className="text-[10px] font-mono text-text-3">
+                            {b.assignedOperatorsCount} assigned
                           </span>
-                        ) : (
-                          <span className="text-text-3 italic">No Active Operator</span>
-                        )}
+                        </div>
                       </td>
                       <td className="py-3.5 px-4 text-right text-text-2 font-mono">
                         ₹{b.gamingSales.toLocaleString()}

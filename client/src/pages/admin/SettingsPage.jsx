@@ -4,13 +4,13 @@ import { useToast } from '../../components/ui/Toast';
 import Drawer from '../../components/ui/Drawer';
 import { useBranch } from '../../contexts/BranchContext';
 import { 
-  getBranches, createBranch, updateBranch, deleteBranch, activateBranch,
+  getBranches, createBranch, updateBranch, deleteBranch, activateBranch, deleteBranchPermanent,
   getOperators, createOperator, updateOperator, deleteOperator, activateOperator, deleteOperatorPermanent,
   getBranchPcsDetailed, createPc, updatePc, deletePc,
   getAuditLogs
 } from '../../api/settings.api';
-import { 
-  Store, Users, Activity, MoreVertical, Edit, Trash2, Plus, Save, Clock, MapPin, Monitor, Wrench, Shield, Check, Info
+import {
+  Store, Users, Activity, MoreVertical, Edit, Trash2, Plus, Save, Clock, MapPin, Monitor, Wrench, Shield, Check, Info, Eye, EyeOff
 } from 'lucide-react';
 import './SettingsPage.css';
 
@@ -160,6 +160,19 @@ export default function SettingsPage() {
       await loadBranches();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to activate branch');
+    }
+  };
+
+  const handleDeleteBranchPermanent = async (id) => {
+    if (window.confirm('Are you sure you want to permanently delete this branch location? This action cannot be undone.')) {
+      try {
+        await deleteBranchPermanent(id);
+        toast.success('Branch deleted permanently');
+        fetchData();
+        await loadBranches();
+      } catch (err) {
+        toast.error(err.response?.data?.error || 'Failed to delete branch permanently');
+      }
     }
   };
 
@@ -356,7 +369,10 @@ export default function SettingsPage() {
                                   {b.status === 'Active' ? (
                                     <button className="danger" onClick={() => { closeDropdown(); handleDeleteBranch(b.id); }}><Trash2 size={12} /> Deactivate</button>
                                   ) : (
-                                    <button className="text-accent hover:bg-accent/10" onClick={() => { closeDropdown(); handleActivateBranch(b.id); }}><Check size={12} /> Activate</button>
+                                    <>
+                                      <button className="text-accent hover:bg-accent/10" onClick={() => { closeDropdown(); handleActivateBranch(b.id); }}><Check size={12} /> Activate</button>
+                                      <button className="danger" onClick={() => { closeDropdown(); handleDeleteBranchPermanent(b.id); }}><Trash2 size={12} /> Delete Permanently</button>
+                                    </>
                                   )}
                                 </div>
                               )}
@@ -810,21 +826,39 @@ export default function SettingsPage() {
 }
 
 function OperatorForm({ initialData, branches, onSave }) {
-  const [matrix, setMatrix] = useState({});
   const toast = useToast();
+  const isEdit = !!initialData;
 
+  // ── Fully controlled state — prevents browser autofill from silently overriding values ──
+  const [fields, setFields] = useState({
+    fullName: '',
+    username: '',
+    password: '',
+    branchId: '',
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [matrix, setMatrix] = useState({});
+
+  // Populate state when initialData changes (drawer open/close)
   useEffect(() => {
+    setFields({
+      fullName: initialData?.fullName || '',
+      username: initialData?.username || '',
+      password: '', // Always blank — user must explicitly type to change
+      branchId: initialData?.branchId || '',
+    });
+    setShowPassword(false);
+
     if (initialData?.dashboardPermissions) {
       try {
-        const perms = typeof initialData.dashboardPermissions === 'string' 
-          ? JSON.parse(initialData.dashboardPermissions) 
+        const perms = typeof initialData.dashboardPermissions === 'string'
+          ? JSON.parse(initialData.dashboardPermissions)
           : initialData.dashboardPermissions;
         setMatrix(perms || {});
-      } catch (e) {
+      } catch {
         setMatrix({});
       }
     } else {
-      // Default permissions for new operators
       const defaults = {};
       PERMISSION_KEYS.forEach(k => {
         defaults[k.id] = k.id !== 'pc_status' && k.id !== 'eod' && k.id !== 'settings';
@@ -833,80 +867,114 @@ function OperatorForm({ initialData, branches, onSave }) {
     }
   }, [initialData]);
 
-  const togglePermission = (permId) => {
-    setMatrix(prev => ({
-      ...prev,
-      [permId]: !prev[permId]
-    }));
-  };
+  const set = (key) => (e) => setFields(f => ({ ...f, [key]: e.target.value }));
+
+  const togglePermission = (permId) => setMatrix(prev => ({ ...prev, [permId]: !prev[permId] }));
 
   const handleAllToggle = (val) => {
     const updated = {};
-    PERMISSION_KEYS.forEach(k => {
-      updated[k.id] = val;
-    });
+    PERMISSION_KEYS.forEach(k => { updated[k.id] = val; });
     setMatrix(updated);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const password = formData.get('password');
-    
-    const payload = {
-      fullName: formData.get('fullName'),
-      username: formData.get('username'),
-      password: password,
-      branchId: formData.get('branchId'),
-      dashboardPermissions: JSON.stringify(matrix)
-    };
 
-    if (!initialData && !password) {
+    const trimmedPassword = fields.password.trim();
+
+    // For new operators, password is mandatory
+    if (!isEdit && !trimmedPassword) {
       toast.error('Password is required for new operator accounts.');
       return;
     }
+
+    if (!fields.branchId) {
+      toast.error('Please select a branch.');
+      return;
+    }
+
+    const payload = {
+      fullName: fields.fullName.trim(),
+      username: fields.username.trim(),
+      branchId: fields.branchId,
+      dashboardPermissions: JSON.stringify(matrix),
+      // Only send password if the user explicitly typed one
+      ...(trimmedPassword && { password: trimmedPassword }),
+    };
 
     onSave(payload);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="form-stack flex flex-col h-full text-xs">
+    <form onSubmit={handleSubmit} autoComplete="off" className="form-stack flex flex-col h-full text-xs">
       <div className="grid grid-cols-2 gap-4">
         <div className="form-group">
           <label>Full Name *</label>
-          <input 
-            name="fullName" 
-            required 
-            defaultValue={initialData?.fullName} 
-            className="form-control" 
+          <input
+            required
+            autoComplete="off"
+            value={fields.fullName}
+            onChange={set('fullName')}
+            className="form-control"
             placeholder="e.g. John Operator"
           />
         </div>
-        
+
         <div className="form-group">
           <label>Username *</label>
-          <input 
-            name="username" 
-            required 
-            defaultValue={initialData?.username} 
-            className="form-control" 
+          <input
+            required
+            autoComplete="off"
+            value={fields.username}
+            onChange={set('username')}
+            className="form-control"
             placeholder="e.g. joperator"
           />
         </div>
-        
+
         <div className="form-group">
-          <label>Password {initialData && <span className="text-text-3 font-normal">(Leave blank to keep current)</span>}</label>
-          <input 
-            type="password" 
-            name="password" 
-            className="form-control" 
-            placeholder={initialData ? '••••••••' : 'Required password'} 
-          />
+          <label>
+            Password{' '}
+            {isEdit && <span className="text-text-3 font-normal">(Leave blank to keep current)</span>}
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+              value={fields.password}
+              onChange={set('password')}
+              className="form-control pr-8"
+              placeholder={isEdit ? 'Type to change password...' : 'Enter password *'}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(v => !v)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-text-3 hover:text-text transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+            </button>
+          </div>
+          {fields.password && (
+            <p className="text-[10px] mt-1 font-mono text-pc-active">
+              ✓ New password will be saved
+            </p>
+          )}
+          {isEdit && !fields.password && (
+            <p className="text-[10px] mt-1 font-mono text-text-3">
+              Current password unchanged
+            </p>
+          )}
         </div>
-        
+
         <div className="form-group">
           <label>Assign to Branch Location *</label>
-          <select name="branchId" required defaultValue={initialData?.branchId} className="form-control">
+          <select
+            required
+            value={fields.branchId}
+            onChange={set('branchId')}
+            className="form-control"
+          >
             <option value="">Select Branch...</option>
             {branches.map(b => (
               <option key={b.id} value={b.id}>{b.name}</option>

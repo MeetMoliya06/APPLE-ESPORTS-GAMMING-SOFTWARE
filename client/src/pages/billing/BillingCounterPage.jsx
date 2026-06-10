@@ -7,7 +7,6 @@ import api from '../../config/api';
 import PageHeader from '../../components/layout/PageHeader';
 import ActiveBillsList from '../../components/billing/ActiveBillsList';
 import BillDetailsPanel from '../../components/billing/BillDetailsPanel';
-import PaymentEngineModal from '../../components/billing/PaymentEngineModal';
 
 export default function BillingCounterPage() {
   const { isSuperAdmin, user } = useAuth();
@@ -19,7 +18,6 @@ export default function BillingCounterPage() {
   const [selectedItem, setSelectedItem] = useState(null); // { type: 'bill' | 'session', id: billId }
   const [selectedBillData, setSelectedBillData] = useState(null);
   
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const targetBranchId = isSuperAdmin ? activeBranch?.id : user?.branchId;
@@ -152,21 +150,17 @@ export default function BillingCounterPage() {
 
         {/* Right Column: Details Panel */}
         <div className="w-full lg:w-2/3 h-full">
-          <BillDetailsPanel 
-            bill={selectedBillData} 
-            onOpenPaymentEngine={() => setIsPaymentModalOpen(true)}
+          <BillDetailsPanel
+            bill={selectedBillData}
+            onBillUpdate={(updatedBill) => {
+              setSelectedBillData(updatedBill);
+              fetchDashboardData();
+            }}
+            onPaymentSuccess={handlePaymentSuccess}
           />
         </div>
 
       </div>
-
-      {isPaymentModalOpen && (
-        <PaymentEngineModal
-          bill={selectedBillData}
-          onClose={() => setIsPaymentModalOpen(false)}
-          onPaymentSuccess={handlePaymentSuccess}
-        />
-      )}
     </div>
   );
 }

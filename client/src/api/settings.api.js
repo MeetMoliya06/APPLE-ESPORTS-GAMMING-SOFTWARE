@@ -21,6 +21,11 @@ export const deleteBranch = async (id) => {
   return response.data;
 };
 
+export const deleteBranchPermanent = async (id) => {
+  const response = await api.delete(`/branches/${id}/permanent`);
+  return response.data;
+};
+
 // --- Operators ---
 export const getOperators = async () => {
   const response = await api.get('/operators');
@@ -90,3 +95,4 @@ export const deleteOperatorPermanent = async (id) => {
   const response = await api.delete(`/operators/${id}/permanent`);
   return response.data;
 };
+

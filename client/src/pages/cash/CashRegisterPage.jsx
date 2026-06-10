@@ -37,7 +37,7 @@ export default function CashRegisterPage() {
       if (err.response?.status === 404) {
         setRegister(null); // No active register => triggers OpenRegisterModal
       } else {
-        setError(err.response?.data?.message || 'Failed to fetch cash register');
+        setError(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch cash register');
       }
     } finally {
       setIsLoading(false);

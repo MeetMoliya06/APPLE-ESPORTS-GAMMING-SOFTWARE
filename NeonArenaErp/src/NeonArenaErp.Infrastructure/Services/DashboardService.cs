@@ -157,6 +157,10 @@ public class DashboardService : IDashboardService
                 .FirstOrDefaultAsync(s => s.BranchId == branchId && s.Status == ShiftStatus.Active);
             var activeOperator = activeShift?.Operator?.FullName ?? "None";
 
+            // Total operators assigned to this branch (registered, regardless of shift)
+            var assignedOperatorsCount = await _context.Operators
+                .CountAsync(o => o.BranchId == branchId && o.Status == OperatorStatus.Active);
+
             // Sales (since midnight today)
             var todaysBills = await _context.Bills
                 .Where(b => b.BranchId == branchId && b.CreatedAt >= today && b.Status == BillStatus.Completed)
@@ -179,6 +183,7 @@ public class DashboardService : IDashboardService
                 ActivePcs = activePcs,
                 IdlePcs = idlePcs,
                 ActiveOperator = activeOperator,
+                AssignedOperatorsCount = assignedOperatorsCount,
                 TotalSales = totalSales,
                 GamingSales = gamingSales,
                 FoodSales = foodSales,

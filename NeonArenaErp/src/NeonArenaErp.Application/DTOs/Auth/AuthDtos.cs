@@ -78,6 +78,8 @@ public class BranchListItemDto
     public string Name { get; set; } = null!;
     public string? Address { get; set; }
     public string Status { get; set; } = null!;
+    public string OpeningTime { get; set; } = "10:00";
+    public string ClosingTime { get; set; } = "02:00";
 }
 
 /// <summary>Operator list item for login selection screen</summary>

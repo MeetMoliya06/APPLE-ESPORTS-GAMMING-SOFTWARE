@@ -68,7 +68,7 @@ export default function DenominationCounter({ expectedTotal, onVerified }) {
       await api.post('/cash-desk/denominations', payload);
       onVerified();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to submit denominations.');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Failed to submit denominations.');
     } finally {
       setLoading(false);
     }

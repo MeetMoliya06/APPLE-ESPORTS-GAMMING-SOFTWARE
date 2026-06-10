@@ -34,7 +34,7 @@ export default function CashDeskPage() {
       if (err.response?.status === 404) {
         setRegister(null);
       } else {
-        setError(err.response?.data?.message || 'Failed to fetch cash register');
+        setError(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch cash register');
       }
     } finally {
       setIsLoading(false);
@@ -52,7 +52,7 @@ export default function CashDeskPage() {
       await api.post('/cash-desk/verify-start');
       await fetchActiveRegister();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to lock register for verification.');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Failed to lock register for verification.');
     } finally {
       setIsLocking(false);
     }
@@ -66,7 +66,7 @@ export default function CashDeskPage() {
       // For now, we will log them out to simulate shift end.
       logout();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to close shift.');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Failed to close shift.');
       setIsClosing(false);
     }
   };

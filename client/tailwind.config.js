@@ -41,11 +41,13 @@ export default {
           'red-dim': 'rgba(255, 77, 109, 0.08)',
           purple: '#9b72ff',
           'purple-dim': 'rgba(155, 114, 255, 0.08)',
+          green: '#22d3a6',
+          'green-dim': 'rgba(34, 211, 166, 0.08)',
         },
         // PC State Colors (SOP §7.1)
         pc: {
           idle: '#4a5568',
-          active: '#00e5a0',
+          active: '#dc2626',
           reserved: '#9b72ff',
           awaiting: '#ff8c42',
           offline: '#ff4d6d',

@@ -57,7 +57,29 @@ public class InventoryController : ControllerBase
 
         return Ok(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Ok(dtos));
     }
+
+    [HttpPatch("{id}/stock")]
+    public async Task<IActionResult> UpdateStock(Guid id, [FromBody] UpdateStockRequest request)
+    {
+        var item = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryItem>()
+            .Query()
+            .FirstOrDefaultAsync(i => i.Id == id);
+
+        if (item == null)
+            return NotFound(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Fail("Inventory item not found"));
+
+        item.CurrentStock = request.CurrentStock;
+        item.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryItem>().Update(item);
+        await _unitOfWork.SaveChangesAsync();
+
+        return Ok(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Ok(new { item.Id, item.CurrentStock }));
+    }
+
+    public record UpdateStockRequest(int CurrentStock);
 }
+
 
 
 
@@ -165,6 +187,46 @@ public class BranchesController : ControllerBase
 
         return Ok(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Ok(new { message = "Branch activated successfully" }));
     }
+
+    [HttpDelete("{id}/permanent")]
+    public async Task<IActionResult> DeletePermanent(Guid id)
+    {
+        var branch = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Branch>().Query().FirstOrDefaultAsync(b => b.Id == id);
+        if (branch == null) return NotFound(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Fail("Branch not found"));
+
+        // Block deletion if the branch has any financial/session history — irreversible data loss
+        var hasBills = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Bill>().Query().AnyAsync(b => b.BranchId == id);
+        var hasSessions = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Session>().Query().AnyAsync(s => s.BranchId == id);
+        var hasShifts = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Shift>().Query().AnyAsync(s => s.BranchId == id);
+
+        if (hasBills || hasSessions || hasShifts)
+        {
+            return BadRequest(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Fail(
+                "Cannot permanently delete this branch because it has transaction history (bills, sessions, or shifts). Deactivate the branch instead to preserve audit trails."));
+        }
+
+        // No financial history — safe to cascade delete in dependency order
+        var pcs = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Pc>().Query().Where(p => p.BranchId == id).ToListAsync();
+        foreach (var pc in pcs)
+            _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Pc>().Remove(pc);
+
+        var operators = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Operator>().Query().Where(o => o.BranchId == id).ToListAsync();
+        foreach (var op in operators)
+            _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Operator>().Remove(op);
+
+        _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Branch>().Remove(branch);
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync();
+            return Ok(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Ok(new { message = "Branch and its operators/rigs deleted permanently." }));
+        }
+        catch (DbUpdateException ex)
+        {
+            return BadRequest(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Fail(
+                $"Deletion blocked by remaining linked records: {ex.InnerException?.Message ?? ex.Message}"));
+        }
+    }
 }
 
 /// <summary>SOP §5: Operators — maps from operators.routes.js</summary>
@@ -207,11 +269,20 @@ public class OperatorsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] NeonArenaErp.Application.DTOs.Settings.CreateOperatorDto dto)
     {
+        if (string.IsNullOrWhiteSpace(dto.Password))
+            return BadRequest(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Fail("Password is required to create an operator."));
+
+        // Check username uniqueness within the branch
+        var usernameTaken = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Operator>()
+            .Query().AnyAsync(o => o.Username == dto.Username.Trim() && o.BranchId == dto.BranchId);
+        if (usernameTaken)
+            return BadRequest(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Fail($"Username '{dto.Username}' is already taken in this branch."));
+
         var op = new NeonArenaErp.Domain.Entities.Operator
         {
             Id = Guid.NewGuid(),
             FullName = dto.FullName,
-            Username = dto.Username,
+            Username = dto.Username.Trim().ToLowerInvariant(),
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             BranchId = dto.BranchId,
             DashboardPermissions = dto.DashboardPermissions,

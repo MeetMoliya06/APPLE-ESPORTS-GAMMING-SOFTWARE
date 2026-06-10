@@ -1,43 +1,56 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Square, FastForward, ArrowRightLeft, ShieldAlert, X, AlertTriangle } from 'lucide-react';
+import { Play, X, User, Clock, Users } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../config/api';
 
+/**
+ * Modal for starting a NEW session on an idle PC.
+ * Active session actions (Stop, Extend, Bill, Food, Promo)
+ * are now handled inline on the PcCard itself.
+ */
 export default function SessionActionModal({ pc, onClose, onActionSuccess }) {
-  const { isSuperAdmin } = useAuth();
+  const { isSuperAdmin, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [overrideReason, setOverrideReason] = useState('');
+
+  const [form, setForm] = useState({
+    customerName: '',
+    customerType: 'Walk-in', // 'Walk-in' | 'Member'
+    durationMinutes: 60,
+  });
 
   if (!pc) return null;
 
-  const handleAction = async (actionEndpoint, payload = {}) => {
-    if (isSuperAdmin && !overrideReason.trim()) {
-      setError("Super Admins must provide an override reason for audit logging.");
+  // Only show for idle PCs — active sessions are handled inline on card
+  if (pc.state !== 'Idle' && pc.state !== 'Offline') return null;
+
+  const handleStart = async (e) => {
+    e.preventDefault();
+    if (!form.customerName.trim()) {
+      setError('Customer name is required.');
       return;
     }
-    
+
     setLoading(true);
     setError(null);
     try {
-      const finalPayload = isSuperAdmin ? { ...payload, overrideReason, isOverride: true } : payload;
+      const ratePerHour = form.customerType === 'member' ? 80 : 100;
+      const expectedAmount = (form.durationMinutes / 60) * ratePerHour;
       
-      // e.g., POST /api/sessions/start
-      // For stop: POST /api/sessions/{pc.activeSessionId}/stop
-      let url = '';
-      if (actionEndpoint === 'start') {
-        url = '/sessions/start';
-        finalPayload.pcId = pc.id;
-      } else {
-        url = `/sessions/${pc.activeSessionId}/${actionEndpoint}`;
-      }
-
-      await api.post(url, finalPayload);
-      onActionSuccess();
-      onClose();
+      await api.post('/sessions/start', {
+        pcId: pc.id,
+        customerName: form.customerName.trim(),
+        customerType: form.customerType,
+        durationMinutes: form.durationMinutes,
+        packageName: `${form.customerType.toUpperCase()} - ${form.durationMinutes}m`,
+        expectedAmount: expectedAmount,
+        isOverride: isSuperAdmin,
+        operatorId: user?.id,
+      });
+      onActionSuccess?.();
     } catch (err) {
-      setError(err.response?.data?.message || 'Action failed');
+      setError(err.response?.data?.error || err.response?.data?.error || err.response?.data?.message || 'Failed to start session');
     } finally {
       setLoading(false);
     }
@@ -47,110 +60,109 @@ export default function SessionActionModal({ pc, onClose, onActionSuccess }) {
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          className={`w-full max-w-md bg-bg-2 border ${isSuperAdmin ? 'border-accent' : 'border-border'} rounded-xl shadow-2xl overflow-hidden`}
+          initial={{ opacity: 0, scale: 0.96, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: 10 }}
+          className="w-full max-w-sm bg-bg-2 border border-border rounded-xl shadow-2xl overflow-hidden"
         >
           {/* Header */}
-          <div className={`p-4 border-b ${isSuperAdmin ? 'border-accent/30 bg-accent/5' : 'border-border bg-bg-3/50'} flex items-center justify-between`}>
-            <div className="flex items-center gap-2">
-              {isSuperAdmin ? (
-                <ShieldAlert className="w-5 h-5 text-accent animate-pulse" />
-              ) : (
-                <div className={`w-2.5 h-2.5 rounded-full ${pc.state === 'Active' ? 'bg-neon-blue' : 'bg-text-3'}`} />
-              )}
-              <h2 className="font-heading font-bold text-text uppercase tracking-wider text-lg">
-                {isSuperAdmin ? 'ADMIN OVERRIDE:' : 'MANAGE:'} {pc.name}
+          <div className="px-5 py-4 border-b border-border bg-bg-3 flex items-center justify-between">
+            <div>
+              <h2 className="font-heading font-bold text-text uppercase tracking-wider text-base flex items-center gap-2">
+                <Play className="w-4 h-4 text-pc-active" />
+                Start Session — {pc.name}
               </h2>
+              <p className="text-text-3 text-[10px] font-mono mt-0.5">
+                {pc.zone && <span className="mr-2 text-neon-purple">{pc.zone}</span>}
+                {pc.ratePerHour > 0 && <span>₹{pc.ratePerHour}/hr</span>}
+              </p>
             </div>
-            <button onClick={onClose} className="p-1 text-text-3 hover:text-text rounded-md transition-colors">
+            <button onClick={onClose} className="p-1 text-text-3 hover:text-text rounded transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="p-5 space-y-5">
+          <form onSubmit={handleStart} className="p-5 space-y-4">
             {error && (
-              <div className="p-3 bg-neon-red/10 border border-neon-red/20 rounded-lg text-neon-red text-sm flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
-                <p>{error}</p>
+              <div className="p-3 bg-neon-red/10 border border-neon-red/20 rounded text-neon-red text-xs">
+                {error}
               </div>
             )}
 
-            <div className="bg-bg-3 p-3 rounded-lg border border-border">
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <span className="text-text-3">Current State:</span>
-                <span className="text-text font-medium uppercase">{pc.state}</span>
-                {pc.customerName && (
-                  <>
-                    <span className="text-text-3">Customer:</span>
-                    <span className="text-text font-medium">{pc.customerName}</span>
-                  </>
-                )}
+            {/* Customer Name */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-mono font-semibold text-text-2 uppercase tracking-wider flex items-center gap-1">
+                <User className="w-3 h-3" /> Customer Name *
+              </label>
+              <input
+                type="text"
+                value={form.customerName}
+                onChange={(e) => setForm(f => ({ ...f, customerName: e.target.value }))}
+                placeholder="Enter name or token..."
+                className="w-full bg-bg-3 border border-border rounded px-3 py-2 text-sm text-text placeholder-text-3 focus:border-pc-active focus:outline-none transition-colors"
+                autoFocus
+              />
+            </div>
+
+            {/* Customer Type */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-mono font-semibold text-text-2 uppercase tracking-wider flex items-center gap-1">
+                <Users className="w-3 h-3" /> Session Type
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {['Walk-in', 'Member'].map(type => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, customerType: type }))}
+                    className={`py-2 rounded border text-xs font-semibold uppercase tracking-wide transition-colors ${
+                      form.customerType === type
+                        ? 'border-pc-active bg-pc-active/10 text-pc-active'
+                        : 'border-border bg-bg-3 text-text-2 hover:border-border-2'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {isSuperAdmin && (
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-accent uppercase tracking-wider">Override Reason (Required)</label>
-                <input
-                  type="text"
-                  value={overrideReason}
-                  onChange={(e) => setOverrideReason(e.target.value)}
-                  placeholder="e.g., Resolving stuck session #881"
-                  className="w-full bg-bg-3 border border-accent/30 text-text text-sm rounded-lg p-2.5 focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-                />
+            {/* Duration */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-mono font-semibold text-text-2 uppercase tracking-wider flex items-center gap-1">
+                <Clock className="w-3 h-3" /> Duration
+              </label>
+              <div className="grid grid-cols-4 gap-1.5">
+                {[30, 60, 120, 180].map(min => (
+                  <button
+                    key={min}
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, durationMinutes: min }))}
+                    className={`py-2 rounded border text-xs font-semibold transition-colors ${
+                      form.durationMinutes === min
+                        ? 'border-pc-active bg-pc-active/10 text-pc-active'
+                        : 'border-border bg-bg-3 text-text-2 hover:border-border-2'
+                    }`}
+                  >
+                    {min < 60 ? `${min}m` : `${min / 60}h`}
+                  </button>
+                ))}
               </div>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {(pc.state === 'Idle' || pc.state === 'Offline') && (
-                <button
-                  onClick={() => handleAction('start', { durationMinutes: 60, isPrepaid: false })} // Default mockup payload
-                  disabled={loading}
-                  className="flex items-center justify-center gap-2 p-3 bg-neon-blue/10 hover:bg-neon-blue/20 text-neon-blue border border-neon-blue/30 rounded-lg transition-colors"
-                >
-                  <Play className="w-4 h-4" /> Start Session
-                </button>
-              )}
-
-              {pc.state === 'Active' && (
-                <>
-                  <button
-                    onClick={() => handleAction('extend', { extraMinutes: 60 })}
-                    disabled={loading}
-                    className="flex items-center justify-center gap-2 p-3 bg-neon-purple/10 hover:bg-neon-purple/20 text-neon-purple border border-neon-purple/30 rounded-lg transition-colors"
-                  >
-                    <FastForward className="w-4 h-4" /> Extend
-                  </button>
-                  <button
-                    onClick={() => handleAction('transfer')}
-                    disabled={loading}
-                    className="flex items-center justify-center gap-2 p-3 bg-text-3/10 hover:bg-text-3/20 text-text border border-border rounded-lg transition-colors"
-                  >
-                    <ArrowRightLeft className="w-4 h-4" /> Transfer
-                  </button>
-                  <button
-                    onClick={() => handleAction('stop')}
-                    disabled={loading}
-                    className="flex items-center justify-center gap-2 p-3 bg-neon-orange/10 hover:bg-neon-orange/20 text-neon-orange border border-neon-orange/30 rounded-lg transition-colors sm:col-span-2"
-                  >
-                    <Square className="w-4 h-4" /> Stop Session (To Billing)
-                  </button>
-                </>
-              )}
-
-              {isSuperAdmin && pc.state === 'UnderMaintenance' && (
-                <button
-                  onClick={() => handleAction('resolve_maintenance')} // Needs backend support
-                  disabled={loading}
-                  className="flex items-center justify-center gap-2 p-3 bg-accent/10 hover:bg-accent/20 text-accent border border-accent/30 rounded-lg transition-colors sm:col-span-2"
-                >
-                  <Wrench className="w-4 h-4" /> Clear Maintenance Lock
-                </button>
-              )}
             </div>
-          </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 rounded border border-pc-active/50 bg-pc-active/10 text-pc-active font-heading font-bold uppercase tracking-widest text-sm hover:bg-pc-active/20 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {loading
+                ? <span className="w-4 h-4 border-2 border-pc-active border-t-transparent rounded-full animate-spin" />
+                : <Play className="w-4 h-4" />
+              }
+              {loading ? 'Starting...' : 'Start Session'}
+            </button>
+          </form>
         </motion.div>
       </div>
     </AnimatePresence>

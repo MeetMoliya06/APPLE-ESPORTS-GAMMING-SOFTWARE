@@ -25,7 +25,8 @@ public class PcStatusService : IPcStatusService
     {
         var pcs = await _db.Pcs
             .AsNoTracking()
-            .Where(p => p.BranchId == branchId)
+            .Include(p => p.PricingProfile)
+            .Where(p => p.BranchId == branchId && !p.IsDeleted)
             .OrderBy(p => p.PcNumber)
             .ToListAsync();
 
@@ -34,7 +35,7 @@ public class PcStatusService : IPcStatusService
         // Fetch active sessions for these PCs
         var activeSessions = await _db.Sessions
             .AsNoTracking()
-            .Where(s => s.BranchId == branchId && s.State == SessionState.Active)
+            .Where(s => s.BranchId == branchId && (s.State == SessionState.Active || s.State == SessionState.AwaitingBilling))
             .ToDictionaryAsync(s => s.PcId, s => s);
 
         // Fetch upcoming reservations for these PCs (starts within next 24h)
@@ -58,17 +59,19 @@ public class PcStatusService : IPcStatusService
                 Name = pc.PcNumber,
                 IpAddress = pc.IpAddress ?? string.Empty,
                 State = pc.State,
-                BranchId = pc.BranchId
+                BranchId = pc.BranchId,
+                Zone = pc.Zone ?? "Standard",
+                RatePerHour = pc.PricingProfile?.BaseHourlyRate ?? 0m
             };
 
             if (activeSessions.TryGetValue(pc.Id, out var session))
             {
                 dto.ActiveSessionId = session.Id;
                 dto.CustomerName = session.CustomerName;
+                dto.SessionStartTime = session.StartTime;
+                dto.CustomerType = session.MemberId.HasValue ? "Member" : "Walk-in";
                 if (session.EndTime.HasValue)
-                {
                     dto.SessionEndTime = session.EndTime;
-                }
             }
 
             if (reservationDict.TryGetValue(pc.Id, out var res))

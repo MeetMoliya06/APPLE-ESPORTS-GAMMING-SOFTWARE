@@ -21,7 +21,7 @@ export default function OpenRegisterModal({ onRegisterOpened }) {
       await api.post('/cash/open', { openingBalance: amount });
       onRegisterOpened();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to open register.');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Failed to open register.');
     } finally {
       setLoading(false);
     }

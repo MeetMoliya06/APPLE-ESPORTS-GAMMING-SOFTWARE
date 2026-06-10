@@ -10,6 +10,7 @@ public class BranchDashboardSummaryDto
     public int ActivePcs { get; set; }
     public int IdlePcs { get; set; }
     public string ActiveOperator { get; set; } = "None";
+    public int AssignedOperatorsCount { get; set; }
     public decimal TotalSales { get; set; }
     public decimal GamingSales { get; set; }
     public decimal FoodSales { get; set; }

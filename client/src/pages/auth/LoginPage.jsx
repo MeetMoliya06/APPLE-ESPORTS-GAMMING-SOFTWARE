@@ -80,7 +80,7 @@ export default function LoginPage() {
     try {
       setError('');
       setIsLoading(true);
-      await loginOperator(selectedBranch, username, password);
+      await loginOperator(selectedBranch, username.trim(), password.trim());
       navigate('/app/billing');
     } catch (err) {
       setError(err.message || 'Invalid operator credentials');

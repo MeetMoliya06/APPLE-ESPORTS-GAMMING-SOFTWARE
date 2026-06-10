@@ -10,7 +10,7 @@ import { useBranch } from '../../contexts/BranchContext';
 import { useSocket } from '../../contexts/SocketContext';
 import { ROLES } from '../../config/constants';
 
-export default function Topbar({ onToggleSidebar, sidebarOpen }) {
+export default function Topbar({ onToggleSidebar, sidebarOpen, onLogoutClick }) {
   const { user, logout, isSuperAdmin } = useAuth();
   const { branches, activeBranch, switchBranch } = useBranch();
   const { connected } = useSocket();
@@ -52,8 +52,12 @@ export default function Topbar({ onToggleSidebar, sidebarOpen }) {
   }, []);
 
   const handleLogout = useCallback(async () => {
-    await logout();
-  }, [logout]);
+    if (onLogoutClick) {
+      onLogoutClick();
+    } else {
+      await logout();
+    }
+  }, [logout, onLogoutClick]);
 
   return (
     <header id="topbar" className="bg-bg-2 border-b border-border px-4 py-2.5 flex items-center justify-between gap-3 sticky top-0 z-50">

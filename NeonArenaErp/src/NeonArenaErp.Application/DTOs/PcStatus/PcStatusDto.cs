@@ -12,9 +12,13 @@ public class PcStatusDto
     
     // Active session details (if busy or awaiting billing)
     public Guid? ActiveSessionId { get; set; }
+    public DateTimeOffset? SessionStartTime { get; set; }
     public DateTimeOffset? SessionEndTime { get; set; }
     public string? CustomerName { get; set; }
-    
+    public string? CustomerType { get; set; }  // "Walk-in" | "Member"
+    public decimal RatePerHour { get; set; }   // For live charge calculation on frontend
+    public string? Zone { get; set; }           // Standard / VIP / Console / Streaming
+
     // Upcoming reservation details (if reserved)
     public Guid? NextReservationId { get; set; }
     public DateTimeOffset? NextReservationTime { get; set; }

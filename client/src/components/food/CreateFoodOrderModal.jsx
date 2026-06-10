@@ -96,7 +96,7 @@ export default function CreateFoodOrderModal({ onClose, onOrderPlaced }) {
       onOrderPlaced();
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to place order');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Failed to place order');
     } finally {
       setSubmitting(false);
     }

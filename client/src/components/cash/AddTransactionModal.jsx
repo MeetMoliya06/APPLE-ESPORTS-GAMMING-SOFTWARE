@@ -50,7 +50,7 @@ export default function AddTransactionModal({ register, onClose, onTransactionAd
       onTransactionAdded();
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add transaction.');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Failed to add transaction.');
     } finally {
       setLoading(false);
     }

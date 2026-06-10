@@ -455,6 +455,8 @@ public class AuthService : IAuthService
                 Name = b.Name,
                 Address = b.Address,
                 Status = b.Status.ToString().ToLowerInvariant(),
+                OpeningTime = b.OpeningTime.ToString("HH:mm"),
+                ClosingTime = b.ClosingTime.ToString("HH:mm"),
             })
             .ToListAsync();
     }

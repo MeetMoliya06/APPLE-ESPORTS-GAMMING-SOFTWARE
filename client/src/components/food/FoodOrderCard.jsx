@@ -28,7 +28,7 @@ const FoodOrderCard = memo(({ order, onOrderUpdated }) => {
       onOrderUpdated(); // Trigger kanban refresh
       setShowCancelPrompt(false);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update order');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Failed to update order');
     } finally {
       setLoading(false);
     }
