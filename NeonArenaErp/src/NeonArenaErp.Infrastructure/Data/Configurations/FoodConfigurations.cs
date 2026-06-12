@@ -17,6 +17,7 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         builder.Property(e => e.Category).HasMaxLength(100);
         builder.Property(e => e.Price).HasPrecision(10, 2).IsRequired();
         builder.Property(e => e.CurrentStock).HasDefaultValue(0);
+        builder.Property(e => e.SoldQty).HasDefaultValue(0);
         builder.Property(e => e.MinStockLimit).HasDefaultValue(5);
         builder.Property(e => e.Status).HasMaxLength(20).HasDefaultValue(FoodAvailability.Available)
             .HasConversion(v => v.ToString().ToLowerInvariant().Replace("outofstock", "out_of_stock"),

@@ -23,6 +23,7 @@ import BillingCounterPage from './pages/billing/BillingCounterPage';
 import SessionsPage from './pages/sessions/SessionsPage';
 import ReservationsPage from './pages/reservations/ReservationsPage';
 import FoodOrdersPage from './pages/food/FoodOrdersPage';
+import CustomerPanelPage from './pages/food/CustomerPanelPage';
 
 // ── Finance ──
 import CashRegisterPage from './pages/cash/CashRegisterPage';
@@ -37,6 +38,7 @@ import MenuEditorPage from './pages/menu/MenuEditorPage';
 import MainDashboardPage from './pages/dashboard/MainDashboardPage';
 import PcStatusPage from './pages/admin/PcStatusPage';
 import SettingsPage from './pages/admin/SettingsPage';
+import ReportsPage from './pages/admin/ReportsPage';
 
 // ── End of imports ──
 function HomeRedirect() {
@@ -58,6 +60,7 @@ export default function App() {
                 {/* ══════════ Public Routes ══════════ */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/unauthorized" element={<UnauthorizedPage />} />
+                <Route path="/customer-panel" element={<CustomerPanelPage />} />
 
                 {/* ══════════ Protected App Shell ══════════ */}
                 <Route
@@ -155,6 +158,14 @@ export default function App() {
                     element={
                       <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN, ROLES.OPERATOR]}>
                         <MainDashboardPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="reports"
+                    element={
+                      <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+                        <ReportsPage />
                       </ProtectedRoute>
                     }
                   />

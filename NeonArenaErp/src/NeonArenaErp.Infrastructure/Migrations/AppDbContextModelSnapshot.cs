@@ -1099,6 +1099,12 @@ namespace NeonArenaErp.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<decimal>("FoodBalance")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasDefaultValue(0m);
+
                     b.Property<int>("FoodPoints")
                         .HasColumnType("integer");
 
@@ -1106,6 +1112,12 @@ namespace NeonArenaErp.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("GamingBalance")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<int>("GamingPoints")
                         .HasColumnType("integer");
@@ -1130,6 +1142,10 @@ namespace NeonArenaErp.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1158,11 +1174,9 @@ namespace NeonArenaErp.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
-                    b.Property<decimal>("WalletBalance")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)")
-                        .HasDefaultValue(0m);
+                    b.Property<string>("Username")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -1177,6 +1191,11 @@ namespace NeonArenaErp.Infrastructure.Migrations
 
                     b.HasIndex("Status")
                         .HasDatabaseName("idx_members_status");
+
+                    b.HasIndex("Username")
+                        .IsUnique()
+                        .HasFilter("\"Username\" IS NOT NULL")
+                        .HasDatabaseName("IX_members_Username");
 
                     b.ToTable("members", (string)null);
                 });

@@ -82,4 +82,6 @@ public class ProcessPaymentDto
     
     // Specifically for cash payments
     public decimal CashReceived { get; set; }
+
+    public Guid? MemberId { get; set; }
 }

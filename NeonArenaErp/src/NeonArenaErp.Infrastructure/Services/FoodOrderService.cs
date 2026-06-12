@@ -86,11 +86,6 @@ public class FoodOrderService : IFoodOrderService
                 if (inventoryItem.CurrentStock < itemDto.Quantity)
                     throw new AppException($"Insufficient stock for {inventoryItem.ItemName}. Available: {inventoryItem.CurrentStock}");
 
-                // Deduct stock
-                inventoryItem.CurrentStock -= itemDto.Quantity;
-                inventoryItem.UpdatedAt = now;
-                _unitOfWork.Repository<InventoryItem>().Update(inventoryItem);
-
                 // Add order item
                 var totalPrice = inventoryItem.Price * itemDto.Quantity;
                 totalAmount += totalPrice;
@@ -108,37 +103,16 @@ public class FoodOrderService : IFoodOrderService
 
             order.TotalAmount = totalAmount;
 
-            // If linked to a Session, add this to the active Bill
+            // If linked to a Session, lookup active bill to verify it exists and set order attributes
             Bill? activeBill = null;
             if (dto.SessionId.HasValue)
             {
                 activeBill = await _unitOfWork.Repository<Bill>().Query()
-                    .Include(b => b.Items)
                     .FirstOrDefaultAsync(b => b.SessionId == dto.SessionId && b.Status != BillStatus.Completed);
 
                 if (activeBill == null)
-                    throw new AppException("Cannot attach order to session. No active bill found.");
+                    throw new AppException("Cannot place order. No active bill found for the session.");
 
-                foreach (var oi in order.Items)
-                {
-                    activeBill.Items.Add(new BillItem
-                    {
-                        ItemType = "food",
-                        ItemName = oi.ItemName,
-                        Quantity = oi.Quantity,
-                        UnitPrice = oi.UnitPrice,
-                        TotalPrice = oi.TotalPrice,
-                        InventoryId = oi.InventoryId,
-                        CreatedAt = now
-                    });
-                }
-
-                activeBill.FoodAmount += totalAmount;
-                activeBill.Subtotal += totalAmount;
-                activeBill.TotalAmount += totalAmount;
-                activeBill.UpdatedAt = now;
-                _unitOfWork.Repository<Bill>().Update(activeBill);
-                
                 order.PaymentType = "session_bill";
                 order.MemberId = activeBill.MemberId;
             }
@@ -185,37 +159,92 @@ public class FoodOrderService : IFoodOrderService
                 .FirstOrDefaultAsync(o => o.Id == id && o.BranchId == branchId)
                 ?? throw new NotFoundException("Order not found.");
 
-            if (order.Status == OrderStatus.Completed || order.Status == OrderStatus.Cancelled)
-                throw new AppException($"Order is already {order.Status} and cannot be changed.");
+            if (order.Status == OrderStatus.Completed || order.Status == OrderStatus.Cancelled || order.Status == OrderStatus.Delivered)
+                throw new AppException($"Order is already {order.Status} and cannot be modified.");
 
             var now = DateTimeOffset.UtcNow;
+            var oldStatus = order.Status;
             order.Status = dto.Status;
             order.UpdatedAt = now;
 
             if (dto.Status == OrderStatus.Preparing)
                 order.AcceptedAt = now;
+            else if (dto.Status == OrderStatus.Ready)
+                order.ReadyAt = now;
             else if (dto.Status == OrderStatus.Delivered)
-                order.DeliveredAt = now;
-            else if (dto.Status == OrderStatus.Completed)
-                order.CompletedAt = now;
-            else if (dto.Status == OrderStatus.Cancelled)
             {
-                order.CancelledReason = dto.Reason;
-                
-                // Restore Inventory
+                order.DeliveredAt = now;
+
+                // 1. Deduct stock and increment SoldQty for each item in the order
                 foreach (var item in order.Items)
                 {
                     var inventoryItem = await _unitOfWork.Repository<InventoryItem>().GetByIdAsync(item.InventoryId);
                     if (inventoryItem != null)
                     {
-                        inventoryItem.CurrentStock += item.Quantity;
+                        if (inventoryItem.CurrentStock < item.Quantity)
+                            throw new AppException($"Insufficient stock for {inventoryItem.ItemName}. Available: {inventoryItem.CurrentStock}");
+
+                        int oldStock = inventoryItem.CurrentStock;
+                        inventoryItem.CurrentStock -= item.Quantity;
+                        inventoryItem.SoldQty += item.Quantity;
                         inventoryItem.UpdatedAt = now;
                         _unitOfWork.Repository<InventoryItem>().Update(inventoryItem);
+
+                        // Log the inventory deduction (Action = "sale")
+                        var log = new InventoryLog
+                        {
+                            InventoryId = inventoryItem.Id,
+                            BranchId = branchId,
+                            OperatorId = operatorId,
+                            Action = "sale",
+                            Quantity = item.Quantity,
+                            OldValue = oldStock.ToString(),
+                            NewValue = inventoryItem.CurrentStock.ToString(),
+                            Reason = $"Delivered order {order.OrderNumber}",
+                            CreatedAt = now
+                        };
+                        await _unitOfWork.Repository<InventoryLog>().AddAsync(log);
                     }
                 }
 
-                // If linked to a bill, we should ideally reverse the bill items, but SOP says food items on bill are immutable.
-                // We'll trust the operator to apply a discount or adjustment to the bill for cancelled food.
+                // 2. Automatically append to active bill if linked to a session
+                if (order.SessionId.HasValue)
+                {
+                    var activeBill = await _unitOfWork.Repository<Bill>().Query()
+                        .Include(b => b.Items)
+                        .FirstOrDefaultAsync(b => b.SessionId == order.SessionId.Value && b.Status != BillStatus.Completed);
+
+                    if (activeBill == null)
+                        throw new AppException("Cannot deliver order. No active bill found for the session.");
+
+                    foreach (var item in order.Items)
+                    {
+                        activeBill.Items.Add(new BillItem
+                        {
+                            ItemType = "food",
+                            ItemName = item.ItemName,
+                            Quantity = item.Quantity,
+                            UnitPrice = item.UnitPrice,
+                            TotalPrice = item.TotalPrice,
+                            InventoryId = item.InventoryId,
+                            CreatedAt = now
+                        });
+                    }
+
+                    activeBill.FoodAmount += order.TotalAmount;
+                    activeBill.Subtotal += order.TotalAmount;
+                    activeBill.TotalAmount += order.TotalAmount;
+                    activeBill.UpdatedAt = now;
+                    _unitOfWork.Repository<Bill>().Update(activeBill);
+
+                    await _hubNotification.BroadcastBillingUpdateAsync(branchId, activeBill.Id);
+                }
+            }
+            else if (dto.Status == OrderStatus.Completed)
+                order.CompletedAt = now;
+            else if (dto.Status == OrderStatus.Cancelled)
+            {
+                order.CancelledReason = dto.Reason;
             }
 
             _unitOfWork.Repository<FoodOrder>().Update(order);

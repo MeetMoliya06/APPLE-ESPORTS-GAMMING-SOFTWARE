@@ -10,4 +10,6 @@ public interface IMemberService
     Task<MemberDto> GetMemberByMobileAsync(string mobileNumber);
     Task<MemberDto> RegisterMemberAsync(Guid branchId, Guid operatorId, RegisterMemberDto dto);
     Task<MemberDto> UpdateMemberAsync(Guid branchId, Guid operatorId, Guid id, UpdateMemberDto dto);
+    Task DeleteMemberAsync(Guid branchId, Guid operatorId, Guid id);
+    Task<MemberLoginResponseDto> LoginMemberAsync(MemberLoginDto dto);
 }

@@ -476,4 +476,12 @@ public class AuthService : IAuthService
             })
             .ToListAsync();
     }
+
+    /// <summary>Verify if admin password is valid</summary>
+    public async Task<bool> VerifyAdminPasswordAsync(string password)
+    {
+        var admin = await _db.Users.FirstOrDefaultAsync(u => u.Role == Roles.SuperAdmin || u.Email == "admin@neonarena.com");
+        if (admin == null) return false;
+        return BCryptNet.Verify(password, admin.PasswordHash);
+    }
 }

@@ -48,12 +48,12 @@ async function runVerification() {
   });
   if (!logResult("Super Admin Login", loginRes.status, loginRes.data)) return;
   
-  const branchId = '11111111-1111-1111-1111-111111111111';
+  const branchId = 'b0000000-0000-0000-0000-000000000001';
 
   // Let's get an operator to login
   const opRes = await request(`/auth/operator/login`, 'POST', {
     branchId: branchId,
-    username: `op1`,
+    username: `jigar`,
     password: '1234'
   });
   

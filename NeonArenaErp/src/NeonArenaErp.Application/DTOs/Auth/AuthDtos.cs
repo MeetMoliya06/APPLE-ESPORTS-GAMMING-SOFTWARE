@@ -90,3 +90,8 @@ public class OperatorListItemDto
     public string Username { get; set; } = null!;
     public string Status { get; set; } = null!;
 }
+
+public class VerifyAdminDto
+{
+    public string Password { get; set; } = null!;
+}

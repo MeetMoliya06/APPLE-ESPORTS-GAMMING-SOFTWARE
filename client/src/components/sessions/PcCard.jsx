@@ -34,7 +34,7 @@ function fmtElapsed(h, m) {
   return `${m}m`;
 }
 
-const PcCard = memo(({ pc, onStartSession, onRefresh }) => {
+const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, onOverrideReservation }) => {
   const { isSuperAdmin } = useAuth();
   const elapsed = useElapsedTime(pc.sessionStartTime);
   const [actionLoading, setActionLoading] = useState(null); // 'stop' | 'extend' | etc.
@@ -101,6 +101,13 @@ const PcCard = memo(({ pc, onStartSession, onRefresh }) => {
           <span className="font-heading font-bold text-text text-sm tracking-wider">{pc.name}</span>
           <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 border border-pc-active/50 text-pc-active rounded">OCCUPIED</span>
         </div>
+
+        {pc.hasOverrunWarning && (
+          <div className="flex items-center gap-1.5 bg-neon-orange/15 border border-neon-orange/30 rounded p-1.5 text-[10px] text-neon-orange animate-pulse">
+            <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="leading-tight">{pc.overrunWarningMessage || 'Session overrun warning'}</span>
+          </div>
+        )}
 
         {/* Customer type */}
         <div className="flex items-center gap-1.5 text-text-2 text-xs">
@@ -200,22 +207,57 @@ const PcCard = memo(({ pc, onStartSession, onRefresh }) => {
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative rounded-lg border border-neon-purple/40 bg-bg-2 p-4 flex flex-col gap-3"
+        className="relative rounded-lg border border-neon-purple/40 bg-bg-2 p-4 flex flex-col gap-3 shadow-[0_0_12px_rgba(168,85,247,0.08)]"
       >
         <div className="flex items-center justify-between">
           <span className="font-heading font-bold text-text text-sm tracking-wider">{pc.name}</span>
           <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 border border-neon-purple/50 text-neon-purple rounded">RESERVED</span>
         </div>
         <div className="flex items-center gap-1.5 text-neon-purple text-xs">
-          <ShieldAlert className="w-3.5 h-3.5" />
+          <User className="w-3.5 h-3.5" />
           <span>{pc.customerName || 'Reserved slot'}</span>
         </div>
         {pc.nextReservationTime && (
           <div className="flex items-center gap-1 text-[10px] text-text-3 font-mono">
-            <Clock className="w-3 h-3" />
-            {new Date(pc.nextReservationTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+            <Clock className="w-3 h-3 text-neon-purple" />
+            <span>Starts: {new Date(pc.nextReservationTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
           </div>
         )}
+        <div className="grid grid-cols-2 gap-1.5 mt-1">
+          <button
+            onClick={() => onStartReservedSession?.(pc.nextReservationId)}
+            className="py-1.5 rounded border border-pc-active/40 bg-pc-active/10 text-pc-active text-[10px] font-bold uppercase tracking-wider hover:bg-pc-active/20 transition-colors flex items-center justify-center gap-1"
+          >
+            Start Session
+          </button>
+          <button
+            onClick={() => onOverrideReservation?.(pc.nextReservationId, pc)}
+            className="py-1.5 rounded border border-neon-orange/40 bg-neon-orange/10 text-neon-orange text-[10px] font-bold uppercase tracking-wider hover:bg-neon-orange/20 transition-colors flex items-center justify-center gap-1"
+          >
+            Override
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // ── EXPIRED Card ──
+  const isExpired = pc.state === 'Expired';
+  if (isExpired) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative rounded-lg border border-border/30 bg-bg-2/40 p-4 flex flex-col gap-3 opacity-60"
+      >
+        <div className="flex items-center justify-between">
+          <span className="font-heading font-bold text-text-3 text-sm tracking-wider">{pc.name}</span>
+          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 border border-border text-text-3 rounded">EXPIRED</span>
+        </div>
+        <div className="flex items-center gap-1.5 text-text-3 text-xs">
+          <Clock className="w-3.5 h-3.5" />
+          <span>Expired Reservation</span>
+        </div>
       </motion.div>
     );
   }

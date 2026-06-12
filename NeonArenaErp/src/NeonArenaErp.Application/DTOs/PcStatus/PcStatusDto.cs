@@ -22,4 +22,7 @@ public class PcStatusDto
     // Upcoming reservation details (if reserved)
     public Guid? NextReservationId { get; set; }
     public DateTimeOffset? NextReservationTime { get; set; }
+
+    public bool HasOverrunWarning { get; set; }
+    public string? OverrunWarningMessage { get; set; }
 }

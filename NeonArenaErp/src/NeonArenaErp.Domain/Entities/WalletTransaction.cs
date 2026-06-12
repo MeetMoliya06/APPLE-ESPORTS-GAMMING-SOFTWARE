@@ -11,6 +11,7 @@ public class WalletTransaction
     public Guid? OperatorId { get; set; }
     public Guid? AdminId { get; set; }
     public WalletAction Action { get; set; }
+    public WalletType TargetWallet { get; set; }
     public decimal Amount { get; set; }
     public decimal BalanceBefore { get; set; }
     public decimal BalanceAfter { get; set; }

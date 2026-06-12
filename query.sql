@@ -1,1 +1,1 @@
-SELECT "Id", "ItemName", "Status" FROM inventory;
+SELECT "Username", "Status", "BranchId" FROM operators;

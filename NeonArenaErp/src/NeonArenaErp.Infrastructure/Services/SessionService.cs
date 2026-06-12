@@ -84,7 +84,7 @@ public class SessionService : ISessionService
             {
                 if (pc.State == PcState.Reserved)
                 {
-                    _logger.LogWarning("Starting session on RESERVED PC: {PcId}", pc.Id);
+                    throw new AppException("This PC is reserved. Manual session creation is blocked.", System.Net.HttpStatusCode.BadRequest, "PC_RESERVED");
                 }
                 else
                 {
@@ -212,7 +212,17 @@ public class SessionService : ISessionService
             session.ActualDurationMin = (int)(now - session.StartTime).TotalMinutes;
             
             var pc = session.Pc!;
-            pc.State = PcState.AwaitingBilling; 
+            
+            // If all associated bills are already completed/paid, transition PC to Idle
+            var hasUnpaidBill = session.Bills.Any(b => b.Status != BillStatus.Completed);
+            if (!hasUnpaidBill)
+            {
+                pc.State = PcState.Idle;
+            }
+            else
+            {
+                pc.State = PcState.AwaitingBilling; 
+            }
             pc.CurrentSessionId = null;
             
             _uow.Repository<Session>().Update(session);

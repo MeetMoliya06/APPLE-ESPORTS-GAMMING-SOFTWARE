@@ -1,0 +1,17 @@
+[PASS] Operator Login successful.
+[PASS] Fetched 16 PCs.
+[PASS] Selected PC: PC-02 (ID: 3709cb3a-428d-550a-8cef-54bc0c63eac3)
+[PASS] Created reservation 214be3ce-adb6-4e0d-a6d6-952cb1c6d6f7 for tomorrow.
+[PASS] Double booking blocked successfully (Status: 400).
+[INFO] Creating immediate reservation on PC-04 (ID: b241e024-7401-5bcf-affc-509a9ea901fd)
+[PASS] Immediate reservation 775fad00-e098-4d35-9a93-8e5a6a0d8910 created.
+[INFO] PC PC-04 status is now: Reserved
+[PASS] PC transitioned to Reserved state immediately.
+[PASS] Manual session start on reserved PC blocked successfully with PC_RESERVED code.
+[PASS] Reservation override succeeded.
+[PASS] PC reset to Idle state after override.
+[PASS] Created reservation 12569e39-c3e6-4b5b-a3a1-c2ce91f538fa to start.
+[PASS] Reserved session started.
+[INFO] Matched Bill Number: BILL-20260611-915C, TotalAmount: 120, Subtotal: 160
+[PASS] Advance deposit applied as discount successfully! TotalAmount (₹120) < Subtotal (₹160).
+[PASS] Cancel reservation succeeded.

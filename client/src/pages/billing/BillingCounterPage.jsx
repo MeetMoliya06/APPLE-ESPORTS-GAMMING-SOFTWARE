@@ -7,6 +7,7 @@ import api from '../../config/api';
 import PageHeader from '../../components/layout/PageHeader';
 import ActiveBillsList from '../../components/billing/ActiveBillsList';
 import BillDetailsPanel from '../../components/billing/BillDetailsPanel';
+import { getActiveReservations } from '../../api/reservations.api';
 
 export default function BillingCounterPage() {
   const { isSuperAdmin, user } = useAuth();
@@ -15,6 +16,7 @@ export default function BillingCounterPage() {
 
   const [bills, setBills] = useState([]);
   const [activeSessions, setActiveSessions] = useState([]);
+  const [reservations, setReservations] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null); // { type: 'bill' | 'session', id: billId }
   const [selectedBillData, setSelectedBillData] = useState(null);
   
@@ -27,24 +29,25 @@ export default function BillingCounterPage() {
     if (isSuperAdmin && !targetBranchId) {
       setBills([]);
       setActiveSessions([]);
+      setReservations([]);
       setIsLoading(false);
       return;
     }
 
     try {
-      // Fetch both pending bills and active sessions
-      const [billsRes, sessionsRes] = await Promise.all([
+      // Fetch pending bills, active sessions, and reservations
+      const [billsRes, sessionsRes, reservationsList] = await Promise.all([
         api.get('/bills', { params: { page: 1, pageSize: 100, branchId: targetBranchId } }),
-        api.get('/sessions', { params: { page: 1, pageSize: 100, branchId: targetBranchId } })
+        api.get('/sessions', { params: { page: 1, pageSize: 100, branchId: targetBranchId } }),
+        getActiveReservations(1, 100).catch(() => [])
       ]);
 
       const unpaidBills = billsRes.data?.data?.items || [];
       const sessions = sessionsRes.data?.data?.items || [];
 
       setBills(unpaidBills);
-      
-      // We only care about active sessions that have a linked BillId
       setActiveSessions(sessions.filter(s => s.status === 1 || s.status === 'Active')); 
+      setReservations(reservationsList);
 
     } catch (err) {
       console.error("Failed to load Billing Counter data:", err);
@@ -64,21 +67,26 @@ export default function BillingCounterPage() {
 
     // Listen to billing updates
     const unsubBilling = subscribe(SIGNALR_HUBS.BILLING, 'BillingUpdated', (billId) => {
-      // Simplest approach: just re-fetch the list or if the updated bill is our selected bill, re-fetch it.
       fetchDashboardData();
       if (selectedItem?.id === billId) {
         fetchBillDetails(billId);
       }
     });
 
-    // Listen to PC Status changes (to detect when session goes to AwaitingBilling)
+    // Listen to PC Status changes
     const unsubPcStatus = subscribe(SIGNALR_HUBS.PC_STATUS, 'PcStatusChanged', () => {
+      fetchDashboardData();
+    });
+
+    // Listen to Reservation updates
+    const unsubReservations = subscribe(SIGNALR_HUBS.RESERVATIONS, 'ReservationUpdated', () => {
       fetchDashboardData();
     });
 
     return () => {
       unsubBilling();
       unsubPcStatus();
+      unsubReservations();
     };
   }, [connected, subscribe, SIGNALR_HUBS, targetBranchId, fetchDashboardData, selectedItem]);
 
@@ -142,6 +150,7 @@ export default function BillingCounterPage() {
             <ActiveBillsList 
               bills={bills} 
               activeSessions={activeSessions}
+              reservations={reservations}
               selectedId={selectedItem?.id}
               onSelect={setSelectedItem}
             />

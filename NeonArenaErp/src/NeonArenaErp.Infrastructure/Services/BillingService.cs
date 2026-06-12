@@ -124,6 +124,21 @@ public class BillingService : IBillingService
             if (bill.Status == BillStatus.Completed)
                 throw new AppException("Bill is already completed.");
 
+            // Link member if passed in payment dto and not already linked
+            if (dto.MemberId.HasValue && bill.MemberId == null)
+            {
+                bill.MemberId = dto.MemberId.Value;
+                if (bill.SessionId.HasValue)
+                {
+                    var session = await _unitOfWork.Repository<Session>().GetByIdAsync(bill.SessionId.Value);
+                    if (session != null)
+                    {
+                        session.MemberId = dto.MemberId.Value;
+                        _unitOfWork.Repository<Session>().Update(session);
+                    }
+                }
+            }
+
             // Calculate total paid vs expected
             decimal totalPayment = dto.CashAmount + dto.OnlineAmount + dto.WalletAmount;
             if (totalPayment != bill.TotalAmount)
@@ -143,12 +158,31 @@ public class BillingService : IBillingService
                 if (bill.MemberId == null)
                     throw new AppException("Cannot pay via Wallet for a walk-in customer. Member registration required.");
                     
-                await _walletService.DeductWalletAsync(branchId, operatorId, bill.MemberId.Value, new Application.DTOs.Wallets.DeductWalletDto
+                decimal totalBill = bill.Subtotal > 0 ? bill.Subtotal : 1;
+                decimal gamingDeduction = dto.WalletAmount * (bill.GamingAmount / totalBill);
+                decimal foodDeduction = dto.WalletAmount * (bill.FoodAmount / totalBill);
+
+                if (gamingDeduction > 0)
                 {
-                    Amount = dto.WalletAmount,
-                    Reason = $"Payment for Bill {bill.BillNumber}",
-                    BillId = bill.Id
-                });
+                    await _walletService.DeductWalletAsync(branchId, operatorId, bill.MemberId.Value, new Application.DTOs.Wallets.DeductWalletDto
+                    {
+                        TargetWallet = WalletType.Gaming,
+                        Amount = gamingDeduction,
+                        Reason = $"Gaming Payment for Bill {bill.BillNumber}",
+                        BillId = bill.Id
+                    });
+                }
+                
+                if (foodDeduction > 0)
+                {
+                    await _walletService.DeductWalletAsync(branchId, operatorId, bill.MemberId.Value, new Application.DTOs.Wallets.DeductWalletDto
+                    {
+                        TargetWallet = WalletType.Food,
+                        Amount = foodDeduction,
+                        Reason = $"Food Payment for Bill {bill.BillNumber}",
+                        BillId = bill.Id
+                    });
+                }
             }
 
             // Process Payment Record

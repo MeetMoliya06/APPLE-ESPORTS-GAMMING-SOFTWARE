@@ -1,6 +1,6 @@
 import PcCard from './PcCard';
 
-export default function PcGrid({ pcs, onStartSession, onRefresh }) {
+export default function PcGrid({ pcs, onStartSession, onRefresh, onStartReservedSession, onOverrideReservation }) {
   if (!pcs || pcs.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center bg-bg-2 border border-border rounded-lg">
@@ -18,6 +18,8 @@ export default function PcGrid({ pcs, onStartSession, onRefresh }) {
           pc={pc}
           onStartSession={onStartSession}
           onRefresh={onRefresh}
+          onStartReservedSession={onStartReservedSession}
+          onOverrideReservation={onOverrideReservation}
         />
       ))}
     </div>

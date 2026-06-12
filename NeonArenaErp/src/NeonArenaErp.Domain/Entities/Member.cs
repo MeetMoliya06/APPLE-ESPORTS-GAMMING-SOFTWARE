@@ -10,10 +10,13 @@ public class Member
     public string FullName { get; set; } = null!;
     public string MobileNumber { get; set; } = null!;
     public string? Email { get; set; }
+    public string? Username { get; set; }       // nullable — set when operator assigns login
+    public string? PasswordHash { get; set; }   // BCrypt hash
     public MemberStatus Status { get; set; } = MemberStatus.Active;
 
-    // SOP §14.1: Wallet System
-    public decimal WalletBalance { get; set; }
+    // SOP §14.1: Wallet System - Separated per SOP §11.1
+    public decimal GamingBalance { get; set; }
+    public decimal FoodBalance { get; set; }
 
     // SOP §15: Loyalty Point System — gaming/food separated
     public int GamingPoints { get; set; }

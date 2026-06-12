@@ -33,7 +33,11 @@ public class UnitOfWork : IUnitOfWork
 
     public async Task CommitTransactionAsync(CancellationToken ct = default)
     {
-        if (_transaction == null) return;
+        if (_transaction == null)
+        {
+            await _db.SaveChangesAsync(ct);
+            return;
+        }
         await _db.SaveChangesAsync(ct);
         await _transaction.CommitAsync(ct);
         await _transaction.DisposeAsync();

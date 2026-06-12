@@ -1,5 +1,5 @@
 const api = 'http://neonarena-api:8080/api';
-const bid = '11111111-1111-1111-1111-111111111111';
+const bid = 'b0000000-0000-0000-0000-000000000001';
 
 async function req(path, method = 'GET', body = null, tok = null) {
   const headers = { 'Content-Type': 'application/json' };

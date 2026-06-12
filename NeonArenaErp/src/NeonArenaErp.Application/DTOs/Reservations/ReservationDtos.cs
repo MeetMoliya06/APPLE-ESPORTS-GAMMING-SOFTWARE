@@ -13,6 +13,9 @@ public class ReservationDto
     public int? DurationMin { get; set; }
     public ReservationState State { get; set; }
     public string? Notes { get; set; }
+    public decimal AdvanceDeposit { get; set; }
+    public int GracePeriodMin { get; set; }
+    public string? PcName { get; set; }
 }
 
 public class CreateReservationDto
@@ -26,6 +29,8 @@ public class CreateReservationDto
     public DateTimeOffset ReservationTime { get; set; }
     public int? DurationMin { get; set; }
     public string? Notes { get; set; }
+    public decimal AdvanceDeposit { get; set; }
+    public int? GracePeriodMin { get; set; }
 }
 
 public class CancelReservationDto

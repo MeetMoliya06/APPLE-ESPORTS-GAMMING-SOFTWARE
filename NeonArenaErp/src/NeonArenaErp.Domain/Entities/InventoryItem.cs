@@ -11,6 +11,7 @@ public class InventoryItem
     public string? Category { get; set; }
     public decimal Price { get; set; }
     public int CurrentStock { get; set; }
+    public int SoldQty { get; set; }
     public int MinStockLimit { get; set; } = 5;
     public FoodAvailability Status { get; set; } = FoodAvailability.Available;
     public string? ImageUrl { get; set; }

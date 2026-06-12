@@ -44,4 +44,18 @@ public class ReservationsController : ControllerBase
         var result = await _reservationService.CancelReservationAsync(GetBranchId(), GetOperatorId(), id, dto);
         return Ok(ApiResponse<ReservationDto>.Ok(result));
     }
+
+    [HttpPost("{id}/start")]
+    public async Task<IActionResult> StartReservedSession(Guid id)
+    {
+        var result = await _reservationService.StartReservedSessionAsync(GetBranchId(), GetOperatorId(), id);
+        return Ok(ApiResponse<ReservationDto>.Ok(result));
+    }
+
+    [HttpPost("{id}/override")]
+    public async Task<IActionResult> OverrideReservation(Guid id, [FromBody] OverrideReservationDto dto)
+    {
+        var result = await _reservationService.OverrideReservationAsync(GetBranchId(), GetOperatorId(), id, dto);
+        return Ok(ApiResponse<ReservationDto>.Ok(result));
+    }
 }

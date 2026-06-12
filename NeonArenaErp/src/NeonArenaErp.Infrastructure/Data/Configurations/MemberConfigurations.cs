@@ -19,10 +19,14 @@ public class MemberConfiguration : IEntityTypeConfiguration<Member>
         builder.Property(e => e.MobileNumber).HasMaxLength(20).IsRequired();
         builder.HasIndex(e => e.MobileNumber).IsUnique().HasDatabaseName("idx_members_mobile");
         builder.Property(e => e.Email).HasMaxLength(255);
+        builder.Property(e => e.Username).HasMaxLength(50);
+        builder.HasIndex(e => e.Username).IsUnique().HasFilter("\"Username\" IS NOT NULL").HasDatabaseName("IX_members_Username");
+        builder.Property(e => e.PasswordHash).HasMaxLength(255);
         builder.Property(e => e.Status).HasMaxLength(20).HasDefaultValue(MemberStatus.Active)
             .HasConversion(v => v.ToString().ToLowerInvariant(),
                            v => Enum.Parse<MemberStatus>(v, true));
-        builder.Property(e => e.WalletBalance).HasPrecision(10, 2).HasDefaultValue(0m);
+        builder.Property(e => e.GamingBalance).HasPrecision(10, 2).HasDefaultValue(0m);
+        builder.Property(e => e.FoodBalance).HasPrecision(10, 2).HasDefaultValue(0m);
         builder.Property(e => e.TotalGamingSpend).HasPrecision(10, 2).HasDefaultValue(0m);
         builder.Property(e => e.TotalFoodSpend).HasPrecision(10, 2).HasDefaultValue(0m);
         builder.Property(e => e.JoinDate).HasDefaultValueSql("NOW()");
@@ -44,6 +48,7 @@ public class WalletTransactionConfiguration : IEntityTypeConfiguration<WalletTra
         builder.ToTable("wallet_transactions");
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Id).HasDefaultValueSql("uuid_generate_v4()");
+        builder.Property(e => e.TargetWallet).HasMaxLength(20).HasConversion<string>();
         builder.Property(e => e.Action).HasMaxLength(30).IsRequired()
             .HasConversion(v => v.ToString().ToLowerInvariant()
                 .Replace("deductiongaming", "deduction_gaming")

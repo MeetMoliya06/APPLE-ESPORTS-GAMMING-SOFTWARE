@@ -221,6 +221,7 @@ builder.Services.AddScoped<IEodService, EodService>();
 builder.Services.AddScoped<IPcManagementService, PcManagementService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IUnitOfWork, NeonArenaErp.Infrastructure.Repositories.UnitOfWork>();
+builder.Services.AddHostedService<NeonArenaErp.Api.Services.ReservationBackgroundService>();
 
 // ── 9. Controllers + Swagger ──
 builder.Services.AddControllers()
@@ -267,6 +268,8 @@ using (var scope = app.Services.CreateScope())
             Log.Information("PostgreSQL connection verified ✓");
             await db.Database.MigrateAsync();
             Log.Information("Database migrations applied ✓");
+            NeonArenaErp.Api.DbUpdater.UpdateSchema(app);
+            Log.Information("Database schema patches applied ✓");
         }
         else
         {

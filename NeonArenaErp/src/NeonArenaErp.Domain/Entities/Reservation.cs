@@ -14,6 +14,7 @@ public class Reservation
     public DateTimeOffset ReservationTime { get; set; }
     public int? DurationMin { get; set; }
     public int GracePeriodMin { get; set; } = 15;
+    public decimal AdvanceDeposit { get; set; }
 
     // State tracking
     public ReservationState State { get; set; } = ReservationState.Pending;

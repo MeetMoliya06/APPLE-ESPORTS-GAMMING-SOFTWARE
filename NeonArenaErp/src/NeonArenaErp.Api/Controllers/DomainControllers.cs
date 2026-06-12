@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using System;
+using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using NeonArenaErp.Api.Filters;
@@ -33,13 +35,38 @@ public class InventoryController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] Guid? branchId = null)
+    public async Task<IActionResult> GetAll([FromQuery] bool includeAll = false, [FromQuery] Guid? branchId = null)
     {
-        var targetBranchId = branchId ?? Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
+        Console.WriteLine($"[DEBUG GetAll] HttpContext is null: {HttpContext == null}");
+        if (HttpContext != null)
+        {
+            Console.WriteLine($"[DEBUG GetAll] HttpContext.Items is null: {HttpContext.Items == null}");
+            Console.WriteLine($"[DEBUG GetAll] BranchId in Items: {HttpContext.Items["BranchId"]}");
+        }
+        var branchIdStr = HttpContext?.Items["BranchId"]?.ToString();
+        var targetBranchId = branchId 
+            ?? (string.IsNullOrEmpty(branchIdStr) ? (Guid?)null : Guid.Parse(branchIdStr));
+            
+        if (targetBranchId == null)
+        {
+            var firstBranch = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Branch>().Query().FirstOrDefaultAsync();
+            if (firstBranch == null)
+            {
+                return BadRequest(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Fail("No branches found in the system"));
+            }
+            targetBranchId = firstBranch.Id;
+        }
         
-        var items = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryItem>()
+        var query = _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryItem>()
             .Query()
-            .Where(i => i.BranchId == targetBranchId && i.Status == NeonArenaErp.Domain.Enums.FoodAvailability.Available)
+            .Where(i => i.BranchId == targetBranchId);
+
+        if (!includeAll)
+        {
+            query = query.Where(i => i.Status != NeonArenaErp.Domain.Enums.FoodAvailability.Disabled);
+        }
+
+        var items = await query
             .OrderBy(i => i.Category)
             .ThenBy(i => i.ItemName)
             .ToListAsync();
@@ -50,9 +77,294 @@ public class InventoryController : ControllerBase
             i.Category,
             i.Price,
             i.CurrentStock,
+            i.SoldQty,
             i.MinStockLimit,
             Status = i.Status.ToString(),
-            IsLowStock = i.CurrentStock <= i.MinStockLimit
+            IsLowStock = i.CurrentStock <= i.MinStockLimit,
+            i.ImageUrl,
+            i.CreatedAt,
+            i.UpdatedAt
+        });
+
+        return Ok(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Ok(dtos));
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "SuperAdminOnly")]
+    public async Task<IActionResult> Create([FromBody] CreateInventoryItemDto dto)
+    {
+        var targetBranchId = dto.BranchId ?? Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
+        
+        var item = new NeonArenaErp.Domain.Entities.InventoryItem
+        {
+            Id = Guid.NewGuid(),
+            BranchId = targetBranchId,
+            ItemName = dto.ItemName,
+            Category = dto.Category,
+            Price = dto.Price,
+            CurrentStock = dto.CurrentStock,
+            SoldQty = 0,
+            MinStockLimit = dto.MinStockLimit,
+            Status = dto.Status,
+            ImageUrl = dto.ImageUrl,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryItem>().AddAsync(item);
+        
+        // Log initial stock creation as "refill"
+        var isOp = User.FindFirstValue(ClaimTypes.Role) == "operator";
+        var log = new NeonArenaErp.Domain.Entities.InventoryLog
+        {
+            Id = Guid.NewGuid(),
+            InventoryId = item.Id,
+            BranchId = targetBranchId,
+            OperatorId = isOp ? Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!) : (Guid?)null,
+            Action = "refill",
+            Quantity = dto.CurrentStock,
+            OldValue = "0",
+            NewValue = dto.CurrentStock.ToString(),
+            Reason = "Initial menu item creation",
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryLog>().AddAsync(log);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return Ok(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Ok(new {
+            item.Id,
+            item.ItemName,
+            item.Category,
+            item.Price,
+            item.CurrentStock,
+            item.SoldQty,
+            item.MinStockLimit,
+            Status = item.Status.ToString(),
+            IsLowStock = item.CurrentStock <= item.MinStockLimit,
+            item.ImageUrl,
+            item.CreatedAt,
+            item.UpdatedAt
+        }));
+    }
+
+    [HttpPut("{id}")]
+    [Authorize(Policy = "SuperAdminOnly")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateInventoryItemDto dto)
+    {
+        var item = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryItem>()
+            .Query()
+            .FirstOrDefaultAsync(i => i.Id == id);
+
+        if (item == null)
+            return NotFound(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Fail("Inventory item not found"));
+
+        var now = DateTimeOffset.UtcNow;
+        var isOp = User.FindFirstValue(ClaimTypes.Role) == "operator";
+        var logOperatorId = isOp ? Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!) : (Guid?)null;
+
+        // Audit changes if price/status/stock changed
+        if (item.Price != dto.Price)
+        {
+            var log = new NeonArenaErp.Domain.Entities.InventoryLog
+            {
+                Id = Guid.NewGuid(),
+                InventoryId = item.Id,
+                BranchId = item.BranchId,
+                OperatorId = logOperatorId,
+                Action = "price_change",
+                OldValue = item.Price.ToString("F2"),
+                NewValue = dto.Price.ToString("F2"),
+                Reason = "Price updated via menu editor",
+                CreatedAt = now
+            };
+            await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryLog>().AddAsync(log);
+        }
+
+        if (item.Status != dto.Status)
+        {
+            var log = new NeonArenaErp.Domain.Entities.InventoryLog
+            {
+                Id = Guid.NewGuid(),
+                InventoryId = item.Id,
+                BranchId = item.BranchId,
+                OperatorId = logOperatorId,
+                Action = "status_change",
+                OldValue = item.Status.ToString(),
+                NewValue = dto.Status.ToString(),
+                Reason = "Status updated via menu editor",
+                CreatedAt = now
+            };
+            await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryLog>().AddAsync(log);
+        }
+
+        if (item.CurrentStock != dto.CurrentStock)
+        {
+            var log = new NeonArenaErp.Domain.Entities.InventoryLog
+            {
+                Id = Guid.NewGuid(),
+                InventoryId = item.Id,
+                BranchId = item.BranchId,
+                OperatorId = logOperatorId,
+                Action = "refill",
+                Quantity = dto.CurrentStock - item.CurrentStock,
+                OldValue = item.CurrentStock.ToString(),
+                NewValue = dto.CurrentStock.ToString(),
+                Reason = "Stock count updated via menu editor",
+                CreatedAt = now
+            };
+            await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryLog>().AddAsync(log);
+        }
+
+        item.ItemName = dto.ItemName;
+        item.Category = dto.Category;
+        item.Price = dto.Price;
+        item.CurrentStock = dto.CurrentStock;
+        item.MinStockLimit = dto.MinStockLimit;
+        item.Status = dto.Status;
+        item.ImageUrl = dto.ImageUrl;
+        item.UpdatedAt = now;
+
+        _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryItem>().Update(item);
+        await _unitOfWork.SaveChangesAsync();
+
+        return Ok(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Ok(new {
+            item.Id,
+            item.ItemName,
+            item.Category,
+            item.Price,
+            item.CurrentStock,
+            item.SoldQty,
+            item.MinStockLimit,
+            Status = item.Status.ToString(),
+            IsLowStock = item.CurrentStock <= item.MinStockLimit,
+            item.ImageUrl,
+            item.CreatedAt,
+            item.UpdatedAt
+        }));
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Policy = "SuperAdminOnly")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var item = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryItem>()
+            .Query()
+            .FirstOrDefaultAsync(i => i.Id == id);
+
+        if (item == null)
+            return NotFound(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Fail("Inventory item not found"));
+
+        try
+        {
+            _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryItem>().Remove(item);
+            await _unitOfWork.SaveChangesAsync();
+            return Ok(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Ok(new { message = "Item deleted successfully" }));
+        }
+        catch (Exception)
+        {
+            // If deleting throws due to foreign keys, soft-delete by setting status to Disabled
+            item.Status = NeonArenaErp.Domain.Enums.FoodAvailability.Disabled;
+            item.UpdatedAt = DateTimeOffset.UtcNow;
+            _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryItem>().Update(item);
+            await _unitOfWork.SaveChangesAsync();
+            return Ok(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Ok(new { message = "Item cannot be permanently deleted due to existing orders. It has been deactivated instead." }));
+        }
+    }
+
+    [HttpPost("{id}/reconcile")]
+    [Authorize(Policy = "SuperAdminOnly")]
+    public async Task<IActionResult> Reconcile(Guid id, [FromBody] ReconcileStockDto dto)
+    {
+        var item = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryItem>()
+            .Query()
+            .FirstOrDefaultAsync(i => i.Id == id);
+
+        if (item == null)
+            return NotFound(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Fail("Inventory item not found"));
+
+        var oldStock = item.CurrentStock;
+        var physicalCount = dto.PhysicalCount;
+        var now = DateTimeOffset.UtcNow;
+        var isOp = User.FindFirstValue(ClaimTypes.Role) == "operator";
+        var logOperatorId = isOp ? Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!) : (Guid?)null;
+
+        item.CurrentStock = physicalCount;
+        item.UpdatedAt = now;
+
+        if (physicalCount == 0)
+        {
+            item.Status = NeonArenaErp.Domain.Enums.FoodAvailability.OutOfStock;
+        }
+        else if (item.Status == NeonArenaErp.Domain.Enums.FoodAvailability.OutOfStock && physicalCount > 0)
+        {
+            item.Status = NeonArenaErp.Domain.Enums.FoodAvailability.Available;
+        }
+
+        _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryItem>().Update(item);
+
+        var log = new NeonArenaErp.Domain.Entities.InventoryLog
+        {
+            Id = Guid.NewGuid(),
+            InventoryId = item.Id,
+            BranchId = item.BranchId,
+            OperatorId = logOperatorId,
+            Action = "discrepancy",
+            Quantity = physicalCount - oldStock,
+            OldValue = oldStock.ToString(),
+            NewValue = physicalCount.ToString(),
+            Reason = dto.Reason ?? "Physical inventory reconciliation count mismatch",
+            CreatedAt = now
+        };
+        await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryLog>().AddAsync(log);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return Ok(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Ok(new { item.Id, item.CurrentStock, Status = item.Status.ToString() }));
+    }
+
+    [HttpGet("discrepancies")]
+    [Authorize(Policy = "SuperAdminOnly")]
+    public async Task<IActionResult> GetDiscrepancies([FromQuery] Guid? branchId = null)
+    {
+        Console.WriteLine($"[DEBUG GetDiscrepancies] HttpContext is null: {HttpContext == null}");
+        if (HttpContext != null)
+        {
+            Console.WriteLine($"[DEBUG GetDiscrepancies] HttpContext.Items is null: {HttpContext.Items == null}");
+            Console.WriteLine($"[DEBUG GetDiscrepancies] BranchId in Items: {HttpContext.Items["BranchId"]}");
+        }
+        var branchIdStr = HttpContext?.Items["BranchId"]?.ToString();
+        var targetBranchId = branchId 
+            ?? (string.IsNullOrEmpty(branchIdStr) ? (Guid?)null : Guid.Parse(branchIdStr));
+            
+        if (targetBranchId == null)
+        {
+            var firstBranch = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Branch>().Query().FirstOrDefaultAsync();
+            if (firstBranch == null)
+            {
+                return BadRequest(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Fail("No branches found in the system"));
+            }
+            targetBranchId = firstBranch.Id;
+        }
+
+        var logs = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.InventoryLog>()
+            .Query()
+            .Include(l => l.InventoryItem)
+            .Where(l => l.BranchId == targetBranchId && l.Action == "discrepancy")
+            .OrderByDescending(l => l.CreatedAt)
+            .ToListAsync();
+
+        var dtos = logs.Select(l => new {
+            l.Id,
+            l.InventoryId,
+            ItemName = l.InventoryItem?.ItemName ?? "Unknown",
+            l.OperatorId,
+            l.Action,
+            l.Quantity,
+            l.OldValue,
+            l.NewValue,
+            l.Reason,
+            l.CreatedAt
         });
 
         return Ok(NeonArenaErp.Application.DTOs.Common.ApiResponse<object>.Ok(dtos));
@@ -78,6 +390,52 @@ public class InventoryController : ControllerBase
     }
 
     public record UpdateStockRequest(int CurrentStock);
+}
+
+public class CreateInventoryItemDto
+{
+    [Required]
+    public string ItemName { get; set; } = null!;
+    public string? Category { get; set; }
+    [Required]
+    [Range(0, 1000000)]
+    public decimal Price { get; set; }
+    [Required]
+    [Range(0, 100000)]
+    public int CurrentStock { get; set; }
+    [Required]
+    [Range(0, 100000)]
+    public int MinStockLimit { get; set; } = 5;
+    [Required]
+    public NeonArenaErp.Domain.Enums.FoodAvailability Status { get; set; } = NeonArenaErp.Domain.Enums.FoodAvailability.Available;
+    public string? ImageUrl { get; set; }
+    public Guid? BranchId { get; set; }
+}
+
+public class UpdateInventoryItemDto
+{
+    [Required]
+    public string ItemName { get; set; } = null!;
+    public string? Category { get; set; }
+    [Required]
+    [Range(0, 1000000)]
+    public decimal Price { get; set; }
+    [Required]
+    [Range(0, 100000)]
+    public int CurrentStock { get; set; }
+    [Required]
+    [Range(0, 100000)]
+    public int MinStockLimit { get; set; } = 5;
+    [Required]
+    public NeonArenaErp.Domain.Enums.FoodAvailability Status { get; set; }
+    public string? ImageUrl { get; set; }
+}
+
+public class ReconcileStockDto
+{
+    [Required]
+    public int PhysicalCount { get; set; }
+    public string? Reason { get; set; }
 }
 
 

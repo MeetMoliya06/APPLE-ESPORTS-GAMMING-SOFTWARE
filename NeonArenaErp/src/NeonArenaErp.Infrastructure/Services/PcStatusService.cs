@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NeonArenaErp.Application.DTOs.PcStatus;
 using NeonArenaErp.Application.Exceptions;
 using NeonArenaErp.Application.Interfaces;
+using NeonArenaErp.Domain.Entities;
 using NeonArenaErp.Domain.Enums;
 using NeonArenaErp.Infrastructure.Data;
 
@@ -64,7 +65,8 @@ public class PcStatusService : IPcStatusService
                 RatePerHour = pc.PricingProfile?.BaseHourlyRate ?? 0m
             };
 
-            if (activeSessions.TryGetValue(pc.Id, out var session))
+            Session? session = null;
+            if (activeSessions.TryGetValue(pc.Id, out session))
             {
                 dto.ActiveSessionId = session.Id;
                 dto.CustomerName = session.CustomerName;
@@ -79,6 +81,26 @@ public class PcStatusService : IPcStatusService
                 dto.NextReservationId = res.Id;
                 dto.NextReservationTime = res.ReservationTime;
                 dto.CustomerName = dto.CustomerName ?? res.CustomerName;
+
+                if (session != null)
+                {
+                    if (session.EndTime.HasValue)
+                    {
+                        if (session.EndTime.Value > res.ReservationTime)
+                        {
+                            dto.HasOverrunWarning = true;
+                            dto.OverrunWarningMessage = $"Active session duration extends past reservation time ({res.ReservationTime.ToLocalTime():HH:mm}).";
+                        }
+                    }
+                    else
+                    {
+                        if (res.ReservationTime <= now.AddMinutes(30))
+                        {
+                            dto.HasOverrunWarning = true;
+                            dto.OverrunWarningMessage = $"Open-ended session might overlap with upcoming reservation starting at {res.ReservationTime.ToLocalTime():HH:mm}.";
+                        }
+                    }
+                }
             }
 
             result.Add(dto);

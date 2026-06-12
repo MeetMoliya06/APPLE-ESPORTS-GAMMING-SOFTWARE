@@ -44,5 +44,27 @@ BEGIN
 END $$;";
 
         db.Database.ExecuteSqlRaw(sql);
+
+        // Member login credentials (username + password)
+        db.Database.ExecuteSqlRaw(@"
+ALTER TABLE members
+ADD COLUMN IF NOT EXISTS ""Username"" character varying(50),
+ADD COLUMN IF NOT EXISTS ""PasswordHash"" character varying(255),
+ADD COLUMN IF NOT EXISTS ""GamingBalance"" numeric(10, 2) NOT NULL DEFAULT 0.0,
+ADD COLUMN IF NOT EXISTS ""FoodBalance"" numeric(10, 2) NOT NULL DEFAULT 0.0;
+
+CREATE UNIQUE INDEX IF NOT EXISTS ""IX_members_Username""
+    ON members (""Username"")
+    WHERE ""Username"" IS NOT NULL;
+
+ALTER TABLE wallet_transactions
+ADD COLUMN IF NOT EXISTS ""TargetWallet"" character varying(20) NOT NULL DEFAULT 'Gaming';
+
+ALTER TABLE reservations
+ADD COLUMN IF NOT EXISTS ""AdvanceDeposit"" numeric(18,2) NOT NULL DEFAULT 0.0;
+
+ALTER TABLE inventory
+ADD COLUMN IF NOT EXISTS ""SoldQty"" integer NOT NULL DEFAULT 0;
+");
     }
 }

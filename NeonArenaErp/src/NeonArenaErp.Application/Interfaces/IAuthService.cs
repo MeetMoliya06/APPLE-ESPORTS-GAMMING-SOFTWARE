@@ -31,4 +31,7 @@ public interface IAuthService
 
     /// <summary>SOP §6.3 Step 3: Get operators for a branch</summary>
     Task<IEnumerable<OperatorListItemDto>> GetBranchOperatorsAsync(Guid branchId);
+
+    /// <summary>Verify if admin password is valid</summary>
+    Task<bool> VerifyAdminPasswordAsync(string password);
 }

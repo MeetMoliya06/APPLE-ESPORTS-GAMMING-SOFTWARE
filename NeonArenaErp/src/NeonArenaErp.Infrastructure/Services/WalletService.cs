@@ -28,9 +28,15 @@ public class WalletService : IWalletService
         var member = await _unitOfWork.Repository<Member>().GetByIdAsync(memberId)
             ?? throw new NotFoundException("Member not found.");
 
-        var balanceBefore = member.WalletBalance;
-        member.WalletBalance += dto.Amount;
-        var balanceAfter = member.WalletBalance;
+        var isGaming = dto.TargetWallet == WalletType.Gaming;
+        var balanceBefore = isGaming ? member.GamingBalance : member.FoodBalance;
+        
+        if (isGaming)
+            member.GamingBalance += dto.Amount;
+        else
+            member.FoodBalance += dto.Amount;
+            
+        var balanceAfter = isGaming ? member.GamingBalance : member.FoodBalance;
 
         _unitOfWork.Repository<Member>().Update(member);
 
@@ -40,6 +46,7 @@ public class WalletService : IWalletService
             BranchId = branchId,
             OperatorId = operatorId,
             Action = WalletAction.Recharge,
+            TargetWallet = dto.TargetWallet,
             Amount = dto.Amount,
             BalanceBefore = balanceBefore,
             BalanceAfter = balanceAfter,
@@ -103,12 +110,18 @@ public class WalletService : IWalletService
         var member = await _unitOfWork.Repository<Member>().GetByIdAsync(memberId)
             ?? throw new NotFoundException("Member not found.");
 
-        if (member.WalletBalance < dto.Amount)
-            throw new AppException($"Insufficient wallet balance. Current: {member.WalletBalance}, Required: {dto.Amount}");
+        var isGaming = dto.TargetWallet == WalletType.Gaming;
+        var balanceBefore = isGaming ? member.GamingBalance : member.FoodBalance;
 
-        var balanceBefore = member.WalletBalance;
-        member.WalletBalance -= dto.Amount;
-        var balanceAfter = member.WalletBalance;
+        if (balanceBefore < dto.Amount)
+            throw new AppException($"Insufficient {dto.TargetWallet} wallet balance. Current: {balanceBefore}, Required: {dto.Amount}");
+
+        if (isGaming)
+            member.GamingBalance -= dto.Amount;
+        else
+            member.FoodBalance -= dto.Amount;
+
+        var balanceAfter = isGaming ? member.GamingBalance : member.FoodBalance;
 
         _unitOfWork.Repository<Member>().Update(member);
 
@@ -118,6 +131,7 @@ public class WalletService : IWalletService
             BranchId = branchId,
             OperatorId = operatorId,
             Action = WalletAction.Correction,
+            TargetWallet = dto.TargetWallet,
             Amount = dto.Amount,
             BalanceBefore = balanceBefore,
             BalanceAfter = balanceAfter,
@@ -168,6 +182,7 @@ public class WalletService : IWalletService
             Id = t.Id,
             MemberId = t.MemberId,
             Action = t.Action,
+            TargetWallet = t.TargetWallet,
             Amount = t.Amount,
             BalanceBefore = t.BalanceBefore,
             BalanceAfter = t.BalanceAfter,

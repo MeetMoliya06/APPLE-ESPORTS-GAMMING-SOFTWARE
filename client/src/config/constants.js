@@ -55,6 +55,7 @@ export const DASHBOARDS = {
   PC_STATUS: 'pc_status',
   EOD: 'eod',
   SETTINGS: 'settings',
+  REPORTS: 'reports',
 };
 
 // PC State color mapping (matches tailwind.config.js)

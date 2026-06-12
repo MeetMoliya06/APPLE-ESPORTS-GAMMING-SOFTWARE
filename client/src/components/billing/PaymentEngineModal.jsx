@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, AlertTriangle, Receipt, Wallet, CreditCard, Banknote, Gamepad2, Coffee } from 'lucide-react';
+import { X, AlertTriangle, Receipt, Wallet, CreditCard, Banknote, Gamepad2, Coffee, KeyRound, ShieldCheck, ShieldAlert, Eye, EyeOff, Search } from 'lucide-react';
 import { processPayment, getMemberById } from '../../api/billing.api';
+import { memberLogin, getMembers } from '../../api/members.api';
 import { useToast } from '../ui/Toast';
 
 // Quick-tender presets for cash (common Indian denominations)
@@ -22,26 +23,66 @@ export default function PaymentEngineModal({ bill, onClose, onPaymentSuccess }) 
   const [cashReceived, setCashReceived] = useState(0);
 
   // Member wallet info
-  const [memberWallet, setMemberWallet] = useState(null); // { walletBalance }
+  const [memberWallet, setMemberWallet] = useState(null);
+
+  // Wallet authentication
+  const [walletVerified, setWalletVerified] = useState(false);
+  const [walletAuthUsername, setWalletAuthUsername] = useState('');
+  const [walletAuthPassword, setWalletAuthPassword] = useState('');
+  const [walletAuthError, setWalletAuthError] = useState(null);
+  const [walletAuthLoading, setWalletAuthLoading] = useState(false);
+  const [showWalletPassword, setShowWalletPassword] = useState(false);
+
+  // Dynamic member search & select
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Reset state whenever the bill changes
+  // Reset all state whenever the bill changes
   useEffect(() => {
     setCashAmount(0);
     setOnlineAmount(0);
     setWalletAmount(0);
     setCashReceived(0);
     setError(null);
+    setWalletVerified(false);
+    setWalletAuthUsername('');
+    setWalletAuthPassword('');
+    setWalletAuthError(null);
+    setSelectedMember(null);
+    setMemberWallet(null);
   }, [bill?.id]);
+
+  // Reset wallet verification when wallet amount is cleared
+  useEffect(() => {
+    if (walletAmount === 0) {
+      setWalletVerified(false);
+      setWalletAuthUsername('');
+      setWalletAuthPassword('');
+      setWalletAuthError(null);
+    }
+  }, [walletAmount]);
 
   // Fetch member wallet balance if bill has a linked member
   useEffect(() => {
-    if (!bill?.memberId) { setMemberWallet(null); return; }
-    getMemberById(bill.memberId)
-      .then(m => setMemberWallet(m))
-      .catch(() => setMemberWallet(null));
+    if (bill?.memberId) {
+      getMemberById(bill.memberId)
+        .then(m => {
+          setMemberWallet(m);
+          setSelectedMember(m);
+        })
+        .catch(() => {
+          setMemberWallet(null);
+          setSelectedMember(null);
+        });
+    } else {
+      setMemberWallet(null);
+      setSelectedMember(null);
+    }
   }, [bill?.memberId]);
 
   if (!bill) return null;
@@ -75,6 +116,63 @@ export default function PaymentEngineModal({ bill, onClose, onPaymentSuccess }) 
     setCashReceived(method === 'cash' ? total : 0);
   };
 
+  const handleSearchMember = async (query) => {
+    setSearchQuery(query);
+    if (query.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    setSearching(true);
+    try {
+      const branchId = bill.branchId;
+      const res = await getMembers(branchId, query, 1, 10);
+      setSearchResults(res?.items ?? (Array.isArray(res) ? res : []));
+    } catch {
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const selectMember = async (m) => {
+    setSelectedMember(m);
+    setSearchResults([]);
+    setSearchQuery('');
+    setWalletVerified(false);
+    setWalletAuthUsername(m.username || '');
+    setWalletAuthPassword('');
+    try {
+      const details = await getMemberById(m.id);
+      setMemberWallet(details);
+    } catch {
+      setMemberWallet(m);
+    }
+  };
+
+  const clearMember = () => {
+    setSelectedMember(null);
+    setMemberWallet(null);
+    setWalletAmount(0);
+    setWalletVerified(false);
+    setWalletAuthUsername('');
+    setWalletAuthPassword('');
+    setWalletAuthError(null);
+  };
+
+  const handleWalletVerify = async () => {
+    if (!walletAuthUsername.trim() || !walletAuthPassword) return;
+    setWalletAuthError(null);
+    setWalletAuthLoading(true);
+    try {
+      await memberLogin({ username: walletAuthUsername.trim(), password: walletAuthPassword });
+      setWalletVerified(true);
+    } catch {
+      setWalletAuthError('Invalid username or password. Please try again.');
+    } finally {
+      setWalletAuthLoading(false);
+    }
+  };
+
   const handleProcess = async () => {
     if (Math.abs(totalInput - total) > 0.01) {
       setError('Total payment must exactly match the bill grand total.');
@@ -82,6 +180,10 @@ export default function PaymentEngineModal({ bill, onClose, onPaymentSuccess }) 
     }
     if (cashAmount > 0 && cashReceived < cashAmount) {
       setError('Cash received cannot be less than the cash amount applied.');
+      return;
+    }
+    if (walletAmount > 0 && !walletVerified) {
+      setError('Member credentials must be verified before using wallet payment.');
       return;
     }
 
@@ -100,6 +202,7 @@ export default function PaymentEngineModal({ bill, onClose, onPaymentSuccess }) 
         onlineAmount,
         walletAmount,
         cashReceived: cashAmount > 0 ? cashReceived : 0,
+        memberId: selectedMember?.id,
       });
       toast.success('Payment processed — PC released!');
       onPaymentSuccess?.();
@@ -176,7 +279,7 @@ export default function PaymentEngineModal({ bill, onClose, onPaymentSuccess }) 
               <div className="grid grid-cols-3 gap-1.5">
                 <QuickBtn label="Full Cash" onClick={() => payAll('cash')} color="blue" />
                 <QuickBtn label="Full UPI" onClick={() => payAll('online')} color="purple" />
-                {bill.memberId && <QuickBtn label="Full Wallet" onClick={() => payAll('wallet')} color="accent" />}
+                {selectedMember && <QuickBtn label="Full Wallet" onClick={() => payAll('wallet')} color="accent" />}
               </div>
             </div>
 
@@ -268,36 +371,152 @@ export default function PaymentEngineModal({ bill, onClose, onPaymentSuccess }) 
             </div>
 
             {/* ── Wallet ── */}
-            <div className={`p-4 border rounded-xl bg-bg-3 ${bill.memberId ? 'border-border' : 'border-border/40 opacity-50'}`}>
+            <div className={`p-4 border rounded-xl bg-bg-3 ${selectedMember ? 'border-border' : 'border-border/40'}`}>
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <label className="flex items-center gap-2 text-text font-bold uppercase tracking-wider text-sm">
                     <Wallet className="w-4 h-4 text-accent" /> Member Wallet
                   </label>
-                  {memberWallet != null && (
+                  {selectedMember && memberWallet != null && (
                     <p className="text-[10px] text-text-3 font-mono mt-0.5">
-                      Balance: <span className="text-neon-blue font-bold">₹{memberWallet.walletBalance?.toFixed(2) ?? '–'}</span>
+                      G: <span className="text-neon-blue font-bold">₹{memberWallet.gamingBalance?.toFixed(2) ?? '0.00'}</span> | F: <span className="text-neon-orange font-bold">₹{memberWallet.foodBalance?.toFixed(2) ?? '0.00'}</span>
                     </p>
                   )}
                 </div>
-                {bill.memberId ? (
-                  <button
-                    onClick={() => fillRemaining(setWalletAmount)}
-                    className="text-[10px] text-accent font-bold tracking-wider hover:underline uppercase"
-                  >
-                    Fill Remaining
-                  </button>
+                {selectedMember ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => fillRemaining(setWalletAmount)}
+                      className="text-[10px] text-accent font-bold tracking-wider hover:underline uppercase"
+                    >
+                      Fill Remaining
+                    </button>
+                    {!bill.memberId && (
+                      <button
+                        onClick={clearMember}
+                        className="text-[10px] text-text-3 font-bold tracking-wider hover:text-accent uppercase hover:underline"
+                      >
+                        Unlink
+                      </button>
+                    )}
+                  </div>
                 ) : (
                   <span className="text-[10px] text-text-3 uppercase tracking-wider">Members Only</span>
                 )}
               </div>
-              <input
-                type="number" min="0" max={bill.memberId ? (memberWallet?.walletBalance ?? total) : 0}
-                disabled={!bill.memberId}
-                value={walletAmount || ''}
-                onChange={e => setWalletAmount(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full bg-bg-2 border border-border text-text font-mono text-lg rounded-lg p-2.5 focus:border-accent focus:ring-1 focus:ring-accent transition-all disabled:cursor-not-allowed"
-              />
+
+              {selectedMember ? (
+                <div className="space-y-3">
+                  {/* Selected Member Info */}
+                  {!bill.memberId && (
+                    <div className="bg-accent/10 border border-accent/20 rounded px-2.5 py-1 text-xs text-accent font-bold">
+                      Linked: {selectedMember.fullName} ({selectedMember.mobileNumber})
+                    </div>
+                  )}
+                  <input
+                    type="number" min="0" max={((memberWallet?.gamingBalance || 0) + (memberWallet?.foodBalance || 0))}
+                    value={walletAmount || ''}
+                    onChange={e => setWalletAmount(Math.max(0, Number(e.target.value) || 0))}
+                    className="w-full bg-bg-2 border border-border text-text font-mono text-lg rounded-lg p-2.5 focus:border-accent focus:ring-1 focus:ring-accent transition-all"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-[10px] text-text-3">Search and link a member to pay via wallet:</p>
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-3" />
+                    <input
+                      type="text"
+                      placeholder="Search by name, phone..."
+                      value={searchQuery}
+                      onChange={e => handleSearchMember(e.target.value)}
+                      className="w-full bg-bg-2 border border-border rounded pl-8 pr-3 py-2 text-xs text-text placeholder-text-3 focus:border-accent focus:outline-none transition-colors"
+                    />
+                    
+                    {searching && (
+                      <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                        <div className="w-3.5 h-3.5 rounded-full border border-accent border-t-transparent animate-spin" />
+                      </div>
+                    )}
+
+                    {searchResults.length > 0 && (
+                      <div className="absolute left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-bg-2 border border-border rounded-lg shadow-xl z-20 divide-y divide-border">
+                        {searchResults.map(m => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => selectMember(m)}
+                            className="w-full text-left px-3 py-2 text-xs text-text-2 hover:bg-bg-3 hover:text-text transition-colors flex justify-between items-center"
+                          >
+                            <span className="font-bold">{m.fullName}</span>
+                            <span className="font-mono text-[10px] text-text-3">{m.mobileNumber}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Wallet auth gate ── */}
+              {walletAmount > 0 && selectedMember && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  {walletVerified ? (
+                    <div className="flex items-center gap-2 text-neon-green text-sm font-bold">
+                      <ShieldCheck className="w-4 h-4" />
+                      Member identity verified
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-[10px] text-text-3 uppercase tracking-widest font-bold flex items-center gap-1.5">
+                        <KeyRound className="w-3 h-3" /> Member Login Required
+                      </p>
+                      {walletAuthError && (
+                        <div className="flex items-center gap-1.5 text-neon-red text-xs">
+                          <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                          {walletAuthError}
+                        </div>
+                      )}
+                      <input
+                        type="text"
+                        autoComplete="off"
+                        placeholder="Username"
+                        value={walletAuthUsername}
+                        onChange={e => setWalletAuthUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
+                        className="w-full bg-bg-2 border border-border text-text text-sm rounded-lg px-3 py-2 font-mono focus:border-accent focus:ring-1 focus:ring-accent transition-all placeholder:text-text-3"
+                      />
+                      <div className="relative">
+                        <input
+                          type={showWalletPassword ? 'text' : 'password'}
+                          autoComplete="new-password"
+                          placeholder="Password"
+                          value={walletAuthPassword}
+                          onChange={e => setWalletAuthPassword(e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && handleWalletVerify()}
+                          className="w-full bg-bg-2 border border-border text-text text-sm rounded-lg px-3 py-2 pr-9 font-mono focus:border-accent focus:ring-1 focus:ring-accent transition-all placeholder:text-text-3"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowWalletPassword(p => !p)}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-3 hover:text-text transition-colors"
+                        >
+                          {showWalletPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                      <button
+                        onClick={handleWalletVerify}
+                        disabled={walletAuthLoading || !walletAuthUsername || !walletAuthPassword}
+                        className="w-full py-2 rounded-lg bg-accent/10 border border-accent/40 text-accent text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 hover:bg-accent/20 transition-colors disabled:opacity-40"
+                      >
+                        {walletAuthLoading
+                          ? <div className="w-3.5 h-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                          : <><ShieldCheck className="w-3.5 h-3.5" /> Verify Member</>
+                        }
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

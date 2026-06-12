@@ -55,7 +55,24 @@ public class MembersController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateMember(Guid id, [FromBody] UpdateMemberDto dto)
     {
+        Console.WriteLine($"[DEBUG UpdateMember] id: {id}, FullName: {dto.FullName}, DisableLogin: {dto.DisableLogin}, Username: {dto.Username}");
         var result = await _memberService.UpdateMemberAsync(GetBranchId(), GetOperatorId(), id, dto);
         return Ok(ApiResponse<MemberDto>.Ok(result));
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteMember(Guid id)
+    {
+        await _memberService.DeleteMemberAsync(GetBranchId(), GetOperatorId(), id);
+        return Ok(ApiResponse<object>.Ok(null));
+    }
+
+    /// <summary>Member self-login — POST /api/members/login (no auth required)</summary>
+    [HttpPost("login")]
+    [AllowAnonymous]
+    public async Task<IActionResult> MemberLogin([FromBody] MemberLoginDto dto)
+    {
+        var result = await _memberService.LoginMemberAsync(dto);
+        return Ok(ApiResponse<MemberLoginResponseDto>.Ok(result));
     }
 }

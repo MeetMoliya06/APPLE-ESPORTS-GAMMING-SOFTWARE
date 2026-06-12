@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import {
   Receipt, Gamepad2, Coffee, Tag, CheckCircle,
-  Banknote, CreditCard, Wallet, ArrowLeftRight, Smartphone
+  Banknote, CreditCard, Wallet, ArrowLeftRight, Smartphone,
+  KeyRound, ShieldCheck, ShieldAlert, Eye, EyeOff
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { applyDiscount, processPayment, getMemberById } from '../../api/billing.api';
+import { memberLogin } from '../../api/members.api';
 import { useToast } from '../ui/Toast';
 
 const DENOMINATIONS = [20, 50, 100, 200, 500, 1000, 2000];
@@ -26,6 +28,15 @@ export default function BillDetailsPanel({ bill, onBillUpdate, onPaymentSuccess 
   const [processing,  setProcessing]  = useState(false);
   const [payError,    setPayError]    = useState(null);
 
+  // Wallet authentication
+  const [walletVerified,      setWalletVerified]      = useState(false);
+  const [verifiedMember,      setVerifiedMember]      = useState(null); // response from memberLogin
+  const [walletAuthUsername,  setWalletAuthUsername]  = useState('');
+  const [walletAuthPassword,  setWalletAuthPassword]  = useState('');
+  const [walletAuthError,     setWalletAuthError]     = useState(null);
+  const [walletAuthLoading,   setWalletAuthLoading]   = useState(false);
+  const [showWalletPassword,  setShowWalletPassword]  = useState(false);
+
   // Reset form whenever the selected bill changes
   useEffect(() => {
     setActiveDisc(
@@ -33,12 +44,16 @@ export default function BillDetailsPanel({ bill, onBillUpdate, onPaymentSuccess 
         ? (bill?.discountValue ?? 0)
         : 0
     );
-    // Pre-fill exact amount so button is immediately enabled
     setCashReceived(bill?.totalAmount ? String(bill.totalAmount) : '');
     setSplitCash('');
     setSplitUpi('');
     setPayError(null);
     setPayMethod('cash');
+    setWalletVerified(false);
+    setVerifiedMember(null);
+    setWalletAuthUsername('');
+    setWalletAuthPassword('');
+    setWalletAuthError(null);
   }, [bill?.id]);
 
   // Fetch member wallet whenever the linked member changes
@@ -76,12 +91,29 @@ export default function BillDetailsPanel({ bill, onBillUpdate, onPaymentSuccess 
   const canComplete = (() => {
     if (payMethod === 'cash')   return (parseFloat(cashReceived) || 0) >= total;
     if (payMethod === 'upi')    return true;
-    if (payMethod === 'wallet') return !!bill.memberId && (!memberInfo || memberInfo.walletBalance >= total);
+    if (payMethod === 'wallet') return !!bill.memberId && walletVerified && !!verifiedMember &&
+      (verifiedMember.gamingBalance ?? 0) >= (bill.gamingAmount || 0) &&
+      (verifiedMember.foodBalance ?? 0) >= (bill.foodAmount || 0);
     if (payMethod === 'split')  return Math.abs(splitDiff) <= 0.01;
     return false;
   })();
 
   /* ── Event handlers (plain functions — no hooks after this point) ── */
+
+  const handleWalletVerify = async () => {
+    if (!walletAuthUsername.trim() || !walletAuthPassword) return;
+    setWalletAuthError(null);
+    setWalletAuthLoading(true);
+    try {
+      const result = await memberLogin({ username: walletAuthUsername.trim(), password: walletAuthPassword });
+      setVerifiedMember(result);
+      setWalletVerified(true);
+    } catch {
+      setWalletAuthError('Invalid username or password. Please try again.');
+    } finally {
+      setWalletAuthLoading(false);
+    }
+  };
   const handleDiscount = async (pct) => {
     if (discLoading) return;
     setDiscLoading(true);
@@ -120,10 +152,17 @@ export default function BillDetailsPanel({ bill, onBillUpdate, onPaymentSuccess 
 
       } else if (payMethod === 'wallet') {
         if (!bill.memberId) { setPayError('No member linked to this bill.'); setProcessing(false); return; }
-        if (memberInfo && memberInfo.walletBalance < total) {
-          setPayError(`Insufficient wallet balance. Available: ₹${memberInfo.walletBalance?.toFixed(0)}`);
-          setProcessing(false);
-          return;
+        if (memberInfo) {
+          if (memberInfo.gamingBalance < (bill.gamingAmount || 0)) {
+            setPayError(`Insufficient gaming balance. Need ₹${bill.gamingAmount}, have ₹${memberInfo.gamingBalance?.toFixed(0)}`);
+            setProcessing(false);
+            return;
+          }
+          if (memberInfo.foodBalance < (bill.foodAmount || 0)) {
+            setPayError(`Insufficient food balance. Need ₹${bill.foodAmount}, have ₹${memberInfo.foodBalance?.toFixed(0)}`);
+            setProcessing(false);
+            return;
+          }
         }
         payload = { paymentType: 'Wallet', cashAmount: 0, onlineAmount: 0, walletAmount: total, cashReceived: 0 };
 
@@ -282,7 +321,17 @@ export default function BillDetailsPanel({ bill, onBillUpdate, onPaymentSuccess 
             ].map(({ id, label, Icon }) => (
               <button
                 key={id}
-                onClick={() => { setPayMethod(id); setPayError(null); }}
+                onClick={() => {
+                  setPayMethod(id);
+                  setPayError(null);
+                  if (id !== 'wallet') {
+                    setWalletVerified(false);
+                    setVerifiedMember(null);
+                    setWalletAuthUsername('');
+                    setWalletAuthPassword('');
+                    setWalletAuthError(null);
+                  }
+                }}
                 className={`py-2 rounded-lg border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all ${
                   payMethod === id
                     ? 'bg-accent/15 border-accent text-accent shadow-[0_0_8px_rgba(255,51,102,0.2)]'
@@ -392,24 +441,86 @@ export default function BillDetailsPanel({ bill, onBillUpdate, onPaymentSuccess 
 
           {/* ── Wallet section ── */}
           {payMethod === 'wallet' && (
-            <div className="bg-bg-2 border border-accent/20 rounded-lg p-3 space-y-2">
+            <div className="bg-bg-2 border border-accent/20 rounded-lg p-3 space-y-3">
               <div className="text-[10px] text-neon-orange uppercase font-bold tracking-widest">
                 Deduct from Member Wallet
               </div>
-              {!bill.memberId ? (
-                <p className="text-xs text-text-3">No member linked to this bill.</p>
-              ) : memberInfo ? (
-                <div className="space-y-1.5 text-xs font-mono">
-                  <TRow label={memberInfo.fullName} value={`Balance: ₹${memberInfo.walletBalance?.toFixed(0) ?? '–'}`} cls="text-neon-blue font-bold" />
-                  <TRow label="Amount to deduct" value={`₹${total}`} cls="text-text-2" />
-                  {memberInfo.walletBalance < total && (
-                    <p className="text-neon-red font-bold text-center pt-1">
-                      ⚠ Insufficient (short by ₹{(total - memberInfo.walletBalance).toFixed(0)})
-                    </p>
+
+              {/* Step 1 — always show login form until verified */}
+              {!walletVerified ? (
+                <div className="space-y-2">
+                  <p className="text-[10px] text-text-3 uppercase tracking-widest font-bold flex items-center gap-1.5">
+                    <KeyRound className="w-3 h-3" /> Member Login Required
+                  </p>
+                  {walletAuthError && (
+                    <div className="flex items-center gap-1.5 text-neon-red text-xs">
+                      <ShieldAlert className="w-3.5 h-3.5 shrink-0" /> {walletAuthError}
+                    </div>
                   )}
+                  <input
+                    type="text"
+                    autoComplete="off"
+                    placeholder="Username"
+                    value={walletAuthUsername}
+                    onChange={e => setWalletAuthUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
+                    className="w-full bg-bg-3 border border-border text-text text-sm rounded-lg px-3 py-2 font-mono focus:border-accent focus:ring-1 focus:ring-accent transition-all placeholder:text-text-3"
+                  />
+                  <div className="relative">
+                    <input
+                      type={showWalletPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      placeholder="Password"
+                      value={walletAuthPassword}
+                      onChange={e => setWalletAuthPassword(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleWalletVerify()}
+                      className="w-full bg-bg-3 border border-border text-text text-sm rounded-lg px-3 py-2 pr-9 font-mono focus:border-accent focus:ring-1 focus:ring-accent transition-all placeholder:text-text-3"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowWalletPassword(p => !p)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-3 hover:text-text transition-colors"
+                    >
+                      {showWalletPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                  <button
+                    onClick={handleWalletVerify}
+                    disabled={walletAuthLoading || !walletAuthUsername || !walletAuthPassword}
+                    className="w-full py-2 rounded-lg bg-accent/10 border border-accent/40 text-accent text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 hover:bg-accent/20 transition-colors disabled:opacity-40"
+                  >
+                    {walletAuthLoading
+                      ? <div className="w-3.5 h-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                      : <><ShieldCheck className="w-3.5 h-3.5" /> Verify Member</>
+                    }
+                  </button>
                 </div>
               ) : (
-                <p className="text-xs text-text-3">Loading wallet info…</p>
+                /* Step 2 — verified: show balance summary */
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-neon-green text-sm font-bold">
+                    <ShieldCheck className="w-4 h-4" /> Member identity verified
+                  </div>
+                  {verifiedMember && (
+                    <div className="space-y-1 text-xs font-mono">
+                      <TRow
+                        label={verifiedMember.fullName}
+                        value={`G: ₹${(verifiedMember.gamingBalance ?? 0).toFixed(0)} | F: ₹${(verifiedMember.foodBalance ?? 0).toFixed(0)}`}
+                        cls="text-neon-blue font-bold"
+                      />
+                      <TRow label="Gaming to deduct" value={`₹${bill.gamingAmount || 0}`} cls="text-text-2" />
+                      <TRow label="Food to deduct"   value={`₹${bill.foodAmount || 0}`}   cls="text-text-2" />
+                      {(verifiedMember.gamingBalance ?? 0) < (bill.gamingAmount || 0) && (
+                        <p className="text-neon-red font-bold pt-1">⚠ Insufficient gaming balance (short ₹{((bill.gamingAmount || 0) - (verifiedMember.gamingBalance ?? 0)).toFixed(0)})</p>
+                      )}
+                      {(verifiedMember.foodBalance ?? 0) < (bill.foodAmount || 0) && (
+                        <p className="text-neon-red font-bold pt-1">⚠ Insufficient food balance (short ₹{((bill.foodAmount || 0) - (verifiedMember.foodBalance ?? 0)).toFixed(0)})</p>
+                      )}
+                    </div>
+                  )}
+                  {!bill.memberId && (
+                    <p className="text-neon-red text-xs font-bold">⚠ No member is linked to this bill. Wallet payment cannot proceed.</p>
+                  )}
+                </div>
               )}
             </div>
           )}

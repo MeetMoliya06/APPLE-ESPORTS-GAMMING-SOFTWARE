@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using NeonArenaErp.Api.Hubs;
 using NeonArenaErp.Application.DTOs.Common;
 using NeonArenaErp.Application.Interfaces;
@@ -13,6 +14,7 @@ public class HubNotificationService : IHubNotificationService
     private readonly IHubContext<BillingHub> _billingHub;
     private readonly IHubContext<FoodOrderHub> _foodOrderHub;
     private readonly IHubContext<CashHub> _cashHub;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     public HubNotificationService(
         IHubContext<PcStatusHub> pcStatusHub,
@@ -20,7 +22,8 @@ public class HubNotificationService : IHubNotificationService
         IHubContext<ReservationHub> reservationHub,
         IHubContext<BillingHub> billingHub,
         IHubContext<FoodOrderHub> foodOrderHub,
-        IHubContext<CashHub> cashHub)
+        IHubContext<CashHub> cashHub,
+        IServiceScopeFactory scopeFactory)
     {
         _pcStatusHub = pcStatusHub;
         _sessionHub = sessionHub;
@@ -28,13 +31,18 @@ public class HubNotificationService : IHubNotificationService
         _billingHub = billingHub;
         _foodOrderHub = foodOrderHub;
         _cashHub = cashHub;
+        _scopeFactory = scopeFactory;
     }
 
     public async Task BroadcastPcStatusChangeAsync(Guid branchId, Guid pcId)
     {
-        var payload = new { pcId, branchId };
-        await _pcStatusHub.Clients.Group($"branch:{branchId}")
-            .SendAsync("PcStatusChanged", new EventEnvelope<object>(payload));
+        using (var scope = _scopeFactory.CreateScope())
+        {
+            var pcStatusService = scope.ServiceProvider.GetRequiredService<IPcStatusService>();
+            var pcStatus = await pcStatusService.GetPcStatusAsync(pcId);
+            await _pcStatusHub.Clients.Group($"branch:{branchId}")
+                .SendAsync("PcStatusChanged", new EventEnvelope<object>(pcStatus));
+        }
     }
 
     public async Task BroadcastSessionUpdateAsync(Guid branchId, Guid sessionId)
@@ -62,6 +70,8 @@ public class HubNotificationService : IHubNotificationService
     {
         var payload = new { orderId, branchId };
         await _foodOrderHub.Clients.Group($"branch:{branchId}")
+            .SendAsync("FoodOrderUpdated", new EventEnvelope<object>(payload));
+        await _foodOrderHub.Clients.Group("admin:all")
             .SendAsync("FoodOrderUpdated", new EventEnvelope<object>(payload));
     }
 

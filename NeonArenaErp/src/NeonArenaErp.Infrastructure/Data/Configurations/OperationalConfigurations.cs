@@ -83,6 +83,7 @@ public class ReservationConfiguration : IEntityTypeConfiguration<Reservation>
         builder.Property(e => e.CustomerName).HasMaxLength(100).IsRequired();
         builder.Property(e => e.ReservationTime).IsRequired();
         builder.Property(e => e.GracePeriodMin).HasDefaultValue(15);
+        builder.Property(e => e.AdvanceDeposit).HasPrecision(18, 2).HasDefaultValue(0);
         builder.Property(e => e.State).HasMaxLength(20).HasDefaultValue(ReservationState.Pending)
             .HasConversion(v => v.ToString().ToLowerInvariant(),
                            v => Enum.Parse<ReservationState>(v, true));

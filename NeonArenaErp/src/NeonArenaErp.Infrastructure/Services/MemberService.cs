@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using BCryptNet = BCrypt.Net.BCrypt;
 using NeonArenaErp.Application.Constants;
 using NeonArenaErp.Application.DTOs.Common;
 using NeonArenaErp.Application.DTOs.Members;
@@ -6,6 +8,7 @@ using NeonArenaErp.Application.Exceptions;
 using NeonArenaErp.Application.Interfaces;
 using NeonArenaErp.Domain.Entities;
 using NeonArenaErp.Domain.Enums;
+using NeonArenaErp.Infrastructure.Identity;
 
 namespace NeonArenaErp.Infrastructure.Services;
 
@@ -13,11 +16,13 @@ public class MemberService : IMemberService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAuditService _auditService;
+    private readonly JwtTokenService _jwt;
 
-    public MemberService(IUnitOfWork unitOfWork, IAuditService auditService)
+    public MemberService(IUnitOfWork unitOfWork, IAuditService auditService, JwtTokenService jwt)
     {
         _unitOfWork = unitOfWork;
         _auditService = auditService;
+        _jwt = jwt;
     }
 
     public async Task<PaginatedResult<MemberDto>> GetMembersAsync(Guid branchId, string? search, int page = 1, int pageSize = 50)
@@ -30,7 +35,8 @@ public class MemberService : IMemberService
             query = query.Where(m => 
                 m.MobileNumber.Contains(s) || 
                 m.FullName.ToLower().Contains(s) || 
-                m.MemberNumber.ToLower().Contains(s));
+                m.MemberNumber.ToLower().Contains(s) ||
+                (m.Username != null && m.Username.ToLower().Contains(s)));
         }
 
         var total = await query.CountAsync();
@@ -68,6 +74,19 @@ public class MemberService : IMemberService
         if (exists)
             throw new AppException("A member with this mobile number already exists.");
 
+        // Username uniqueness check
+        if (!string.IsNullOrWhiteSpace(dto.Username))
+        {
+            var usernameTaken = await _unitOfWork.Repository<Member>().Query()
+                .AnyAsync(m => m.Username == dto.Username.Trim().ToLowerInvariant());
+            if (usernameTaken)
+                throw new AppException($"Username '{dto.Username}' is already taken.");
+        }
+
+        // Require password when username is set
+        if (!string.IsNullOrWhiteSpace(dto.Username) && string.IsNullOrWhiteSpace(dto.Password))
+            throw new AppException("A password is required when setting a username.");
+
         // Generate member number: MEM-YYMM-XXXX
         var count = await _unitOfWork.Repository<Member>().Query().CountAsync() + 1;
         var memberNum = $"MEM-{DateTime.UtcNow:yyMM}-{count:D4}";
@@ -78,11 +97,14 @@ public class MemberService : IMemberService
             FullName = dto.FullName,
             MobileNumber = dto.MobileNumber,
             Email = dto.Email,
+            Username = string.IsNullOrWhiteSpace(dto.Username) ? null : dto.Username.Trim().ToLowerInvariant(),
+            PasswordHash = string.IsNullOrWhiteSpace(dto.Password) ? null : BCryptNet.HashPassword(dto.Password),
             Status = MemberStatus.Active,
             HomeBranchId = branchId,
             JoinDate = DateTimeOffset.UtcNow,
             CreatedBy = operatorId,
-            WalletBalance = 0,
+            GamingBalance = 0,
+            FoodBalance = 0,
             GamingPoints = 0,
             FoodPoints = 0,
             TotalPoints = 0
@@ -122,6 +144,34 @@ public class MemberService : IMemberService
         member.FullName = dto.FullName;
         member.MobileNumber = dto.MobileNumber;
         member.Email = dto.Email;
+        member.UpdatedAt = DateTimeOffset.UtcNow;
+
+        // Update username if provided
+        if (dto.DisableLogin == true)
+        {
+            member.Username = null;
+            member.PasswordHash = null;
+        }
+        else
+        {
+            if (!string.IsNullOrWhiteSpace(dto.Username))
+            {
+                var newUsername = dto.Username.Trim().ToLowerInvariant();
+                var usernameTaken = await _unitOfWork.Repository<Member>().Query()
+                    .AnyAsync(m => m.Username == newUsername && m.Id != id);
+                if (usernameTaken)
+                    throw new AppException($"Username '{dto.Username}' is already taken.");
+                member.Username = newUsername;
+            }
+
+            // Update password if provided
+            if (!string.IsNullOrWhiteSpace(dto.Password))
+                member.PasswordHash = BCryptNet.HashPassword(dto.Password);
+
+            // Safety check: require password hash if username is assigned
+            if (member.Username != null && string.IsNullOrWhiteSpace(member.PasswordHash))
+                throw new AppException("A password is required when setting a username.");
+        }
 
         _unitOfWork.Repository<Member>().Update(member);
 
@@ -142,6 +192,68 @@ public class MemberService : IMemberService
         return MapToDto(member);
     }
 
+    public async Task DeleteMemberAsync(Guid branchId, Guid operatorId, Guid id)
+    {
+        var member = await _unitOfWork.Repository<Member>().GetByIdAsync(id)
+            ?? throw new NotFoundException("Member not found.");
+
+        // Soft delete: set status to Suspended
+        member.Status = MemberStatus.Suspended;
+        member.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _unitOfWork.Repository<Member>().Update(member);
+
+        await _auditService.LogAsync(new AuditEntry
+        {
+            OperatorId = operatorId,
+            UserRole = "Operator",
+            UserName = "System",
+            Action = "member_delete",
+            BranchId = branchId,
+            TargetType = "member",
+            TargetId = member.Id,
+            Details = new { MemberNumber = member.MemberNumber, FullName = member.FullName }
+        });
+
+        await _unitOfWork.CommitTransactionAsync();
+    }
+
+    public async Task<MemberLoginResponseDto> LoginMemberAsync(MemberLoginDto dto)
+    {
+        var username = dto.Username.Trim().ToLowerInvariant();
+        var member = await _unitOfWork.Repository<Member>().Query()
+            .FirstOrDefaultAsync(m => m.Username == username);
+
+        if (member == null || string.IsNullOrEmpty(member.PasswordHash))
+            throw new AuthenticationException("Invalid username or password.", "INVALID_CREDENTIALS");
+
+        if (member.Status != MemberStatus.Active)
+            throw new AuthorizationException("Member account is inactive.", "ACCOUNT_INACTIVE");
+
+        if (!BCryptNet.Verify(dto.Password, member.PasswordHash))
+            throw new AuthenticationException("Invalid username or password.", "INVALID_CREDENTIALS");
+
+        var claims = new Dictionary<string, string>
+        {
+            [ClaimTypes.NameIdentifier] = member.Id.ToString(),
+            [ClaimTypes.Role] = "Member",
+            [ClaimTypes.Name] = member.FullName,
+            ["memberNumber"] = member.MemberNumber,
+        };
+
+        var token = _jwt.GenerateAccessToken(claims);
+
+        return new MemberLoginResponseDto
+        {
+            MemberId = member.Id,
+            MemberNumber = member.MemberNumber,
+            FullName = member.FullName,
+            GamingBalance = member.GamingBalance,
+            FoodBalance = member.FoodBalance,
+            Token = token,
+        };
+    }
+
     private static MemberDto MapToDto(Member m)
     {
         return new MemberDto
@@ -151,8 +263,11 @@ public class MemberService : IMemberService
             FullName = m.FullName,
             MobileNumber = m.MobileNumber,
             Email = m.Email,
+            Username = m.Username,
+            HasPassword = !string.IsNullOrEmpty(m.PasswordHash),
             Status = m.Status,
-            WalletBalance = m.WalletBalance,
+            GamingBalance = m.GamingBalance,
+            FoodBalance = m.FoodBalance,
             GamingPoints = m.GamingPoints,
             FoodPoints = m.FoodPoints,
             TotalPoints = m.TotalPoints,

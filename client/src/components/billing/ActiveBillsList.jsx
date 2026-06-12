@@ -2,13 +2,16 @@ import { Monitor, CreditCard, Clock } from 'lucide-react';
 import { formatTimeDelta } from '../../utils/timeUtils';
 import { useEffect, useState } from 'react';
 
-export default function ActiveBillsList({ bills, activeSessions, selectedId, onSelect }) {
+export default function ActiveBillsList({ bills, activeSessions, reservations = [], selectedId, onSelect }) {
   // A local component timer for active sessions to tick visually
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
+
+  const activeSessionIds = new Set(activeSessions.map(s => s.id));
+  const unpaidFinalizedBills = bills.filter(b => !b.sessionId || !activeSessionIds.has(b.sessionId));
 
   return (
     <div className="flex flex-col h-full space-y-6">
@@ -19,17 +22,17 @@ export default function ActiveBillsList({ bills, activeSessions, selectedId, onS
           <CreditCard className="w-4 h-4 text-neon-orange" />
           <h3 className="font-heading font-bold text-text uppercase tracking-wider text-sm">Finalized / Unpaid</h3>
           <span className="bg-neon-orange/20 text-neon-orange text-[10px] px-2 py-0.5 rounded-full font-bold ml-auto">
-            {bills.length}
+            {unpaidFinalizedBills.length}
           </span>
         </div>
         
-        {bills.length === 0 ? (
+        {unpaidFinalizedBills.length === 0 ? (
           <div className="p-4 bg-bg-2 border border-border rounded-xl text-center text-text-3 text-xs italic">
             No pending bills.
           </div>
         ) : (
           <div className="space-y-2">
-            {bills.map(bill => (
+            {unpaidFinalizedBills.map(bill => (
               <button
                 key={bill.id}
                 onClick={() => onSelect({ type: 'bill', id: bill.id })}
@@ -109,6 +112,73 @@ export default function ActiveBillsList({ bills, activeSessions, selectedId, onS
                 </button>
               );
             })}
+          </div>
+        )}
+      </div>
+
+      {/* SECTION 3: Upcoming Reservations */}
+      <div>
+        <div className="flex items-center gap-2 mb-3 px-1 mt-4 border-t border-border pt-4">
+          <Clock className="w-4 h-4 text-neon-purple" />
+          <h3 className="font-heading font-bold text-text uppercase tracking-wider text-sm">Upcoming Reservations</h3>
+          <span className="bg-neon-purple/20 text-neon-purple text-[10px] px-2 py-0.5 rounded-full font-bold ml-auto">
+            {reservations.filter(r => r.state === 'Pending').length}
+          </span>
+        </div>
+
+        {reservations.filter(r => r.state === 'Pending').length === 0 ? (
+          <div className="p-4 bg-bg-2 border border-border rounded-xl text-center text-text-3 text-xs italic">
+            No upcoming reservations.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+            {reservations
+              .filter(r => r.state === 'Pending')
+              .map(res => {
+                const resTime = new Date(res.reservationTime).getTime();
+                const diffMs = resTime - now;
+                let timerText = '';
+                
+                if (diffMs > 0) {
+                  const totalMin = Math.floor(diffMs / 60000);
+                  if (totalMin < 60) {
+                    timerText = `Starts in ${totalMin}m`;
+                  } else {
+                    const hrs = Math.floor(totalMin / 60);
+                    const mins = totalMin % 60;
+                    timerText = `Starts in ${hrs}h ${mins}m`;
+                  }
+                } else {
+                  const graceEnd = resTime + (res.gracePeriodMin || 15) * 60000;
+                  const remainingMs = graceEnd - now;
+                  if (remainingMs > 0) {
+                    const remainingMin = Math.ceil(remainingMs / 60000);
+                    timerText = `Grace: ${remainingMin}m left`;
+                  } else {
+                    timerText = 'Expired';
+                  }
+                }
+
+                return (
+                  <div
+                    key={res.id}
+                    className="p-3 rounded-xl border bg-bg-3 border-border flex flex-col justify-between"
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="font-heading font-bold text-text truncate max-w-[80px]">
+                        {res.pcName || 'PC'}
+                      </span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-neon-purple animate-pulse" />
+                    </div>
+                    <div className="font-mono text-xs mb-1 text-neon-purple font-semibold">
+                      {timerText}
+                    </div>
+                    <div className="text-[9px] text-text-3 uppercase tracking-wider truncate">
+                      {res.customerName}
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         )}
       </div>

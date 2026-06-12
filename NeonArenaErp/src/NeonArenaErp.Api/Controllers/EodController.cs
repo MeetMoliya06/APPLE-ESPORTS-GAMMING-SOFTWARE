@@ -7,6 +7,8 @@ using NeonArenaErp.Application.Interfaces;
 using NeonArenaErp.Application.Constants;
 using System.Security.Claims;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace NeonArenaErp.Api.Controllers;
 
 [ApiController]
@@ -16,10 +18,59 @@ namespace NeonArenaErp.Api.Controllers;
 public class EodController : ControllerBase
 {
     private readonly IEodService _eodService;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public EodController(IEodService eodService)
+    public EodController(IEodService eodService, IUnitOfWork unitOfWork)
     {
         _eodService = eodService;
+        _unitOfWork = unitOfWork;
+    }
+
+    [HttpGet("range-report")]
+    public async Task<IActionResult> GetRangeReport(
+        [FromQuery] DateTimeOffset? startDate, 
+        [FromQuery] DateTimeOffset? endDate, 
+        [FromQuery] Guid? branchId = null)
+    {
+        var targetBranchId = branchId ?? GetBranchId();
+        
+        var startUtc = (startDate ?? DateTimeOffset.UtcNow.AddDays(-30)).ToUniversalTime();
+        var endUtc = (endDate ?? DateTimeOffset.UtcNow).ToUniversalTime();
+
+        var bills = await _unitOfWork.Repository<NeonArenaErp.Domain.Entities.Bill>()
+            .Query()
+            .Where(b => b.BranchId == targetBranchId 
+                     && b.Status == NeonArenaErp.Domain.Enums.BillStatus.Completed 
+                     && b.CompletedAt >= startUtc 
+                     && b.CompletedAt <= endUtc)
+            .ToListAsync();
+
+        var dailyReport = bills
+            .GroupBy(b => b.CompletedAt!.Value.Date)
+            .Select(g => new {
+                Date = g.Key.ToString("yyyy-MM-dd"),
+                GamingRevenue = g.Sum(b => b.GamingAmount),
+                FoodRevenue = g.Sum(b => b.FoodAmount),
+                TotalRevenue = g.Sum(b => b.TotalAmount)
+            })
+            .OrderBy(r => r.Date)
+            .ToList();
+
+        var monthlyReport = bills
+            .GroupBy(b => new { b.CompletedAt!.Value.Year, b.CompletedAt!.Value.Month })
+            .Select(g => new {
+                Month = $"{g.Key.Year}-{g.Key.Month:D2}",
+                GamingRevenue = g.Sum(b => b.GamingAmount),
+                FoodRevenue = g.Sum(b => b.FoodAmount),
+                TotalRevenue = g.Sum(b => b.TotalAmount)
+            })
+            .OrderBy(r => r.Month)
+            .ToList();
+
+        return Ok(ApiResponse<object>.Ok(new {
+            Daily = dailyReport,
+            Monthly = monthlyReport
+        }));
     }
 
     private Guid GetBranchId() => Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
