@@ -125,25 +125,7 @@ const FoodOrderCard = memo(({ order, onOrderUpdated }) => {
             exit={{ opacity: 0 }}
             className="p-2 bg-bg-2 border-t border-border flex justify-between gap-2"
           >
-            {isPending && (
-              <button
-                onClick={() => updateStatus('Preparing')}
-                className="flex-1 py-2 bg-neon-purple/10 border border-neon-purple/30 text-neon-purple rounded-md text-[10px] font-bold uppercase tracking-wider hover:bg-neon-purple/20 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <Play className="w-3.5 h-3.5" /> Prep
-              </button>
-            )}
-            
-            {isPreparing && (
-              <button
-                onClick={() => updateStatus('Ready')}
-                className="flex-1 py-2 bg-neon-blue/10 border border-neon-blue/30 text-neon-blue rounded-md text-[10px] font-bold uppercase tracking-wider hover:bg-neon-blue/20 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <Check className="w-3.5 h-3.5" /> Ready
-              </button>
-            )}
-
-            {isReady && (
+            {(isPending || isPreparing || isReady) && (
               <button
                 onClick={() => updateStatus('Delivered')}
                 className="flex-1 py-2 bg-accent/10 border border-accent/30 text-accent rounded-md text-[10px] font-bold uppercase tracking-wider hover:bg-accent/20 transition-colors flex items-center justify-center gap-1.5"
@@ -152,15 +134,6 @@ const FoodOrderCard = memo(({ order, onOrderUpdated }) => {
               </button>
             )}
 
-            {isDelivered && (
-              <button
-                onClick={() => updateStatus('Completed')}
-                title="Archive order (marks completed)"
-                className="flex-1 py-2 bg-bg-3 border border-border text-text-3 rounded-md text-[10px] font-bold uppercase tracking-wider hover:bg-bg-4 hover:text-text-2 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <X className="w-3.5 h-3.5" /> Archive
-              </button>
-            )}
 
             {/* Cancel Button */}
             {canCancel && !isDelivered && (

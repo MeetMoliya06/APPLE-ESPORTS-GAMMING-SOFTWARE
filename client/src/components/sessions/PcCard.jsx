@@ -3,6 +3,9 @@ import { User, Clock, Wrench, ShieldAlert, AlertTriangle, Square, RefreshCw, Rec
 import { motion } from 'framer-motion';
 import api from '../../config/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../components/ui/Toast';
+import ExtendSessionModal from './ExtendSessionModal';
 
 // ── Elapsed time from a start ISO string (counting UP) ──
 function useElapsedTime(startTimeIso) {
@@ -34,15 +37,25 @@ function fmtElapsed(h, m) {
   return `${m}m`;
 }
 
+// ── Format time as HH:MM ──
+function fmtTime(isoString) {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, onOverrideReservation }) => {
   const { isSuperAdmin } = useAuth();
+  const navigate = useNavigate();
+  const toast = useToast();
   const elapsed = useElapsedTime(pc.sessionStartTime);
   const [actionLoading, setActionLoading] = useState(null); // 'stop' | 'extend' | etc.
+  const [showExtendModal, setShowExtendModal] = useState(false);
 
-  // Live charge: elapsed minutes * rate per hour / 60
-  const liveCharge = pc.ratePerHour > 0
-    ? Math.ceil((elapsed.totalMin / 60) * pc.ratePerHour)
-    : 0;
+  // Live charge: if fixed session, just totalAmount. if open-ended, totalAmount + elapsed rate.
+  const liveCharge = pc.sessionEndTime
+    ? (pc.totalAmount || 0)
+    : (pc.totalAmount || 0) + (pc.ratePerHour > 0 ? Math.ceil((elapsed.totalMin / 60) * pc.ratePerHour) : 0);
 
   const isActive = pc.state === 'Active';
   const isIdle = pc.state === 'Idle';
@@ -54,13 +67,15 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
     setActionLoading(action);
     try {
       await api.post(`/sessions/${pc.activeSessionId}/${action}`, payload);
+      toast.success(`Session successfully ${action}ed!`);
       onRefresh?.();
     } catch (err) {
       console.error(`Action ${action} failed:`, err);
+      toast.error(`Failed to ${action} session.`);
     } finally {
       setActionLoading(null);
     }
-  }, [pc.activeSessionId, onRefresh]);
+  }, [pc.activeSessionId, onRefresh, toast]);
 
   // ── FREE (Idle) Card ──
   if (isIdle) {
@@ -118,13 +133,15 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
         {/* Time + Charge row */}
         <div className="grid grid-cols-2 gap-2 bg-bg-3 rounded p-2.5 border border-border">
           <div>
-            <div className="text-[9px] text-text-3 font-mono uppercase tracking-widest mb-0.5">Session Elapsed</div>
+            <div className="text-[9px] text-text-3 font-mono uppercase tracking-widest mb-0.5">
+              {pc.sessionEndTime ? 'Ends At' : 'Elapsed'}
+            </div>
             <div className="font-mono font-bold text-pc-active text-sm">
-              {fmtElapsed(elapsed.h, elapsed.m)}
+              {pc.sessionEndTime ? fmtTime(pc.sessionEndTime) : fmtElapsed(elapsed.h, elapsed.m)}
             </div>
           </div>
           <div>
-            <div className="text-[9px] text-text-3 font-mono uppercase tracking-widest mb-0.5">Charge</div>
+            <div className="text-[9px] text-text-3 font-mono uppercase tracking-widest mb-0.5">Live Charge</div>
             <div className="font-mono font-bold text-neon-orange text-sm">
               ₹{liveCharge}
             </div>
@@ -144,38 +161,47 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
             color="blue"
             icon={<RefreshCw className="w-3 h-3" />}
             label="Extend"
-            loading={actionLoading === 'extend'}
-            onClick={() => doAction('extend', { extraMinutes: 60 })}
+            onClick={() => setShowExtendModal(true)}
           />
         </div>
 
         {/* Action Buttons Row 2: Bill + Food + Promo */}
-        <div className="grid grid-cols-3 gap-1.5">
+        <div className={`grid ${isSuperAdmin ? 'grid-cols-3' : 'grid-cols-2'} gap-1.5`}>
           <ActionBtn
             color="orange"
             icon={<Receipt className="w-3 h-3" />}
             label="Bill"
-            loading={actionLoading === 'bill'}
-            onClick={() => doAction('bill')}
+            onClick={() => navigate('/app/billing')}
             small
           />
           <ActionBtn
             color="green"
             icon={<Coffee className="w-3 h-3" />}
             label="Food"
-            loading={actionLoading === 'food'}
-            onClick={() => doAction('food')}
+            onClick={() => navigate('/app/food-orders')}
             small
           />
-          <ActionBtn
-            color="purple"
-            icon={<Gift className="w-3 h-3" />}
-            label="Promo"
-            loading={actionLoading === 'promo'}
-            onClick={() => doAction('promo')}
-            small
-          />
+          {isSuperAdmin && (
+            <ActionBtn
+              color="purple"
+              icon={<Gift className="w-3 h-3" />}
+              label="Promo"
+              onClick={() => alert("Promo codes feature coming soon!")}
+              small
+            />
+          )}
         </div>
+
+        {showExtendModal && (
+          <ExtendSessionModal
+            pc={pc}
+            onClose={() => setShowExtendModal(false)}
+            onActionSuccess={() => {
+              setShowExtendModal(false);
+              onRefresh?.();
+            }}
+          />
+        )}
       </motion.div>
     );
   }

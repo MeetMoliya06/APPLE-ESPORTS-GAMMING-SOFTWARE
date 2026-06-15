@@ -31,7 +31,7 @@ async function testFoodBillingFlow() {
   // 1. Login Admin
   console.log("\n1. Logging in as Admin...");
   const adminRes = await request('/auth/admin/login', 'POST', {
-    email: 'admin@neonarena.com',
+    email: 'admin@appleesports.com',
     password: 'Admin123!'
   });
   if (adminRes.status !== 200) {

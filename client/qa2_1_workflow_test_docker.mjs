@@ -56,7 +56,7 @@ async function runE2E() {
 
   // 1. Login Admin
   const adminLoginRes = await executeStep("Login Admin", "/auth/admin/login", "POST", {
-    email: "admin@neonarena.com",
+    email: "admin@appleesports.com",
     password: "Admin123!"
   });
   if (!adminLoginRes.passed) return saveReport();

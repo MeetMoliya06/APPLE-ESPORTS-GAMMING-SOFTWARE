@@ -1,5 +1,5 @@
 /**
- * NeonArena ERP — Load Test Simulator
+ * AppleEsports ERP — Load Test Simulator
  * Simulates 100 concurrent PC connections and 10 Operator actions (Billing, Cash) over a 60-second window.
  * Run with: node load-test.js
  * Prerequisites: npm install @microsoft/signalr node-fetch
@@ -72,7 +72,7 @@ async function simulateOperator(operatorId) {
 
 async function runLoadTest() {
     console.log("==========================================");
-    console.log(" starting NeonArena ERP Load Test");
+    console.log(" starting AppleEsports ERP Load Test");
     console.log(` Target: ${PC_COUNT} PCs, ${OPERATOR_COUNT} Operators`);
     console.log(` Duration: ${DURATION_MS / 1000} seconds`);
     console.log("==========================================\n");

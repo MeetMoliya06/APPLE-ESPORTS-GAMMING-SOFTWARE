@@ -3,7 +3,7 @@
     "step": "Login Admin",
     "endpoint": "POST /auth/admin/login",
     "payload": {
-      "email": "admin@neonarena.com",
+      "email": "admin@appleesports.com",
       "password": "Admin123!"
     },
     "correlationId": "a211a804-a70a-44e8-8619-2c7230acfc8d",
@@ -13,7 +13,7 @@
       "data": {
         "user": {
           "id": "22222222-2222-2222-2222-222222222222",
-          "email": "admin@neonarena.com",
+          "email": "admin@appleesports.com",
           "fullName": "System Admin",
           "username": null,
           "role": "super_admin",
@@ -430,7 +430,7 @@
           "The dto field is required."
         ],
         "$.paymentType": [
-          "The JSON value could not be converted to NeonArenaErp.Domain.Enums.PaymentType. Path: $.paymentType | LineNumber: 0 | BytePositionInLine: 21."
+          "The JSON value could not be converted to AppleEsportsErp.Domain.Enums.PaymentType. Path: $.paymentType | LineNumber: 0 | BytePositionInLine: 21."
         ]
       },
       "traceId": "00-ef290c49a830ad31299772e93d5c2fe9-b11531b6a0d0cecc-00"

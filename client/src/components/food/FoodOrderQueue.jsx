@@ -140,30 +140,12 @@ export default function FoodOrderQueue({ orders, onOrderUpdated }) {
                         </div>
                       ) : (
                         <div className="flex justify-end gap-1.5">
-                          {isPending && (
-                            <button
-                              onClick={() => updateStatus(order.id, 'Preparing')}
-                              className="px-2.5 py-1 bg-neon-purple/10 border border-neon-purple/30 text-neon-purple rounded-md text-[10px] font-bold uppercase hover:bg-neon-purple/20 transition-all flex items-center gap-1"
-                            >
-                              <Play className="w-3 h-3" /> Mark as Preparing
-                            </button>
-                          )}
-
-                          {(isPreparing || isReady) && (
+                          {(isPending || isPreparing || isReady) && (
                             <button
                               onClick={() => updateStatus(order.id, 'Delivered')}
                               className="px-2.5 py-1 bg-neon-green/10 border border-neon-green/30 text-neon-green rounded-md text-[10px] font-bold uppercase hover:bg-neon-green/20 transition-all flex items-center gap-1"
                             >
                               <Truck className="w-3 h-3" /> Mark as Delivered
-                            </button>
-                          )}
-
-                          {isDelivered && (
-                            <button
-                              onClick={() => updateStatus(order.id, 'Completed')}
-                              className="px-2.5 py-1 bg-bg-3 border border-border text-text-3 rounded-md text-[10px] font-bold uppercase hover:bg-bg-4 hover:text-text transition-all flex items-center gap-1"
-                            >
-                              <X className="w-3 h-3" /> Archive
                             </button>
                           )}
 

@@ -93,7 +93,7 @@ async function runTests() {
             const res = await fetch('http://localhost:5015/api/auth/admin/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: 'admin@neonarena.com', password: 'Admin123!' })
+                body: JSON.stringify({ email: 'admin@appleesports.com', password: 'Admin123!' })
             });
             if (!res.ok) return { ok: false };
             const data = await res.json();

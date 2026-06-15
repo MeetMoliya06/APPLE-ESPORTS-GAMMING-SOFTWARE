@@ -1,4 +1,4 @@
-const api = 'http://neonarena-api:8080/api';
+const api = 'http://appleesports-api:8080/api';
 const bid = 'b0000000-0000-0000-0000-000000000001';
 
 async function req(path, method = 'GET', body = null, tok = null) {
@@ -28,7 +28,7 @@ async function run() {
   console.log('========================================================================\n');
 
   // ═══ STEP 1: Login ═══
-  const login = await req('/auth/admin/login', 'POST', { email: 'admin@neonarena.com', password: 'Admin123!' });
+  const login = await req('/auth/admin/login', 'POST', { email: 'admin@appleesports.com', password: 'Admin123!' });
   if (!login.data?.data?.accessToken) fail('Admin Login', login.data);
   const tok = login.data.data.accessToken;
   pass('Admin Login', `token length: ${tok.length}`);

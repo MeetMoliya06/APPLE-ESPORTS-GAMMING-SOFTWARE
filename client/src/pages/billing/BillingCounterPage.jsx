@@ -7,6 +7,7 @@ import api from '../../config/api';
 import PageHeader from '../../components/layout/PageHeader';
 import ActiveBillsList from '../../components/billing/ActiveBillsList';
 import BillDetailsPanel from '../../components/billing/BillDetailsPanel';
+import BillingAddItemsPanel from '../../components/billing/BillingAddItemsPanel';
 import { getActiveReservations } from '../../api/reservations.api';
 
 export default function BillingCounterPage() {
@@ -19,6 +20,7 @@ export default function BillingCounterPage() {
   const [reservations, setReservations] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null); // { type: 'bill' | 'session', id: billId }
   const [selectedBillData, setSelectedBillData] = useState(null);
+  const [summary, setSummary] = useState(null);
   
   const [isLoading, setIsLoading] = useState(true);
 
@@ -35,11 +37,12 @@ export default function BillingCounterPage() {
     }
 
     try {
-      // Fetch pending bills, active sessions, and reservations
-      const [billsRes, sessionsRes, reservationsList] = await Promise.all([
+      // Fetch pending bills, active sessions, reservations, and summary stats
+      const [billsRes, sessionsRes, reservationsList, summaryRes] = await Promise.all([
         api.get('/bills', { params: { page: 1, pageSize: 100, branchId: targetBranchId } }),
         api.get('/sessions', { params: { page: 1, pageSize: 100, branchId: targetBranchId } }),
-        getActiveReservations(1, 100).catch(() => [])
+        getActiveReservations(1, 100).catch(() => []),
+        api.get('/dashboard/summary', { params: { branchId: targetBranchId } }).catch(() => null)
       ]);
 
       const unpaidBills = billsRes.data?.data?.items || [];
@@ -48,6 +51,9 @@ export default function BillingCounterPage() {
       setBills(unpaidBills);
       setActiveSessions(sessions.filter(s => s.status === 1 || s.status === 'Active')); 
       setReservations(reservationsList);
+      if (summaryRes?.data?.data) {
+        setSummary(summaryRes.data.data);
+      }
 
     } catch (err) {
       console.error("Failed to load Billing Counter data:", err);
@@ -68,7 +74,7 @@ export default function BillingCounterPage() {
     // Listen to billing updates
     const unsubBilling = subscribe(SIGNALR_HUBS.BILLING, 'BillingUpdated', (billId) => {
       fetchDashboardData();
-      if (selectedItem?.id === billId) {
+      if (selectedItem?.id === billId || selectedBillData?.id === billId) {
         fetchBillDetails(billId);
       }
     });
@@ -83,12 +89,18 @@ export default function BillingCounterPage() {
       fetchDashboardData();
     });
 
+    // Listen to Dashboard summary updates
+    const unsubSummary = subscribe(SIGNALR_HUBS.DASHBOARD, 'DashboardUpdated', (newSummary) => {
+      setSummary(newSummary);
+    });
+
     return () => {
       unsubBilling();
       unsubPcStatus();
       unsubReservations();
+      unsubSummary();
     };
-  }, [connected, subscribe, SIGNALR_HUBS, targetBranchId, fetchDashboardData, selectedItem]);
+  }, [connected, subscribe, SIGNALR_HUBS, targetBranchId, fetchDashboardData, selectedItem, selectedBillData]);
 
   // ── 3. Fetch Selected Bill Details ──
   const fetchBillDetails = async (billId) => {
@@ -138,10 +150,29 @@ export default function BillingCounterPage() {
         badge="LIVE"
       />
 
-      <div className="flex flex-col lg:flex-row gap-6 mt-6 flex-1 min-h-0">
+      <div className="grid grid-cols-4 gap-2 mt-4">
+        <div className="bg-bg-2 border border-border rounded-xl p-2.5 px-3 shadow-sm">
+          <div className="text-[10px] text-text-2 mb-0.5 uppercase tracking-wide">Active PCs</div>
+          <div className="font-mono text-base font-bold text-accent">{summary?.totalActivePcs || 0}</div>
+        </div>
+        <div className="bg-bg-2 border border-border rounded-xl p-2.5 px-3 shadow-sm">
+          <div className="text-[10px] text-text-2 mb-0.5 uppercase tracking-wide">Today Bills</div>
+          <div className="font-mono text-base font-bold text-text">{summary?.todayBillsCount || 0}</div>
+        </div>
+        <div className="bg-bg-2 border border-border rounded-xl p-2.5 px-3 shadow-sm">
+          <div className="text-[10px] text-text-2 mb-0.5 uppercase tracking-wide">Today Revenue</div>
+          <div className="font-mono text-[13px] font-bold text-accent">₹{summary?.totalRevenueToday?.toLocaleString() || '0'}</div>
+        </div>
+        <div className="bg-bg-2 border border-border rounded-xl p-2.5 px-3 shadow-sm">
+          <div className="text-[10px] text-text-2 mb-0.5 uppercase tracking-wide">Rate Mode</div>
+          <div className="font-mono text-[13px] font-bold text-accent">STD ₹40</div>
+        </div>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-6 mt-4 flex-1 min-h-0">
         
         {/* Left Column: Lists */}
-        <div className="w-full lg:w-1/3 flex flex-col h-full bg-bg-2 border border-border rounded-xl p-4 shadow-lg overflow-y-auto">
+        <div className="w-full lg:w-[28%] flex flex-col h-full bg-bg-2 border border-border rounded-xl p-4 shadow-lg overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center flex-1">
               <div className="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin" />
@@ -157,8 +188,21 @@ export default function BillingCounterPage() {
           )}
         </div>
 
+        {/* Middle Column: Add Items */}
+        <div className="w-full lg:w-[38%] h-full">
+          <BillingAddItemsPanel 
+            bill={selectedBillData} 
+            onOrderPlaced={() => {
+              fetchDashboardData();
+              if (selectedBillData?.id) {
+                fetchBillDetails(selectedBillData.id);
+              }
+            }} 
+          />
+        </div>
+
         {/* Right Column: Details Panel */}
-        <div className="w-full lg:w-2/3 h-full">
+        <div className="w-full lg:w-[34%] h-full">
           <BillDetailsPanel
             bill={selectedBillData}
             onBillUpdate={(updatedBill) => {

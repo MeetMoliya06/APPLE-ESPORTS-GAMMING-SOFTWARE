@@ -29,5 +29,13 @@ export const processPayment = (id, payload) =>
 // ── Member lookup (for wallet balance display) ───────────────────────────────
 
 /** GET /members/:id */
-export const getMemberById = (id) =>
-  api.get(`/members/${id}`).then(r => r.data?.data);
+export const getMemberById = async (id) => {
+  const res = await api.get(`/members/${id}`);
+  return res.data?.data;
+};
+
+// Remove a specific food/drink item from a bill
+export const removeBillItem = async (billId, itemId) => {
+  const res = await api.delete(`/bills/${billId}/items/${itemId}`);
+  return res.data?.data;
+};

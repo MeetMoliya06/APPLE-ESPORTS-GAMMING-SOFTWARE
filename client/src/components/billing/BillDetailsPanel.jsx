@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import {
   Receipt, Gamepad2, Coffee, Tag, CheckCircle,
   Banknote, CreditCard, Wallet, ArrowLeftRight, Smartphone,
-  KeyRound, ShieldCheck, ShieldAlert, Eye, EyeOff
+  KeyRound, ShieldCheck, ShieldAlert, Eye, EyeOff, Trash2
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { applyDiscount, processPayment, getMemberById } from '../../api/billing.api';
+import { applyDiscount, processPayment, getMemberById, removeBillItem } from '../../api/billing.api';
 import { memberLogin } from '../../api/members.api';
 import { useToast } from '../ui/Toast';
 
@@ -194,6 +194,19 @@ export default function BillDetailsPanel({ bill, onBillUpdate, onPaymentSuccess 
     }
   };
 
+  const handleRemoveItem = async (itemId) => {
+    try {
+      setProcessing(true);
+      const updatedBill = await removeBillItem(bill.id, itemId);
+      toast.success('Item removed from bill');
+      onBillUpdate?.(updatedBill);
+    } catch (err) {
+      toast.error(err.response?.data?.error || err.message || 'Failed to remove item');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   /* ── Render ── */
   return (
     <div className="flex flex-col h-full bg-bg-2 border border-border rounded-xl overflow-hidden shadow-lg">
@@ -245,6 +258,8 @@ export default function BillDetailsPanel({ bill, onBillUpdate, onPaymentSuccess 
           label="Food & Drink"
           items={foodItems}
           accentCls="text-neon-orange"
+          canRemove={!isPaid}
+          onRemove={handleRemoveItem}
         />
 
         {/* Subtotals */}
@@ -564,7 +579,7 @@ export default function BillDetailsPanel({ bill, onBillUpdate, onPaymentSuccess 
 
 /* ── Sub-components ─────────────────────────────────────────────────────────── */
 
-function ItemSection({ icon, label, items, accentCls }) {
+function ItemSection({ icon, label, items, accentCls, canRemove, onRemove }) {
   if (items.length === 0) return null;
   return (
     <div>
@@ -583,7 +598,18 @@ function ItemSection({ icon, label, items, accentCls }) {
               <div className="text-text">{item.itemName}</div>
               <div className="text-[10px] text-text-3 font-mono">{item.quantity} × ₹{item.unitPrice}</div>
             </div>
-            <div className="font-mono text-text font-bold">₹{item.totalPrice}</div>
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-text font-bold">₹{item.totalPrice}</span>
+              {canRemove && (
+                <button
+                  onClick={() => onRemove?.(item.id)}
+                  title="Remove item"
+                  className="text-text-3 hover:text-neon-red transition-colors p-1"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>

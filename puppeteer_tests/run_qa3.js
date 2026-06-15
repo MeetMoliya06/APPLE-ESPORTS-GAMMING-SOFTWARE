@@ -144,7 +144,7 @@ async function runTests() {
         });
         await new Promise(r => setTimeout(r, 500));
 
-        await page.type('input[type="email"]', 'admin@neonarena.com');
+        await page.type('input[type="email"]', 'admin@appleesports.com');
         await page.type('input[type="password"]', 'Admin123!');
         
         await page.evaluate(() => {

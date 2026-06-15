@@ -242,20 +242,23 @@ export default function SessionActionModal({ pc, onClose, onActionSuccess }) {
                 <Clock className="w-3 h-3" /> Duration
               </label>
               <div className="grid grid-cols-4 gap-1.5">
-                {[30, 60, 120, 180].map(min => (
-                  <button
-                    key={min}
-                    type="button"
-                    onClick={() => setForm(f => ({ ...f, durationMinutes: min }))}
-                    className={`py-2 rounded border text-xs font-semibold transition-colors ${
-                      form.durationMinutes === min
-                        ? 'border-pc-active bg-pc-active/10 text-pc-active'
-                        : 'border-border bg-bg-3 text-text-2 hover:border-border-2'
-                    }`}
-                  >
-                    {min < 60 ? `${min}m` : `${min / 60}h`}
-                  </button>
-                ))}
+                {[30, 60, 120, 180].map(min => {
+                  const label = min < 60 ? `${min}m` : (min === 60 ? '1 Hr' : `${min / 60} Hrs`);
+                  return (
+                    <button
+                      key={min}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, durationMinutes: min }))}
+                      className={`py-2 rounded border text-xs font-semibold transition-colors ${
+                        form.durationMinutes === min
+                          ? 'border-pc-active bg-pc-active/10 text-pc-active'
+                          : 'border-border bg-bg-3 text-text-2 hover:border-border-2'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

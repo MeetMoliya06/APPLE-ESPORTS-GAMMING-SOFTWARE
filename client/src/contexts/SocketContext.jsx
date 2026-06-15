@@ -24,7 +24,7 @@ export const SIGNALR_HUBS = {
 
 const HUB_BASE_URL = import.meta.env.VITE_API_URL 
   ? import.meta.env.VITE_API_URL.replace('/api', '') 
-  : 'http://localhost:5015';
+  : '';
 
 export function SocketProvider({ children }) {
   const { isAuthenticated, logout } = useAuth();

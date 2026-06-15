@@ -44,26 +44,12 @@ export default function FoodOrderKanban({ orders, onOrderUpdated }) {
   const deliveredOrders = orders.filter(o => o.status === 3 || o.status === 'Delivered');
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-full pb-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full pb-4">
       <KanbanColumn 
         title="Pending" 
         icon={Coffee} 
         orders={pendingOrders} 
         colorClass="text-neon-orange border-b-neon-orange/20"
-        onOrderUpdated={onOrderUpdated} 
-      />
-      <KanbanColumn 
-        title="Preparing" 
-        icon={ChefHat} 
-        orders={preparingOrders} 
-        colorClass="text-neon-purple border-b-neon-purple/20"
-        onOrderUpdated={onOrderUpdated} 
-      />
-      <KanbanColumn 
-        title="Ready" 
-        icon={ArrowRightCircle} 
-        orders={readyOrders} 
-        colorClass="text-neon-blue border-b-neon-blue/20"
         onOrderUpdated={onOrderUpdated} 
       />
       <KanbanColumn 

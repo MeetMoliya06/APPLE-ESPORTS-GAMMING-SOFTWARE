@@ -15,7 +15,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - neonarena_net
+      - appleesports_net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -31,7 +31,7 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_DB: ${DB_NAME:-NeonArenaErp}
+      POSTGRES_DB: ${DB_NAME:-AppleEsportsErp}
       SCHEDULE: '@daily'
       BACKUP_KEEP_DAYS: 30
       BACKUP_KEEP_WEEKS: 12
@@ -40,7 +40,7 @@ services:
     volumes:
       - db_backups:/backups
     networks:
-      - neonarena_net
+      - appleesports_net
     depends_on:
       postgres:
         condition: service_healthy
@@ -48,13 +48,13 @@ services:
   # ── Redis (Optional SignalR Backplane) ──
   redis:
     image: redis:7-alpine
-    container_name: neonarena-redis
+    container_name: appleesports-redis
     restart: always
     command: redis-server --requirepass ${REDIS_PASSWORD:-redispassword}
     volumes:
       - redis_data:/data
     networks:
-      - neonarena_net
+      - appleesports_net
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -64,25 +64,25 @@ services:
   # ── .NET 8 Backend API ──
   api:
     build:
-      context: ./NeonArenaErp
+      context: ./AppleEsportsErp
       dockerfile: Dockerfile
-    container_name: neonarena-api
+    container_name: appleesports-api
     restart: always
     ports:
       - "5015:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${DB_NAME:-NeonArenaErp};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres}
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${DB_NAME:-AppleEsportsErp};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres}
       - Jwt__Secret=${JWT_SECRET:-supersecretkey_min_32_chars_long!!}
       - Jwt__RefreshSecret=${JWT_REFRESH_SECRET:-supersecretkey_refresh_min_32_chars_long!!}
-      - Jwt__Issuer=NeonArenaErp
-      - Jwt__Audience=NeonArenaErpClient
+      - Jwt__Issuer=AppleEsportsErp
+      - Jwt__Audience=AppleEsportsErpClient
       - Jwt__AccessExpiry=15m
       - Jwt__RefreshExpiry=7d
       # Uncomment below to enable Redis Backplane when scaling out
       # - Redis__ConnectionString=redis:6379,password=${REDIS_PASSWORD:-redispassword}
     networks:
-      - neonarena_net
+      - appleesports_net
     depends_on:
       postgres:
         condition: service_healthy
@@ -92,17 +92,17 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
-    container_name: neonarena-client
+    container_name: appleesports-client
     restart: always
     ports:
       - "5174:80"
     networks:
-      - neonarena_net
+      - appleesports_net
 
   # ── React Frontend (Local Development) ──
   client-dev:
     image: node:20-alpine
-    container_name: neonarena-client-dev
+    container_name: appleesports-client-dev
     working_dir: /app
     ports:
       - "5173:5173"
@@ -111,12 +111,12 @@ services:
       - /app/node_modules
     command: sh -c "npm install --legacy-peer-deps && npm run dev -- --host 0.0.0.0"
     networks:
-      - neonarena_net
+      - appleesports_net
 
   # ── Nginx Reverse Proxy ──
   nginx:
     image: nginx:alpine
-    container_name: neonarena-nginx
+    container_name: appleesports-nginx
     restart: always
     ports:
       - "80:80"
@@ -128,7 +128,7 @@ services:
       - certbot_www:/var/www/certbot
       - certbot_certs:/etc/letsencrypt
     networks:
-      - neonarena_net
+      - appleesports_net
     depends_on:
       - api
       - client
@@ -136,7 +136,7 @@ services:
   # ── Certbot (Let's Encrypt) ──
   certbot:
     image: certbot/certbot
-    container_name: neonarena-certbot
+    container_name: appleesports-certbot
     volumes:
       - certbot_www:/var/www/certbot
       - certbot_certs:/etc/letsencrypt
@@ -144,7 +144,7 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 networks:
-  neonarena_net:
+  appleesports_net:
     driver: bridge
 
 volumes:

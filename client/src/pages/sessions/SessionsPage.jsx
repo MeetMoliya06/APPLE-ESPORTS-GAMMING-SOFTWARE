@@ -101,6 +101,13 @@ export default function SessionsPage() {
     return () => unsub();
   }, [connected, subscribe, SIGNALR_HUBS.PC_STATUS, targetBranchId]);
 
+  // Ticker to force live revenue update every 10 seconds
+  const [ticker, setTicker] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => setTicker(t => t + 1), 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   // ── Stats computed from PC list ──
   const stats = useMemo(() => {
     const activeSessions = pcs.filter(p => p.state === 'Active').length;
@@ -116,7 +123,7 @@ export default function SessionsPage() {
       }, 0);
 
     return { activeSessions, idleStations, awaitingBilling, liveRevenue };
-  }, [pcs]);
+  }, [pcs, ticker]);
 
   if (isLoading) {
     return (

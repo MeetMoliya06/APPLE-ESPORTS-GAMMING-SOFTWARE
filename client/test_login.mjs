@@ -1,5 +1,5 @@
 async function test() {
-  const res = await fetch('http://neonarena-api:8080/api/auth/operator/login', {
+  const res = await fetch('http://appleesports-api:8080/api/auth/operator/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

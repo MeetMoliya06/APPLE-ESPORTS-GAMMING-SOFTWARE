@@ -25,6 +25,7 @@ export default function ReservationsPage() {
 
   // List states
   const [reservations, setReservations] = useState([]);
+  const [sessions, setSessions] = useState([]);
   const [pcs, setPcs] = useState([]);
   const [loadingList, setLoadingList] = useState(true);
 
@@ -65,23 +66,27 @@ export default function ReservationsPage() {
     }
   }, [targetBranchId, toast]);
 
-  const fetchPcsList = useCallback(async () => {
+  const fetchPcsAndSessions = useCallback(async () => {
     if (!targetBranchId) return;
     try {
-      const { data } = await api.get('/pcs', { params: { branchId: targetBranchId } });
-      const sorted = (data?.data || []).sort((a, b) =>
+      const [pcsRes, sessionsRes] = await Promise.all([
+        api.get('/pcs', { params: { branchId: targetBranchId } }),
+        api.get('/sessions', { params: { branchId: targetBranchId, page: 1, pageSize: 100 } })
+      ]);
+      const sortedPcs = (pcsRes.data?.data || []).sort((a, b) =>
         a.name.localeCompare(b.name, undefined, { numeric: true })
       );
-      setPcs(sorted);
+      setPcs(sortedPcs);
+      setSessions(sessionsRes.data?.data?.items || []);
     } catch (err) {
-      console.error('Failed to load PCs for reservation dropdown', err);
+      console.error('Failed to load PCs and sessions', err);
     }
   }, [targetBranchId]);
 
   useEffect(() => {
     fetchReservationsList();
-    fetchPcsList();
-  }, [fetchReservationsList, fetchPcsList]);
+    fetchPcsAndSessions();
+  }, [fetchReservationsList, fetchPcsAndSessions]);
 
   // ── SignalR updates ──
   useEffect(() => {
@@ -96,19 +101,48 @@ export default function ReservationsPage() {
     // Listen to PC changes (which affect eligibility/availability)
     const unsubPc = subscribe(SIGNALR_HUBS.PC_STATUS, 'PcStatusChanged', () => {
       fetchReservationsList();
-      fetchPcsList();
+      fetchPcsAndSessions();
+    });
+
+    const unsubSessions = subscribe(SIGNALR_HUBS.SESSIONS, 'SessionUpdated', () => {
+      fetchPcsAndSessions();
     });
 
     return () => {
       unsubRes();
       unsubPc();
+      unsubSessions();
     };
-  }, [connected, subscribe, SIGNALR_HUBS, targetBranchId, fetchReservationsList, fetchPcsList]);
+  }, [connected, subscribe, SIGNALR_HUBS, targetBranchId, fetchReservationsList, fetchPcsAndSessions]);
 
-  // Filter dropdown PCs: only Idle or Reserved (or not currently active in a session)
-  const eligiblePcs = pcs.filter(
-    p => p.state === 'Idle' || p.state === 'Reserved'
-  );
+  // Filter dropdown PCs dynamically based on overlaps
+  const requestedStart = new Date(`${form.date}T${form.time}`);
+  const requestedDurationMs = form.durationMin * 60000;
+  const requestedEnd = new Date(requestedStart.getTime() + requestedDurationMs);
+
+  const eligiblePcs = pcs.filter(pc => {
+    if (pc.state === 'Maintenance' || pc.state === 'Offline') return false;
+
+    // 1. Check against active sessions
+    const activeSession = sessions.find(s => s.pcId === pc.id && s.status === 'Active');
+    if (activeSession) {
+      // If session exists, we assume its endTime must be before our requested start time.
+      const sessionEnd = new Date(activeSession.endTime);
+      if (sessionEnd > requestedStart) return false; // Overlaps!
+    }
+
+    // 2. Check against pending reservations
+    const pendingRes = reservations.find(r => r.pcId === pc.id && r.state === 'Pending');
+    if (pendingRes) {
+      const resStart = new Date(pendingRes.reservationTime);
+      const resEnd = new Date(resStart.getTime() + (pendingRes.durationMin || 60) * 60000);
+      
+      // If strictly overlapping
+      if (requestedStart < resEnd && requestedEnd > resStart) return false;
+    }
+
+    return true;
+  });
 
   // ── Form Submission ──
   const handleFormSubmit = async (e) => {
@@ -148,7 +182,7 @@ export default function ReservationsPage() {
         advanceDeposit: 0
       }));
       fetchReservationsList();
-      fetchPcsList();
+      fetchPcsAndSessions();
     } catch (err) {
       toast.error(err.response?.data?.error || err.response?.data?.message || 'Failed to create reservation');
     } finally {
@@ -162,7 +196,7 @@ export default function ReservationsPage() {
       await startReservedSession(id);
       toast.success('Reserved session started successfully!');
       fetchReservationsList();
-      fetchPcsList();
+      fetchPcsAndSessions();
     } catch (err) {
       toast.error(err.response?.data?.error || err.response?.data?.message || 'Failed to start session');
     }
@@ -186,7 +220,7 @@ export default function ReservationsPage() {
       toast.success('Reservation cancelled successfully');
       setCancelData(null);
       fetchReservationsList();
-      fetchPcsList();
+      fetchPcsAndSessions();
     } catch (err) {
       toast.error(err.response?.data?.error || err.response?.data?.message || 'Failed to cancel reservation');
     } finally {
@@ -213,7 +247,7 @@ export default function ReservationsPage() {
       toast.success('Reservation overridden successfully');
       setOverrideData(null);
       fetchReservationsList();
-      fetchPcsList();
+      fetchPcsAndSessions();
     } catch (err) {
       toast.error(err.response?.data?.error || err.response?.data?.message || 'Failed to override reservation');
     } finally {
@@ -251,26 +285,6 @@ export default function ReservationsPage() {
                 className="w-full bg-bg-3 border border-border rounded px-3 py-2 text-xs text-text placeholder-text-3 focus:border-neon-purple focus:outline-none transition-colors"
                 required
               />
-            </div>
-
-            {/* PC Selector */}
-            <div className="space-y-1">
-              <label className="text-[10px] font-mono font-semibold text-text-2 uppercase tracking-wider block">
-                PC Number *
-              </label>
-              <select
-                value={form.pcId}
-                onChange={e => setForm(f => ({ ...f, pcId: e.target.value }))}
-                className="w-full bg-bg-3 border border-border rounded px-3 py-2 text-xs text-text focus:border-neon-purple focus:outline-none transition-colors"
-                required
-              >
-                <option value="">-- Select Available Station --</option>
-                {eligiblePcs.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.state}) {p.zone ? `- ${p.zone}` : ''}
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Date and Time row */}
@@ -363,6 +377,29 @@ export default function ReservationsPage() {
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                 className="w-full bg-bg-3 border border-border rounded px-3 py-2 text-xs text-text focus:border-neon-purple focus:outline-none resize-none"
               />
+            </div>
+
+            {/* PC Selector Moved to Bottom */}
+            <div className="space-y-1 pt-2 border-t border-border/50">
+              <label className="text-[10px] font-mono font-semibold text-text-2 uppercase tracking-wider block">
+                PC Number *
+              </label>
+              <select
+                value={form.pcId}
+                onChange={e => setForm(f => ({ ...f, pcId: e.target.value }))}
+                className="w-full bg-bg-3 border border-border rounded px-3 py-2 text-xs text-text focus:border-neon-purple focus:outline-none transition-colors"
+                required
+              >
+                <option value="">-- Select Available Station --</option>
+                {eligiblePcs.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} {p.zone ? `- ${p.zone}` : ''}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[9px] text-text-3 font-mono mt-1">
+                Showing {eligiblePcs.length} vacant PCs for the selected time block.
+              </p>
             </div>
 
             <button

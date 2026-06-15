@@ -3,7 +3,7 @@
     "step": "Login Admin",
     "endpoint": "POST /auth/admin/login",
     "payload": {
-      "email": "admin@neonarena.com",
+      "email": "admin@appleesports.com",
       "password": "Admin123!"
     },
     "correlationId": "36ed9577-756f-4bd1-b1ac-97ccbe434aee",
@@ -13,7 +13,7 @@
       "data": {
         "user": {
           "id": "22222222-2222-2222-2222-222222222222",
-          "email": "admin@neonarena.com",
+          "email": "admin@appleesports.com",
           "fullName": "System Admin",
           "username": null,
           "role": "super_admin",

@@ -219,7 +219,7 @@ async function runUAT() {
         // ---------------------------------------------------------
         console.log("== WORKFLOW 2: SUPER ADMIN ==");
         let adminRes = await safeFetch(page, 'http://localhost:5015/api/auth/admin/login', {
-            method: 'POST', body: JSON.stringify({ email: 'admin@neonarena.com', password: 'Admin123!' })
+            method: 'POST', body: JSON.stringify({ email: 'admin@appleesports.com', password: 'Admin123!' })
         });
         if (adminRes.ok) {
             await page.evaluate((data) => {

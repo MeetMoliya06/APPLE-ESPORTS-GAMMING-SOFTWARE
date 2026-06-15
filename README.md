@@ -1,4 +1,4 @@
-# NeonArena Pro — Gaming Café ERP System
+# AppleEsports Pro — Gaming Café ERP System
 
 > Enterprise Gaming Café Management Platform  
 > Centralized Multi-Branch Real-Time Operations System

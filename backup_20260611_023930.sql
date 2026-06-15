@@ -283,7 +283,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: EodSnapshots; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: EodSnapshots; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public."EodSnapshots" (
@@ -299,10 +299,10 @@ CREATE TABLE public."EodSnapshots" (
 );
 
 
-ALTER TABLE public."EodSnapshots" OWNER TO neonarena_admin;
+ALTER TABLE public."EodSnapshots" OWNER TO appleesports_admin;
 
 --
--- Name: PricingProfiles; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: PricingProfiles; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public."PricingProfiles" (
@@ -316,10 +316,10 @@ CREATE TABLE public."PricingProfiles" (
 );
 
 
-ALTER TABLE public."PricingProfiles" OWNER TO neonarena_admin;
+ALTER TABLE public."PricingProfiles" OWNER TO appleesports_admin;
 
 --
--- Name: __EFMigrationsHistory; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: __EFMigrationsHistory; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public."__EFMigrationsHistory" (
@@ -328,10 +328,10 @@ CREATE TABLE public."__EFMigrationsHistory" (
 );
 
 
-ALTER TABLE public."__EFMigrationsHistory" OWNER TO neonarena_admin;
+ALTER TABLE public."__EFMigrationsHistory" OWNER TO appleesports_admin;
 
 --
--- Name: audit_logs; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: audit_logs; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.audit_logs (
@@ -352,10 +352,10 @@ CREATE TABLE public.audit_logs (
 );
 
 
-ALTER TABLE public.audit_logs OWNER TO neonarena_admin;
+ALTER TABLE public.audit_logs OWNER TO appleesports_admin;
 
 --
--- Name: bill_items; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: bill_items; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.bill_items (
@@ -371,10 +371,10 @@ CREATE TABLE public.bill_items (
 );
 
 
-ALTER TABLE public.bill_items OWNER TO neonarena_admin;
+ALTER TABLE public.bill_items OWNER TO appleesports_admin;
 
 --
--- Name: bills; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: bills; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.bills (
@@ -410,10 +410,10 @@ CREATE TABLE public.bills (
 );
 
 
-ALTER TABLE public.bills OWNER TO neonarena_admin;
+ALTER TABLE public.bills OWNER TO appleesports_admin;
 
 --
--- Name: branches; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: branches; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.branches (
@@ -428,10 +428,10 @@ CREATE TABLE public.branches (
 );
 
 
-ALTER TABLE public.branches OWNER TO neonarena_admin;
+ALTER TABLE public.branches OWNER TO appleesports_admin;
 
 --
--- Name: cash_register; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: cash_register; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.cash_register (
@@ -453,10 +453,10 @@ CREATE TABLE public.cash_register (
 );
 
 
-ALTER TABLE public.cash_register OWNER TO neonarena_admin;
+ALTER TABLE public.cash_register OWNER TO appleesports_admin;
 
 --
--- Name: cash_transactions; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: cash_transactions; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.cash_transactions (
@@ -474,10 +474,10 @@ CREATE TABLE public.cash_transactions (
 );
 
 
-ALTER TABLE public.cash_transactions OWNER TO neonarena_admin;
+ALTER TABLE public.cash_transactions OWNER TO appleesports_admin;
 
 --
--- Name: denomination_counts; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: denomination_counts; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.denomination_counts (
@@ -504,10 +504,10 @@ CREATE TABLE public.denomination_counts (
 );
 
 
-ALTER TABLE public.denomination_counts OWNER TO neonarena_admin;
+ALTER TABLE public.denomination_counts OWNER TO appleesports_admin;
 
 --
--- Name: discounts; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: discounts; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.discounts (
@@ -523,10 +523,10 @@ CREATE TABLE public.discounts (
 );
 
 
-ALTER TABLE public.discounts OWNER TO neonarena_admin;
+ALTER TABLE public.discounts OWNER TO appleesports_admin;
 
 --
--- Name: food_order_items; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: food_order_items; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.food_order_items (
@@ -541,10 +541,10 @@ CREATE TABLE public.food_order_items (
 );
 
 
-ALTER TABLE public.food_order_items OWNER TO neonarena_admin;
+ALTER TABLE public.food_order_items OWNER TO appleesports_admin;
 
 --
--- Name: food_orders; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: food_orders; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.food_orders (
@@ -570,10 +570,10 @@ CREATE TABLE public.food_orders (
 );
 
 
-ALTER TABLE public.food_orders OWNER TO neonarena_admin;
+ALTER TABLE public.food_orders OWNER TO appleesports_admin;
 
 --
--- Name: inventory; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: inventory; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.inventory (
@@ -591,10 +591,10 @@ CREATE TABLE public.inventory (
 );
 
 
-ALTER TABLE public.inventory OWNER TO neonarena_admin;
+ALTER TABLE public.inventory OWNER TO appleesports_admin;
 
 --
--- Name: inventory_logs; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: inventory_logs; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.inventory_logs (
@@ -611,10 +611,10 @@ CREATE TABLE public.inventory_logs (
 );
 
 
-ALTER TABLE public.inventory_logs OWNER TO neonarena_admin;
+ALTER TABLE public.inventory_logs OWNER TO appleesports_admin;
 
 --
--- Name: loyalty_points; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: loyalty_points; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.loyalty_points (
@@ -636,10 +636,10 @@ CREATE TABLE public.loyalty_points (
 );
 
 
-ALTER TABLE public.loyalty_points OWNER TO neonarena_admin;
+ALTER TABLE public.loyalty_points OWNER TO appleesports_admin;
 
 --
--- Name: members; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: members; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.members (
@@ -667,10 +667,10 @@ CREATE TABLE public.members (
 );
 
 
-ALTER TABLE public.members OWNER TO neonarena_admin;
+ALTER TABLE public.members OWNER TO appleesports_admin;
 
 --
--- Name: operators; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: operators; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.operators (
@@ -690,10 +690,10 @@ CREATE TABLE public.operators (
 );
 
 
-ALTER TABLE public.operators OWNER TO neonarena_admin;
+ALTER TABLE public.operators OWNER TO appleesports_admin;
 
 --
--- Name: payments; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: payments; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.payments (
@@ -716,10 +716,10 @@ CREATE TABLE public.payments (
 );
 
 
-ALTER TABLE public.payments OWNER TO neonarena_admin;
+ALTER TABLE public.payments OWNER TO appleesports_admin;
 
 --
--- Name: pcs; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: pcs; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.pcs (
@@ -744,10 +744,10 @@ CREATE TABLE public.pcs (
 );
 
 
-ALTER TABLE public.pcs OWNER TO neonarena_admin;
+ALTER TABLE public.pcs OWNER TO appleesports_admin;
 
 --
--- Name: reservations; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: reservations; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.reservations (
@@ -772,10 +772,10 @@ CREATE TABLE public.reservations (
 );
 
 
-ALTER TABLE public.reservations OWNER TO neonarena_admin;
+ALTER TABLE public.reservations OWNER TO appleesports_admin;
 
 --
--- Name: sessions; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: sessions; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.sessions (
@@ -801,10 +801,10 @@ CREATE TABLE public.sessions (
 );
 
 
-ALTER TABLE public.sessions OWNER TO neonarena_admin;
+ALTER TABLE public.sessions OWNER TO appleesports_admin;
 
 --
--- Name: shifts; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: shifts; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.shifts (
@@ -820,10 +820,10 @@ CREATE TABLE public.shifts (
 );
 
 
-ALTER TABLE public.shifts OWNER TO neonarena_admin;
+ALTER TABLE public.shifts OWNER TO appleesports_admin;
 
 --
--- Name: system_config; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: system_config; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.system_config (
@@ -836,10 +836,10 @@ CREATE TABLE public.system_config (
 );
 
 
-ALTER TABLE public.system_config OWNER TO neonarena_admin;
+ALTER TABLE public.system_config OWNER TO appleesports_admin;
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: users; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.users (
@@ -856,10 +856,10 @@ CREATE TABLE public.users (
 );
 
 
-ALTER TABLE public.users OWNER TO neonarena_admin;
+ALTER TABLE public.users OWNER TO appleesports_admin;
 
 --
--- Name: wallet_transactions; Type: TABLE; Schema: public; Owner: neonarena_admin
+-- Name: wallet_transactions; Type: TABLE; Schema: public; Owner: appleesports_admin
 --
 
 CREATE TABLE public.wallet_transactions (
@@ -882,10 +882,10 @@ CREATE TABLE public.wallet_transactions (
 );
 
 
-ALTER TABLE public.wallet_transactions OWNER TO neonarena_admin;
+ALTER TABLE public.wallet_transactions OWNER TO appleesports_admin;
 
 --
--- Data for Name: EodSnapshots; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: EodSnapshots; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public."EodSnapshots" ("Id", "BranchId", "ReportDate", "GeneratedByOperatorId", "SnapshotVersion", "SchemaVersion", "SnapshotData", "CreatedAt", "UpdatedAt") FROM stdin;
@@ -893,7 +893,7 @@ COPY public."EodSnapshots" ("Id", "BranchId", "ReportDate", "GeneratedByOperator
 
 
 --
--- Data for Name: PricingProfiles; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: PricingProfiles; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public."PricingProfiles" ("Id", "Name", "BaseHourlyRate", "BranchId", "IsActive", "CreatedAt", "UpdatedAt") FROM stdin;
@@ -910,7 +910,7 @@ COPY public."PricingProfiles" ("Id", "Name", "BaseHourlyRate", "BranchId", "IsAc
 
 
 --
--- Data for Name: __EFMigrationsHistory; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: __EFMigrationsHistory; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") FROM stdin;
@@ -921,7 +921,7 @@ COPY public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") FROM stdin
 
 
 --
--- Data for Name: audit_logs; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: audit_logs; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.audit_logs ("Id", "UserId", "OperatorId", "UserRole", "UserName", "Action", "TargetType", "TargetId", "BranchId", "BranchName", "Details", "IpAddress", "DeviceInfo", "CreatedAt") FROM stdin;
@@ -1077,7 +1077,7 @@ adff7139-cabb-4b70-97cc-610ab132f824	\N	30000000-0000-0000-0000-000000000003	ope
 
 
 --
--- Data for Name: bill_items; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: bill_items; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.bill_items ("Id", "BillId", "ItemType", "ItemName", "Quantity", "UnitPrice", "TotalPrice", "InventoryId", "CreatedAt") FROM stdin;
@@ -1085,7 +1085,7 @@ COPY public.bill_items ("Id", "BillId", "ItemType", "ItemName", "Quantity", "Uni
 
 
 --
--- Data for Name: bills; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: bills; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.bills ("Id", "BillNumber", "SessionId", "PcId", "BranchId", "OperatorId", "ShiftId", "CustomerName", "MemberId", "GamingAmount", "FoodAmount", "Subtotal", "DiscountType", "DiscountValue", "DiscountAmount", "DiscountBy", "DiscountReason", "TotalAmount", "PaymentType", "CashAmount", "OnlineAmount", "WalletAmount", "CashReceived", "ChangeReturned", "ActualCashCollected", "Status", "CompletedAt", "CreatedAt", "UpdatedAt") FROM stdin;
@@ -1098,7 +1098,7 @@ aecdabf6-3329-4912-a8d8-2f27e8b9cdf6	BILL-20260610-C0D4	01cc1aae-d913-4c39-a850-
 
 
 --
--- Data for Name: branches; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: branches; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.branches ("Id", "Name", "Address", "OpeningTime", "ClosingTime", "Status", "CreatedAt", "UpdatedAt") FROM stdin;
@@ -1110,7 +1110,7 @@ b0000000-0000-0000-0000-000000000004	Varachha	Varachha, Surat	10:00:00	02:00:00	
 
 
 --
--- Data for Name: cash_register; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: cash_register; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.cash_register ("Id", "ShiftId", "BranchId", "OperatorId", "OpeningBalance", "TotalCashSales", "TotalSplitCash", "ExpectedDrawerCash", "PhysicalCashCounted", "CashDifference", "MismatchReason", "Status", "OpenedAt", "VerifiedAt", "ClosedAt") FROM stdin;
@@ -1129,7 +1129,7 @@ e19fdb1b-0f2d-4b79-a655-748fd2ffd1a1	5e9b122c-e6f8-415b-afbe-e5dc366455eb	b00000
 
 
 --
--- Data for Name: cash_transactions; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: cash_transactions; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.cash_transactions ("Id", "CashRegisterId", "BillId", "BranchId", "OperatorId", "PcNumber", "CashAmount", "GamingAmount", "FoodAmount", "TransactionType", "CreatedAt") FROM stdin;
@@ -1142,7 +1142,7 @@ d10ef030-5c75-4a42-9a04-e282750626ab	4dd3ce2b-0ee8-4f3d-8446-d81f902cbde9	aecdab
 
 
 --
--- Data for Name: denomination_counts; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: denomination_counts; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.denomination_counts ("Id", "CashRegisterId", "ShiftId", "BranchId", "OperatorId", "Notes2000", "Notes500", "Notes200", "Notes100", "Notes50", "Notes20", "Notes10", "Coins5", "Coins2", "Coins1", "CountedTotal", "ExpectedTotal", "Difference", "IsVerified", "CreatedAt") FROM stdin;
@@ -1150,7 +1150,7 @@ COPY public.denomination_counts ("Id", "CashRegisterId", "ShiftId", "BranchId", 
 
 
 --
--- Data for Name: discounts; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: discounts; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.discounts ("Id", "BillId", "BranchId", "AdminId", "DiscountType", "DiscountValue", "DiscountAmount", "Reason", "CreatedAt") FROM stdin;
@@ -1158,7 +1158,7 @@ COPY public.discounts ("Id", "BillId", "BranchId", "AdminId", "DiscountType", "D
 
 
 --
--- Data for Name: food_order_items; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: food_order_items; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.food_order_items ("Id", "OrderId", "InventoryId", "ItemName", "Quantity", "UnitPrice", "TotalPrice", "CreatedAt") FROM stdin;
@@ -1168,7 +1168,7 @@ b26d6683-57c6-4dc1-b65d-ac6775e4b5f7	db3df109-b23a-4971-8637-c551e703424e	dea4d8
 
 
 --
--- Data for Name: food_orders; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: food_orders; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.food_orders ("Id", "OrderNumber", "SessionId", "PcId", "BranchId", "OperatorId", "CustomerName", "MemberId", "TotalAmount", "PaymentType", "Status", "CancelledReason", "OrderTime", "AcceptedAt", "ReadyAt", "DeliveredAt", "CompletedAt", "CreatedAt", "UpdatedAt") FROM stdin;
@@ -1178,7 +1178,7 @@ db3df109-b23a-4971-8637-c551e703424e	ORD-260610-0001	\N	\N	b0000000-0000-0000-00
 
 
 --
--- Data for Name: inventory; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: inventory; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.inventory ("Id", "BranchId", "ItemName", "Category", "Price", "CurrentStock", "MinStockLimit", "Status", "ImageUrl", "CreatedAt", "UpdatedAt") FROM stdin;
@@ -1194,7 +1194,7 @@ d01e1638-cbd0-5b15-9b9e-7c0b864f5504	b0000000-0000-0000-0000-000000000002	Chips	
 
 
 --
--- Data for Name: inventory_logs; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: inventory_logs; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.inventory_logs ("Id", "InventoryId", "BranchId", "OperatorId", "Action", "Quantity", "OldValue", "NewValue", "Reason", "CreatedAt") FROM stdin;
@@ -1202,7 +1202,7 @@ COPY public.inventory_logs ("Id", "InventoryId", "BranchId", "OperatorId", "Acti
 
 
 --
--- Data for Name: loyalty_points; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: loyalty_points; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.loyalty_points ("Id", "MemberId", "BranchId", "OperatorId", "AdminId", "Action", "Category", "Points", "PointsBefore", "PointsAfter", "BillId", "RewardType", "RewardValue", "Reason", "CreatedAt") FROM stdin;
@@ -1210,7 +1210,7 @@ COPY public.loyalty_points ("Id", "MemberId", "BranchId", "OperatorId", "AdminId
 
 
 --
--- Data for Name: members; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: members; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.members ("Id", "MemberNumber", "FullName", "MobileNumber", "Email", "Status", "GamingPoints", "FoodPoints", "TotalPoints", "TotalGamingSpend", "TotalFoodSpend", "HomeBranchId", "JoinDate", "LastVisit", "CreatedBy", "CreatedAt", "UpdatedAt", "GamingBalance", "FoodBalance", "Username", "PasswordHash") FROM stdin;
@@ -1222,7 +1222,7 @@ ae3580d9-cb5b-48c4-9cba-0de3c9e623a8	MEM-2606-0003	harshal	1234567899	meet200406
 
 
 --
--- Data for Name: operators; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: operators; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.operators ("Id", "FullName", "Username", "PasswordHash", "MobileNumber", "BranchId", "Status", "DashboardPermissions", "LastLogin", "DeviceInfo", "CreatedBy", "CreatedAt", "UpdatedAt") FROM stdin;
@@ -1238,7 +1238,7 @@ COPY public.operators ("Id", "FullName", "Username", "PasswordHash", "MobileNumb
 
 
 --
--- Data for Name: payments; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: payments; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.payments ("Id", "BillId", "BranchId", "OperatorId", "PaymentType", "TotalAmount", "CashAmount", "OnlineAmount", "WalletAmount", "CashReceived", "ChangeReturned", "ActualCashCollected", "GamingPortion", "FoodPortion", "Status", "CreatedAt") FROM stdin;
@@ -1249,7 +1249,7 @@ f764f70c-81d8-4578-a67c-a1f33fea7db3	89050fd7-4f9a-4149-9113-e333a57b6d55	b00000
 
 
 --
--- Data for Name: pcs; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: pcs; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.pcs ("Id", "PcNumber", "BranchId", "State", "CurrentSessionId", "CurrentReservationId", "LastActiveAt", "LastOperatorId", "IpAddress", "Specs", "PcName", "Zone", "PricingProfileId", "HardwareNotes", "IsActive", "IsDeleted", "CreatedAt", "UpdatedAt") FROM stdin;
@@ -1363,7 +1363,7 @@ a4a8739e-518c-5279-b0ed-95f4273c245e	PC-03	b0000000-0000-0000-0000-000000000002	
 
 
 --
--- Data for Name: reservations; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: reservations; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.reservations ("Id", "PcId", "BranchId", "OperatorId", "CustomerName", "MemberId", "ReservationTime", "DurationMin", "GracePeriodMin", "State", "StartedAt", "ExpiredAt", "CancelledAt", "OverrideBy", "OverrideReason", "Notes", "CreatedAt", "UpdatedAt") FROM stdin;
@@ -1371,7 +1371,7 @@ COPY public.reservations ("Id", "PcId", "BranchId", "OperatorId", "CustomerName"
 
 
 --
--- Data for Name: sessions; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: sessions; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.sessions ("Id", "PcId", "BranchId", "OperatorId", "ShiftId", "CustomerName", "MemberId", "StartTime", "EndTime", "PlannedDurationMin", "ActualDurationMin", "GamingAmount", "FoodAmount", "TotalAmount", "State", "GamingType", "Notes", "CreatedAt", "UpdatedAt") FROM stdin;
@@ -1384,7 +1384,7 @@ c5d7090e-f47a-4aaa-b441-1912725df05b	a4a8739e-518c-5279-b0ed-95f4273c245e	b00000
 
 
 --
--- Data for Name: shifts; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: shifts; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.shifts ("Id", "OperatorId", "BranchId", "LoginTime", "LogoutTime", "DeviceInfo", "Status", "Summary", "CreatedAt") FROM stdin;
@@ -1420,7 +1420,7 @@ d6674986-8954-4182-aa15-1e9190a5e54b	30000000-0000-0000-0000-000000000003	b00000
 
 
 --
--- Data for Name: system_config; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: system_config; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.system_config ("Id", "ConfigKey", "ConfigValue", "Description", "UpdatedBy", "UpdatedAt") FROM stdin;
@@ -1428,16 +1428,16 @@ COPY public.system_config ("Id", "ConfigKey", "ConfigValue", "Description", "Upd
 
 
 --
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.users ("Id", "Email", "PasswordHash", "FullName", "Role", "Status", "LastLogin", "DeviceInfo", "CreatedAt", "UpdatedAt") FROM stdin;
-22222222-2222-2222-2222-222222222222	admin@neonarena.com	$2a$11$HuaGgvFZSbPHVNiw.vi52OnKtKSIl4X8p1BBiKHUYvs7kq8I14Luy	System Admin	super_admin	active	2026-06-10 19:59:51.51859+00	\N	2026-06-10 07:31:15.188523+00	2026-06-10 19:59:51.518873+00
+22222222-2222-2222-2222-222222222222	admin@appleesports.com	$2a$11$HuaGgvFZSbPHVNiw.vi52OnKtKSIl4X8p1BBiKHUYvs7kq8I14Luy	System Admin	super_admin	active	2026-06-10 19:59:51.51859+00	\N	2026-06-10 07:31:15.188523+00	2026-06-10 19:59:51.518873+00
 \.
 
 
 --
--- Data for Name: wallet_transactions; Type: TABLE DATA; Schema: public; Owner: neonarena_admin
+-- Data for Name: wallet_transactions; Type: TABLE DATA; Schema: public; Owner: appleesports_admin
 --
 
 COPY public.wallet_transactions ("Id", "MemberId", "BranchId", "OperatorId", "AdminId", "Action", "Amount", "BalanceBefore", "BalanceAfter", "PaymentType", "CashAmount", "OnlineAmount", "BillId", "Reason", "CreatedAt", "TargetWallet") FROM stdin;
@@ -1448,7 +1448,7 @@ bacc01e3-459f-4e7c-86cc-a05f427f2174	e36fa765-6cff-4cb3-851e-42512bf09b84	b00000
 
 
 --
--- Name: EodSnapshots PK_EodSnapshots; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: EodSnapshots PK_EodSnapshots; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public."EodSnapshots"
@@ -1456,7 +1456,7 @@ ALTER TABLE ONLY public."EodSnapshots"
 
 
 --
--- Name: PricingProfiles PK_PricingProfiles; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: PricingProfiles PK_PricingProfiles; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public."PricingProfiles"
@@ -1464,7 +1464,7 @@ ALTER TABLE ONLY public."PricingProfiles"
 
 
 --
--- Name: __EFMigrationsHistory PK___EFMigrationsHistory; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: __EFMigrationsHistory PK___EFMigrationsHistory; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public."__EFMigrationsHistory"
@@ -1472,7 +1472,7 @@ ALTER TABLE ONLY public."__EFMigrationsHistory"
 
 
 --
--- Name: audit_logs PK_audit_logs; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: audit_logs PK_audit_logs; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.audit_logs
@@ -1480,7 +1480,7 @@ ALTER TABLE ONLY public.audit_logs
 
 
 --
--- Name: bill_items PK_bill_items; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: bill_items PK_bill_items; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.bill_items
@@ -1488,7 +1488,7 @@ ALTER TABLE ONLY public.bill_items
 
 
 --
--- Name: bills PK_bills; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: bills PK_bills; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.bills
@@ -1496,7 +1496,7 @@ ALTER TABLE ONLY public.bills
 
 
 --
--- Name: branches PK_branches; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: branches PK_branches; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.branches
@@ -1504,7 +1504,7 @@ ALTER TABLE ONLY public.branches
 
 
 --
--- Name: cash_register PK_cash_register; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: cash_register PK_cash_register; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.cash_register
@@ -1512,7 +1512,7 @@ ALTER TABLE ONLY public.cash_register
 
 
 --
--- Name: cash_transactions PK_cash_transactions; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: cash_transactions PK_cash_transactions; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.cash_transactions
@@ -1520,7 +1520,7 @@ ALTER TABLE ONLY public.cash_transactions
 
 
 --
--- Name: denomination_counts PK_denomination_counts; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: denomination_counts PK_denomination_counts; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.denomination_counts
@@ -1528,7 +1528,7 @@ ALTER TABLE ONLY public.denomination_counts
 
 
 --
--- Name: discounts PK_discounts; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: discounts PK_discounts; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.discounts
@@ -1536,7 +1536,7 @@ ALTER TABLE ONLY public.discounts
 
 
 --
--- Name: food_order_items PK_food_order_items; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: food_order_items PK_food_order_items; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.food_order_items
@@ -1544,7 +1544,7 @@ ALTER TABLE ONLY public.food_order_items
 
 
 --
--- Name: food_orders PK_food_orders; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: food_orders PK_food_orders; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.food_orders
@@ -1552,7 +1552,7 @@ ALTER TABLE ONLY public.food_orders
 
 
 --
--- Name: inventory PK_inventory; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: inventory PK_inventory; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.inventory
@@ -1560,7 +1560,7 @@ ALTER TABLE ONLY public.inventory
 
 
 --
--- Name: inventory_logs PK_inventory_logs; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: inventory_logs PK_inventory_logs; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.inventory_logs
@@ -1568,7 +1568,7 @@ ALTER TABLE ONLY public.inventory_logs
 
 
 --
--- Name: loyalty_points PK_loyalty_points; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: loyalty_points PK_loyalty_points; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.loyalty_points
@@ -1576,7 +1576,7 @@ ALTER TABLE ONLY public.loyalty_points
 
 
 --
--- Name: members PK_members; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: members PK_members; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.members
@@ -1584,7 +1584,7 @@ ALTER TABLE ONLY public.members
 
 
 --
--- Name: operators PK_operators; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: operators PK_operators; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.operators
@@ -1592,7 +1592,7 @@ ALTER TABLE ONLY public.operators
 
 
 --
--- Name: payments PK_payments; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: payments PK_payments; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.payments
@@ -1600,7 +1600,7 @@ ALTER TABLE ONLY public.payments
 
 
 --
--- Name: pcs PK_pcs; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: pcs PK_pcs; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.pcs
@@ -1608,7 +1608,7 @@ ALTER TABLE ONLY public.pcs
 
 
 --
--- Name: reservations PK_reservations; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: reservations PK_reservations; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.reservations
@@ -1616,7 +1616,7 @@ ALTER TABLE ONLY public.reservations
 
 
 --
--- Name: sessions PK_sessions; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: sessions PK_sessions; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.sessions
@@ -1624,7 +1624,7 @@ ALTER TABLE ONLY public.sessions
 
 
 --
--- Name: shifts PK_shifts; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: shifts PK_shifts; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.shifts
@@ -1632,7 +1632,7 @@ ALTER TABLE ONLY public.shifts
 
 
 --
--- Name: system_config PK_system_config; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: system_config PK_system_config; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.system_config
@@ -1640,7 +1640,7 @@ ALTER TABLE ONLY public.system_config
 
 
 --
--- Name: users PK_users; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: users PK_users; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.users
@@ -1648,7 +1648,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: wallet_transactions PK_wallet_transactions; Type: CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: wallet_transactions PK_wallet_transactions; Type: CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.wallet_transactions
@@ -1656,749 +1656,749 @@ ALTER TABLE ONLY public.wallet_transactions
 
 
 --
--- Name: IX_EodSnapshots_BranchId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_EodSnapshots_BranchId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_EodSnapshots_BranchId" ON public."EodSnapshots" USING btree ("BranchId");
 
 
 --
--- Name: IX_EodSnapshots_GeneratedByOperatorId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_EodSnapshots_GeneratedByOperatorId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_EodSnapshots_GeneratedByOperatorId" ON public."EodSnapshots" USING btree ("GeneratedByOperatorId");
 
 
 --
--- Name: IX_Members_Username; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_Members_Username; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE UNIQUE INDEX "IX_Members_Username" ON public.members USING btree ("Username") WHERE ("Username" IS NOT NULL);
 
 
 --
--- Name: IX_PricingProfiles_BranchId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_PricingProfiles_BranchId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_PricingProfiles_BranchId" ON public."PricingProfiles" USING btree ("BranchId");
 
 
 --
--- Name: IX_bills_BillNumber; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_bills_BillNumber; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE UNIQUE INDEX "IX_bills_BillNumber" ON public.bills USING btree ("BillNumber");
 
 
 --
--- Name: IX_bills_DiscountBy; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_bills_DiscountBy; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_bills_DiscountBy" ON public.bills USING btree ("DiscountBy");
 
 
 --
--- Name: IX_bills_MemberId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_bills_MemberId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_bills_MemberId" ON public.bills USING btree ("MemberId");
 
 
 --
--- Name: IX_bills_PcId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_bills_PcId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_bills_PcId" ON public.bills USING btree ("PcId");
 
 
 --
--- Name: IX_bills_ShiftId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_bills_ShiftId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_bills_ShiftId" ON public.bills USING btree ("ShiftId");
 
 
 --
--- Name: IX_branches_Name; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_branches_Name; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE UNIQUE INDEX "IX_branches_Name" ON public.branches USING btree ("Name");
 
 
 --
--- Name: IX_cash_register_OperatorId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_cash_register_OperatorId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_cash_register_OperatorId" ON public.cash_register USING btree ("OperatorId");
 
 
 --
--- Name: IX_cash_transactions_BillId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_cash_transactions_BillId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_cash_transactions_BillId" ON public.cash_transactions USING btree ("BillId");
 
 
 --
--- Name: IX_cash_transactions_BranchId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_cash_transactions_BranchId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_cash_transactions_BranchId" ON public.cash_transactions USING btree ("BranchId");
 
 
 --
--- Name: IX_cash_transactions_OperatorId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_cash_transactions_OperatorId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_cash_transactions_OperatorId" ON public.cash_transactions USING btree ("OperatorId");
 
 
 --
--- Name: IX_denomination_counts_BranchId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_denomination_counts_BranchId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_denomination_counts_BranchId" ON public.denomination_counts USING btree ("BranchId");
 
 
 --
--- Name: IX_denomination_counts_CashRegisterId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_denomination_counts_CashRegisterId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_denomination_counts_CashRegisterId" ON public.denomination_counts USING btree ("CashRegisterId");
 
 
 --
--- Name: IX_denomination_counts_OperatorId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_denomination_counts_OperatorId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_denomination_counts_OperatorId" ON public.denomination_counts USING btree ("OperatorId");
 
 
 --
--- Name: IX_denomination_counts_ShiftId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_denomination_counts_ShiftId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_denomination_counts_ShiftId" ON public.denomination_counts USING btree ("ShiftId");
 
 
 --
--- Name: IX_discounts_AdminId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_discounts_AdminId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_discounts_AdminId" ON public.discounts USING btree ("AdminId");
 
 
 --
--- Name: IX_discounts_BillId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_discounts_BillId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_discounts_BillId" ON public.discounts USING btree ("BillId");
 
 
 --
--- Name: IX_discounts_BranchId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_discounts_BranchId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_discounts_BranchId" ON public.discounts USING btree ("BranchId");
 
 
 --
--- Name: IX_food_order_items_InventoryId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_food_order_items_InventoryId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_food_order_items_InventoryId" ON public.food_order_items USING btree ("InventoryId");
 
 
 --
--- Name: IX_food_orders_MemberId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_food_orders_MemberId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_food_orders_MemberId" ON public.food_orders USING btree ("MemberId");
 
 
 --
--- Name: IX_food_orders_OperatorId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_food_orders_OperatorId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_food_orders_OperatorId" ON public.food_orders USING btree ("OperatorId");
 
 
 --
--- Name: IX_food_orders_OrderNumber; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_food_orders_OrderNumber; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE UNIQUE INDEX "IX_food_orders_OrderNumber" ON public.food_orders USING btree ("OrderNumber");
 
 
 --
--- Name: IX_food_orders_PcId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_food_orders_PcId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_food_orders_PcId" ON public.food_orders USING btree ("PcId");
 
 
 --
--- Name: IX_inventory_logs_BranchId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_inventory_logs_BranchId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_inventory_logs_BranchId" ON public.inventory_logs USING btree ("BranchId");
 
 
 --
--- Name: IX_inventory_logs_OperatorId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_inventory_logs_OperatorId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_inventory_logs_OperatorId" ON public.inventory_logs USING btree ("OperatorId");
 
 
 --
--- Name: IX_loyalty_points_AdminId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_loyalty_points_AdminId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_loyalty_points_AdminId" ON public.loyalty_points USING btree ("AdminId");
 
 
 --
--- Name: IX_loyalty_points_BillId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_loyalty_points_BillId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_loyalty_points_BillId" ON public.loyalty_points USING btree ("BillId");
 
 
 --
--- Name: IX_loyalty_points_BranchId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_loyalty_points_BranchId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_loyalty_points_BranchId" ON public.loyalty_points USING btree ("BranchId");
 
 
 --
--- Name: IX_loyalty_points_OperatorId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_loyalty_points_OperatorId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_loyalty_points_OperatorId" ON public.loyalty_points USING btree ("OperatorId");
 
 
 --
--- Name: IX_members_HomeBranchId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_members_HomeBranchId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_members_HomeBranchId" ON public.members USING btree ("HomeBranchId");
 
 
 --
--- Name: IX_members_MemberNumber; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_members_MemberNumber; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE UNIQUE INDEX "IX_members_MemberNumber" ON public.members USING btree ("MemberNumber");
 
 
 --
--- Name: IX_members_Username; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_members_Username; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE UNIQUE INDEX "IX_members_Username" ON public.members USING btree ("Username") WHERE ("Username" IS NOT NULL);
 
 
 --
--- Name: IX_operators_CreatedBy; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_operators_CreatedBy; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_operators_CreatedBy" ON public.operators USING btree ("CreatedBy");
 
 
 --
--- Name: IX_operators_Username; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_operators_Username; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE UNIQUE INDEX "IX_operators_Username" ON public.operators USING btree ("Username");
 
 
 --
--- Name: IX_payments_OperatorId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_payments_OperatorId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_payments_OperatorId" ON public.payments USING btree ("OperatorId");
 
 
 --
--- Name: IX_pcs_CurrentReservationId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_pcs_CurrentReservationId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_pcs_CurrentReservationId" ON public.pcs USING btree ("CurrentReservationId");
 
 
 --
--- Name: IX_pcs_CurrentSessionId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_pcs_CurrentSessionId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_pcs_CurrentSessionId" ON public.pcs USING btree ("CurrentSessionId");
 
 
 --
--- Name: IX_pcs_LastOperatorId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_pcs_LastOperatorId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_pcs_LastOperatorId" ON public.pcs USING btree ("LastOperatorId");
 
 
 --
--- Name: IX_pcs_PcNumber_BranchId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_pcs_PcNumber_BranchId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE UNIQUE INDEX "IX_pcs_PcNumber_BranchId" ON public.pcs USING btree ("PcNumber", "BranchId");
 
 
 --
--- Name: IX_pcs_PricingProfileId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_pcs_PricingProfileId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_pcs_PricingProfileId" ON public.pcs USING btree ("PricingProfileId");
 
 
 --
--- Name: IX_reservations_MemberId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_reservations_MemberId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_reservations_MemberId" ON public.reservations USING btree ("MemberId");
 
 
 --
--- Name: IX_reservations_OperatorId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_reservations_OperatorId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_reservations_OperatorId" ON public.reservations USING btree ("OperatorId");
 
 
 --
--- Name: IX_reservations_OverrideBy; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_reservations_OverrideBy; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_reservations_OverrideBy" ON public.reservations USING btree ("OverrideBy");
 
 
 --
--- Name: IX_sessions_MemberId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_sessions_MemberId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_sessions_MemberId" ON public.sessions USING btree ("MemberId");
 
 
 --
--- Name: IX_sessions_ShiftId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_sessions_ShiftId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_sessions_ShiftId" ON public.sessions USING btree ("ShiftId");
 
 
 --
--- Name: IX_system_config_ConfigKey; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_system_config_ConfigKey; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE UNIQUE INDEX "IX_system_config_ConfigKey" ON public.system_config USING btree ("ConfigKey");
 
 
 --
--- Name: IX_system_config_UpdatedBy; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_system_config_UpdatedBy; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_system_config_UpdatedBy" ON public.system_config USING btree ("UpdatedBy");
 
 
 --
--- Name: IX_users_Email; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_users_Email; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE UNIQUE INDEX "IX_users_Email" ON public.users USING btree ("Email");
 
 
 --
--- Name: IX_wallet_transactions_AdminId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_wallet_transactions_AdminId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_wallet_transactions_AdminId" ON public.wallet_transactions USING btree ("AdminId");
 
 
 --
--- Name: IX_wallet_transactions_BillId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_wallet_transactions_BillId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_wallet_transactions_BillId" ON public.wallet_transactions USING btree ("BillId");
 
 
 --
--- Name: IX_wallet_transactions_BranchId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_wallet_transactions_BranchId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_wallet_transactions_BranchId" ON public.wallet_transactions USING btree ("BranchId");
 
 
 --
--- Name: IX_wallet_transactions_OperatorId; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: IX_wallet_transactions_OperatorId; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX "IX_wallet_transactions_OperatorId" ON public.wallet_transactions USING btree ("OperatorId");
 
 
 --
--- Name: idx_audit_action; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_audit_action; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_audit_action ON public.audit_logs USING btree ("Action");
 
 
 --
--- Name: idx_audit_branch; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_audit_branch; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_audit_branch ON public.audit_logs USING btree ("BranchId");
 
 
 --
--- Name: idx_audit_date; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_audit_date; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_audit_date ON public.audit_logs USING btree ("CreatedAt");
 
 
 --
--- Name: idx_audit_operator; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_audit_operator; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_audit_operator ON public.audit_logs USING btree ("OperatorId");
 
 
 --
--- Name: idx_audit_target; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_audit_target; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_audit_target ON public.audit_logs USING btree ("TargetType", "TargetId");
 
 
 --
--- Name: idx_audit_user; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_audit_user; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_audit_user ON public.audit_logs USING btree ("UserId");
 
 
 --
--- Name: idx_bill_items_bill; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_bill_items_bill; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_bill_items_bill ON public.bill_items USING btree ("BillId");
 
 
 --
--- Name: idx_bills_branch; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_bills_branch; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_bills_branch ON public.bills USING btree ("BranchId");
 
 
 --
--- Name: idx_bills_date; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_bills_date; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_bills_date ON public.bills USING btree ("CreatedAt");
 
 
 --
--- Name: idx_bills_operator; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_bills_operator; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_bills_operator ON public.bills USING btree ("OperatorId");
 
 
 --
--- Name: idx_bills_session; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_bills_session; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_bills_session ON public.bills USING btree ("SessionId");
 
 
 --
--- Name: idx_bills_status; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_bills_status; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_bills_status ON public.bills USING btree ("Status");
 
 
 --
--- Name: idx_cash_register_branch; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_cash_register_branch; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_cash_register_branch ON public.cash_register USING btree ("BranchId");
 
 
 --
--- Name: idx_cash_register_shift; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_cash_register_shift; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE UNIQUE INDEX idx_cash_register_shift ON public.cash_register USING btree ("ShiftId");
 
 
 --
--- Name: idx_cash_txn_date; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_cash_txn_date; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_cash_txn_date ON public.cash_transactions USING btree ("CreatedAt");
 
 
 --
--- Name: idx_cash_txn_register; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_cash_txn_register; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_cash_txn_register ON public.cash_transactions USING btree ("CashRegisterId");
 
 
 --
--- Name: idx_food_items_order; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_food_items_order; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_food_items_order ON public.food_order_items USING btree ("OrderId");
 
 
 --
--- Name: idx_food_orders_branch; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_food_orders_branch; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_food_orders_branch ON public.food_orders USING btree ("BranchId");
 
 
 --
--- Name: idx_food_orders_date; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_food_orders_date; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_food_orders_date ON public.food_orders USING btree ("OrderTime");
 
 
 --
--- Name: idx_food_orders_session; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_food_orders_session; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_food_orders_session ON public.food_orders USING btree ("SessionId");
 
 
 --
--- Name: idx_food_orders_status; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_food_orders_status; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_food_orders_status ON public.food_orders USING btree ("Status");
 
 
 --
--- Name: idx_inv_logs_date; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_inv_logs_date; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_inv_logs_date ON public.inventory_logs USING btree ("CreatedAt");
 
 
 --
--- Name: idx_inv_logs_item; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_inv_logs_item; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_inv_logs_item ON public.inventory_logs USING btree ("InventoryId");
 
 
 --
--- Name: idx_inventory_branch; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_inventory_branch; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_inventory_branch ON public.inventory USING btree ("BranchId");
 
 
 --
--- Name: idx_inventory_category; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_inventory_category; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_inventory_category ON public.inventory USING btree ("Category");
 
 
 --
--- Name: idx_inventory_status; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_inventory_status; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_inventory_status ON public.inventory USING btree ("Status");
 
 
 --
--- Name: idx_loyalty_member; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_loyalty_member; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_loyalty_member ON public.loyalty_points USING btree ("MemberId");
 
 
 --
--- Name: idx_members_mobile; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_members_mobile; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE UNIQUE INDEX idx_members_mobile ON public.members USING btree ("MobileNumber");
 
 
 --
--- Name: idx_members_status; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_members_status; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_members_status ON public.members USING btree ("Status");
 
 
 --
--- Name: idx_operators_branch; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_operators_branch; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_operators_branch ON public.operators USING btree ("BranchId");
 
 
 --
--- Name: idx_operators_status; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_operators_status; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_operators_status ON public.operators USING btree ("Status");
 
 
 --
--- Name: idx_payments_bill; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_payments_bill; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_payments_bill ON public.payments USING btree ("BillId");
 
 
 --
--- Name: idx_payments_branch; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_payments_branch; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_payments_branch ON public.payments USING btree ("BranchId");
 
 
 --
--- Name: idx_payments_date; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_payments_date; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_payments_date ON public.payments USING btree ("CreatedAt");
 
 
 --
--- Name: idx_payments_type; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_payments_type; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_payments_type ON public.payments USING btree ("PaymentType");
 
 
 --
--- Name: idx_pcs_branch; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_pcs_branch; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_pcs_branch ON public.pcs USING btree ("BranchId");
 
 
 --
--- Name: idx_pcs_state; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_pcs_state; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_pcs_state ON public.pcs USING btree ("State");
 
 
 --
--- Name: idx_reservations_branch; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_reservations_branch; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_reservations_branch ON public.reservations USING btree ("BranchId");
 
 
 --
--- Name: idx_reservations_pc; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_reservations_pc; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_reservations_pc ON public.reservations USING btree ("PcId");
 
 
 --
--- Name: idx_reservations_state; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_reservations_state; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_reservations_state ON public.reservations USING btree ("State");
 
 
 --
--- Name: idx_reservations_time; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_reservations_time; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_reservations_time ON public.reservations USING btree ("ReservationTime");
 
 
 --
--- Name: idx_sessions_branch; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_sessions_branch; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_sessions_branch ON public.sessions USING btree ("BranchId");
 
 
 --
--- Name: idx_sessions_date; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_sessions_date; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_sessions_date ON public.sessions USING btree ("StartTime");
 
 
 --
--- Name: idx_sessions_operator; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_sessions_operator; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_sessions_operator ON public.sessions USING btree ("OperatorId");
 
 
 --
--- Name: idx_sessions_pc; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_sessions_pc; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_sessions_pc ON public.sessions USING btree ("PcId");
 
 
 --
--- Name: idx_sessions_state; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_sessions_state; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_sessions_state ON public.sessions USING btree ("State");
 
 
 --
--- Name: idx_shifts_branch; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_shifts_branch; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_shifts_branch ON public.shifts USING btree ("BranchId");
 
 
 --
--- Name: idx_shifts_operator; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_shifts_operator; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_shifts_operator ON public.shifts USING btree ("OperatorId");
 
 
 --
--- Name: idx_shifts_status; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_shifts_status; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_shifts_status ON public.shifts USING btree ("Status");
 
 
 --
--- Name: idx_wallet_txn_date; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_wallet_txn_date; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_wallet_txn_date ON public.wallet_transactions USING btree ("CreatedAt");
 
 
 --
--- Name: idx_wallet_txn_member; Type: INDEX; Schema: public; Owner: neonarena_admin
+-- Name: idx_wallet_txn_member; Type: INDEX; Schema: public; Owner: appleesports_admin
 --
 
 CREATE INDEX idx_wallet_txn_member ON public.wallet_transactions USING btree ("MemberId");
 
 
 --
--- Name: EodSnapshots FK_EodSnapshots_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: EodSnapshots FK_EodSnapshots_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public."EodSnapshots"
@@ -2406,7 +2406,7 @@ ALTER TABLE ONLY public."EodSnapshots"
 
 
 --
--- Name: EodSnapshots FK_EodSnapshots_operators_GeneratedByOperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: EodSnapshots FK_EodSnapshots_operators_GeneratedByOperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public."EodSnapshots"
@@ -2414,7 +2414,7 @@ ALTER TABLE ONLY public."EodSnapshots"
 
 
 --
--- Name: pcs FK_Pcs_PricingProfiles_PricingProfileId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: pcs FK_Pcs_PricingProfiles_PricingProfileId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.pcs
@@ -2422,7 +2422,7 @@ ALTER TABLE ONLY public.pcs
 
 
 --
--- Name: PricingProfiles FK_PricingProfiles_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: PricingProfiles FK_PricingProfiles_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public."PricingProfiles"
@@ -2430,7 +2430,7 @@ ALTER TABLE ONLY public."PricingProfiles"
 
 
 --
--- Name: audit_logs FK_audit_logs_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: audit_logs FK_audit_logs_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.audit_logs
@@ -2438,7 +2438,7 @@ ALTER TABLE ONLY public.audit_logs
 
 
 --
--- Name: bill_items FK_bill_items_bills_BillId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: bill_items FK_bill_items_bills_BillId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.bill_items
@@ -2446,7 +2446,7 @@ ALTER TABLE ONLY public.bill_items
 
 
 --
--- Name: bills FK_bills_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: bills FK_bills_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.bills
@@ -2454,7 +2454,7 @@ ALTER TABLE ONLY public.bills
 
 
 --
--- Name: bills FK_bills_members_MemberId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: bills FK_bills_members_MemberId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.bills
@@ -2462,7 +2462,7 @@ ALTER TABLE ONLY public.bills
 
 
 --
--- Name: bills FK_bills_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: bills FK_bills_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.bills
@@ -2470,7 +2470,7 @@ ALTER TABLE ONLY public.bills
 
 
 --
--- Name: bills FK_bills_pcs_PcId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: bills FK_bills_pcs_PcId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.bills
@@ -2478,7 +2478,7 @@ ALTER TABLE ONLY public.bills
 
 
 --
--- Name: bills FK_bills_sessions_SessionId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: bills FK_bills_sessions_SessionId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.bills
@@ -2486,7 +2486,7 @@ ALTER TABLE ONLY public.bills
 
 
 --
--- Name: bills FK_bills_shifts_ShiftId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: bills FK_bills_shifts_ShiftId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.bills
@@ -2494,7 +2494,7 @@ ALTER TABLE ONLY public.bills
 
 
 --
--- Name: bills FK_bills_users_DiscountBy; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: bills FK_bills_users_DiscountBy; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.bills
@@ -2502,7 +2502,7 @@ ALTER TABLE ONLY public.bills
 
 
 --
--- Name: cash_register FK_cash_register_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: cash_register FK_cash_register_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.cash_register
@@ -2510,7 +2510,7 @@ ALTER TABLE ONLY public.cash_register
 
 
 --
--- Name: cash_register FK_cash_register_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: cash_register FK_cash_register_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.cash_register
@@ -2518,7 +2518,7 @@ ALTER TABLE ONLY public.cash_register
 
 
 --
--- Name: cash_register FK_cash_register_shifts_ShiftId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: cash_register FK_cash_register_shifts_ShiftId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.cash_register
@@ -2526,7 +2526,7 @@ ALTER TABLE ONLY public.cash_register
 
 
 --
--- Name: cash_transactions FK_cash_transactions_bills_BillId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: cash_transactions FK_cash_transactions_bills_BillId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.cash_transactions
@@ -2534,7 +2534,7 @@ ALTER TABLE ONLY public.cash_transactions
 
 
 --
--- Name: cash_transactions FK_cash_transactions_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: cash_transactions FK_cash_transactions_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.cash_transactions
@@ -2542,7 +2542,7 @@ ALTER TABLE ONLY public.cash_transactions
 
 
 --
--- Name: cash_transactions FK_cash_transactions_cash_register_CashRegisterId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: cash_transactions FK_cash_transactions_cash_register_CashRegisterId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.cash_transactions
@@ -2550,7 +2550,7 @@ ALTER TABLE ONLY public.cash_transactions
 
 
 --
--- Name: cash_transactions FK_cash_transactions_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: cash_transactions FK_cash_transactions_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.cash_transactions
@@ -2558,7 +2558,7 @@ ALTER TABLE ONLY public.cash_transactions
 
 
 --
--- Name: denomination_counts FK_denomination_counts_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: denomination_counts FK_denomination_counts_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.denomination_counts
@@ -2566,7 +2566,7 @@ ALTER TABLE ONLY public.denomination_counts
 
 
 --
--- Name: denomination_counts FK_denomination_counts_cash_register_CashRegisterId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: denomination_counts FK_denomination_counts_cash_register_CashRegisterId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.denomination_counts
@@ -2574,7 +2574,7 @@ ALTER TABLE ONLY public.denomination_counts
 
 
 --
--- Name: denomination_counts FK_denomination_counts_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: denomination_counts FK_denomination_counts_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.denomination_counts
@@ -2582,7 +2582,7 @@ ALTER TABLE ONLY public.denomination_counts
 
 
 --
--- Name: denomination_counts FK_denomination_counts_shifts_ShiftId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: denomination_counts FK_denomination_counts_shifts_ShiftId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.denomination_counts
@@ -2590,7 +2590,7 @@ ALTER TABLE ONLY public.denomination_counts
 
 
 --
--- Name: discounts FK_discounts_bills_BillId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: discounts FK_discounts_bills_BillId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.discounts
@@ -2598,7 +2598,7 @@ ALTER TABLE ONLY public.discounts
 
 
 --
--- Name: discounts FK_discounts_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: discounts FK_discounts_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.discounts
@@ -2606,7 +2606,7 @@ ALTER TABLE ONLY public.discounts
 
 
 --
--- Name: discounts FK_discounts_users_AdminId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: discounts FK_discounts_users_AdminId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.discounts
@@ -2614,7 +2614,7 @@ ALTER TABLE ONLY public.discounts
 
 
 --
--- Name: food_order_items FK_food_order_items_food_orders_OrderId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: food_order_items FK_food_order_items_food_orders_OrderId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.food_order_items
@@ -2622,7 +2622,7 @@ ALTER TABLE ONLY public.food_order_items
 
 
 --
--- Name: food_order_items FK_food_order_items_inventory_InventoryId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: food_order_items FK_food_order_items_inventory_InventoryId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.food_order_items
@@ -2630,7 +2630,7 @@ ALTER TABLE ONLY public.food_order_items
 
 
 --
--- Name: food_orders FK_food_orders_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: food_orders FK_food_orders_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.food_orders
@@ -2638,7 +2638,7 @@ ALTER TABLE ONLY public.food_orders
 
 
 --
--- Name: food_orders FK_food_orders_members_MemberId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: food_orders FK_food_orders_members_MemberId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.food_orders
@@ -2646,7 +2646,7 @@ ALTER TABLE ONLY public.food_orders
 
 
 --
--- Name: food_orders FK_food_orders_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: food_orders FK_food_orders_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.food_orders
@@ -2654,7 +2654,7 @@ ALTER TABLE ONLY public.food_orders
 
 
 --
--- Name: food_orders FK_food_orders_pcs_PcId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: food_orders FK_food_orders_pcs_PcId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.food_orders
@@ -2662,7 +2662,7 @@ ALTER TABLE ONLY public.food_orders
 
 
 --
--- Name: food_orders FK_food_orders_sessions_SessionId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: food_orders FK_food_orders_sessions_SessionId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.food_orders
@@ -2670,7 +2670,7 @@ ALTER TABLE ONLY public.food_orders
 
 
 --
--- Name: inventory FK_inventory_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: inventory FK_inventory_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.inventory
@@ -2678,7 +2678,7 @@ ALTER TABLE ONLY public.inventory
 
 
 --
--- Name: inventory_logs FK_inventory_logs_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: inventory_logs FK_inventory_logs_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.inventory_logs
@@ -2686,7 +2686,7 @@ ALTER TABLE ONLY public.inventory_logs
 
 
 --
--- Name: inventory_logs FK_inventory_logs_inventory_InventoryId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: inventory_logs FK_inventory_logs_inventory_InventoryId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.inventory_logs
@@ -2694,7 +2694,7 @@ ALTER TABLE ONLY public.inventory_logs
 
 
 --
--- Name: inventory_logs FK_inventory_logs_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: inventory_logs FK_inventory_logs_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.inventory_logs
@@ -2702,7 +2702,7 @@ ALTER TABLE ONLY public.inventory_logs
 
 
 --
--- Name: loyalty_points FK_loyalty_points_bills_BillId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: loyalty_points FK_loyalty_points_bills_BillId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.loyalty_points
@@ -2710,7 +2710,7 @@ ALTER TABLE ONLY public.loyalty_points
 
 
 --
--- Name: loyalty_points FK_loyalty_points_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: loyalty_points FK_loyalty_points_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.loyalty_points
@@ -2718,7 +2718,7 @@ ALTER TABLE ONLY public.loyalty_points
 
 
 --
--- Name: loyalty_points FK_loyalty_points_members_MemberId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: loyalty_points FK_loyalty_points_members_MemberId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.loyalty_points
@@ -2726,7 +2726,7 @@ ALTER TABLE ONLY public.loyalty_points
 
 
 --
--- Name: loyalty_points FK_loyalty_points_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: loyalty_points FK_loyalty_points_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.loyalty_points
@@ -2734,7 +2734,7 @@ ALTER TABLE ONLY public.loyalty_points
 
 
 --
--- Name: loyalty_points FK_loyalty_points_users_AdminId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: loyalty_points FK_loyalty_points_users_AdminId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.loyalty_points
@@ -2742,7 +2742,7 @@ ALTER TABLE ONLY public.loyalty_points
 
 
 --
--- Name: members FK_members_branches_HomeBranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: members FK_members_branches_HomeBranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.members
@@ -2750,7 +2750,7 @@ ALTER TABLE ONLY public.members
 
 
 --
--- Name: operators FK_operators_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: operators FK_operators_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.operators
@@ -2758,7 +2758,7 @@ ALTER TABLE ONLY public.operators
 
 
 --
--- Name: operators FK_operators_users_CreatedBy; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: operators FK_operators_users_CreatedBy; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.operators
@@ -2766,7 +2766,7 @@ ALTER TABLE ONLY public.operators
 
 
 --
--- Name: payments FK_payments_bills_BillId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: payments FK_payments_bills_BillId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.payments
@@ -2774,7 +2774,7 @@ ALTER TABLE ONLY public.payments
 
 
 --
--- Name: payments FK_payments_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: payments FK_payments_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.payments
@@ -2782,7 +2782,7 @@ ALTER TABLE ONLY public.payments
 
 
 --
--- Name: payments FK_payments_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: payments FK_payments_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.payments
@@ -2790,7 +2790,7 @@ ALTER TABLE ONLY public.payments
 
 
 --
--- Name: pcs FK_pcs_PricingProfiles_PricingProfileId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: pcs FK_pcs_PricingProfiles_PricingProfileId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.pcs
@@ -2798,7 +2798,7 @@ ALTER TABLE ONLY public.pcs
 
 
 --
--- Name: pcs FK_pcs_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: pcs FK_pcs_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.pcs
@@ -2806,7 +2806,7 @@ ALTER TABLE ONLY public.pcs
 
 
 --
--- Name: pcs FK_pcs_operators_LastOperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: pcs FK_pcs_operators_LastOperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.pcs
@@ -2814,7 +2814,7 @@ ALTER TABLE ONLY public.pcs
 
 
 --
--- Name: pcs FK_pcs_reservations_CurrentReservationId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: pcs FK_pcs_reservations_CurrentReservationId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.pcs
@@ -2822,7 +2822,7 @@ ALTER TABLE ONLY public.pcs
 
 
 --
--- Name: pcs FK_pcs_sessions_CurrentSessionId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: pcs FK_pcs_sessions_CurrentSessionId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.pcs
@@ -2830,7 +2830,7 @@ ALTER TABLE ONLY public.pcs
 
 
 --
--- Name: reservations FK_reservations_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: reservations FK_reservations_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.reservations
@@ -2838,7 +2838,7 @@ ALTER TABLE ONLY public.reservations
 
 
 --
--- Name: reservations FK_reservations_members_MemberId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: reservations FK_reservations_members_MemberId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.reservations
@@ -2846,7 +2846,7 @@ ALTER TABLE ONLY public.reservations
 
 
 --
--- Name: reservations FK_reservations_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: reservations FK_reservations_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.reservations
@@ -2854,7 +2854,7 @@ ALTER TABLE ONLY public.reservations
 
 
 --
--- Name: reservations FK_reservations_pcs_PcId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: reservations FK_reservations_pcs_PcId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.reservations
@@ -2862,7 +2862,7 @@ ALTER TABLE ONLY public.reservations
 
 
 --
--- Name: reservations FK_reservations_users_OverrideBy; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: reservations FK_reservations_users_OverrideBy; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.reservations
@@ -2870,7 +2870,7 @@ ALTER TABLE ONLY public.reservations
 
 
 --
--- Name: sessions FK_sessions_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: sessions FK_sessions_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.sessions
@@ -2878,7 +2878,7 @@ ALTER TABLE ONLY public.sessions
 
 
 --
--- Name: sessions FK_sessions_members_MemberId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: sessions FK_sessions_members_MemberId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.sessions
@@ -2886,7 +2886,7 @@ ALTER TABLE ONLY public.sessions
 
 
 --
--- Name: sessions FK_sessions_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: sessions FK_sessions_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.sessions
@@ -2894,7 +2894,7 @@ ALTER TABLE ONLY public.sessions
 
 
 --
--- Name: sessions FK_sessions_pcs_PcId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: sessions FK_sessions_pcs_PcId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.sessions
@@ -2902,7 +2902,7 @@ ALTER TABLE ONLY public.sessions
 
 
 --
--- Name: sessions FK_sessions_shifts_ShiftId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: sessions FK_sessions_shifts_ShiftId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.sessions
@@ -2910,7 +2910,7 @@ ALTER TABLE ONLY public.sessions
 
 
 --
--- Name: shifts FK_shifts_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: shifts FK_shifts_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.shifts
@@ -2918,7 +2918,7 @@ ALTER TABLE ONLY public.shifts
 
 
 --
--- Name: shifts FK_shifts_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: shifts FK_shifts_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.shifts
@@ -2926,7 +2926,7 @@ ALTER TABLE ONLY public.shifts
 
 
 --
--- Name: system_config FK_system_config_users_UpdatedBy; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: system_config FK_system_config_users_UpdatedBy; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.system_config
@@ -2934,7 +2934,7 @@ ALTER TABLE ONLY public.system_config
 
 
 --
--- Name: wallet_transactions FK_wallet_transactions_bills_BillId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: wallet_transactions FK_wallet_transactions_bills_BillId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.wallet_transactions
@@ -2942,7 +2942,7 @@ ALTER TABLE ONLY public.wallet_transactions
 
 
 --
--- Name: wallet_transactions FK_wallet_transactions_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: wallet_transactions FK_wallet_transactions_branches_BranchId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.wallet_transactions
@@ -2950,7 +2950,7 @@ ALTER TABLE ONLY public.wallet_transactions
 
 
 --
--- Name: wallet_transactions FK_wallet_transactions_members_MemberId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: wallet_transactions FK_wallet_transactions_members_MemberId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.wallet_transactions
@@ -2958,7 +2958,7 @@ ALTER TABLE ONLY public.wallet_transactions
 
 
 --
--- Name: wallet_transactions FK_wallet_transactions_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: wallet_transactions FK_wallet_transactions_operators_OperatorId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.wallet_transactions
@@ -2966,7 +2966,7 @@ ALTER TABLE ONLY public.wallet_transactions
 
 
 --
--- Name: wallet_transactions FK_wallet_transactions_users_AdminId; Type: FK CONSTRAINT; Schema: public; Owner: neonarena_admin
+-- Name: wallet_transactions FK_wallet_transactions_users_AdminId; Type: FK CONSTRAINT; Schema: public; Owner: appleesports_admin
 --
 
 ALTER TABLE ONLY public.wallet_transactions

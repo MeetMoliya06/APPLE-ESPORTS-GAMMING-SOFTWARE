@@ -265,7 +265,7 @@ async function run() {
             await page.evaluate(async () => {
                 const res = await fetch('http://localhost:5015/api/auth/admin/login', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: 'admin@neonarena.com', password: 'Admin123!' })
+                    body: JSON.stringify({ email: 'admin@appleesports.com', password: 'Admin123!' })
                 });
                 const data = await res.text().then(t => t ? JSON.parse(t) : {});
                 localStorage.setItem('accessToken', data.data.accessToken);

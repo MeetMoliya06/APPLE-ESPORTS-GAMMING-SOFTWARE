@@ -40,10 +40,9 @@ export default function FoodOrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // Settings: viewMode (kanban vs queue), soundEnabled, archiveMinutes
+  // Settings: viewMode (kanban vs queue), soundEnabled
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('food_order_view_mode') || 'queue');
   const [soundEnabled, setSoundEnabled] = useState(() => localStorage.getItem('food_order_sound_enabled') !== 'false');
-  const [archiveMinutes, setArchiveMinutes] = useState(() => Number(localStorage.getItem('food_order_archive_minutes')) || 5);
 
   const prevPendingCount = useRef(0);
 
@@ -104,28 +103,6 @@ export default function FoodOrdersPage() {
 
   const pendingOrders = orders.filter(o => o.status === 0 || o.status === 'Pending');
 
-  // Trigger sound & browser notifications on new pending orders
-  useEffect(() => {
-    if (orders.length > 0) {
-      const pendingCount = pendingOrders.length;
-      if (pendingCount > prevPendingCount.current) {
-        if (soundEnabled) {
-          playNotificationSound();
-        }
-        if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-          const lastOrder = pendingOrders[pendingOrders.length - 1];
-          new Notification('New Food Order!', {
-            body: `${lastOrder.pcNumber ? `Station ${lastOrder.pcNumber}` : 'Walk-in'} ordered: ${lastOrder.items?.map(i => `${i.itemName} (x${i.quantity})`).join(', ')}`,
-            icon: '/logo.png'
-          });
-        }
-      }
-      prevPendingCount.current = pendingCount;
-    } else {
-      prevPendingCount.current = 0;
-    }
-  }, [orders, soundEnabled, pendingOrders]);
-
   // Handle settings updates
   const handleToggleView = (mode) => {
     setViewMode(mode);
@@ -139,23 +116,16 @@ export default function FoodOrdersPage() {
     });
   };
 
-  const handleArchiveMinutesChange = (val) => {
-    const mins = Math.max(1, Number(val));
-    setArchiveMinutes(mins);
-    localStorage.setItem('food_order_archive_minutes', String(mins));
-  };
-
-  // Filter out delivered orders that are older than N minutes
-  const now = new Date();
+  // Filter out orders that are not from today
   const activeOrders = orders.filter(o => {
-    const isDel = o.status === 3 || o.status === 'Delivered';
-    if (!isDel) return true;
-    if (!o.deliveredAt) return true;
-
-    const deliveredTime = new Date(o.deliveredAt);
-    const diffMs = now - deliveredTime;
-    const diffMins = diffMs / 1000 / 60;
-    return diffMins < archiveMinutes;
+    if (!o.orderTime) return true; // fallback
+    const orderDate = new Date(o.orderTime);
+    const today = new Date();
+    return (
+      orderDate.getDate() === today.getDate() &&
+      orderDate.getMonth() === today.getMonth() &&
+      orderDate.getFullYear() === today.getFullYear()
+    );
   });
 
   if (isSuperAdmin && !activeBranch) {
@@ -168,13 +138,36 @@ export default function FoodOrdersPage() {
     );
   }
 
+  const handleTestNotification = () => {
+    if (soundEnabled) {
+      playNotificationSound();
+    }
+    
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'granted') {
+        new Notification("TEST NOTIFICATION", {
+          body: "New food order from Station PC-01! (This is a test)",
+          icon: "/favicon.ico"
+        });
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            new Notification("TEST NOTIFICATION", {
+              body: "New food order from Station PC-01! (This is a test)",
+              icon: "/favicon.ico"
+            });
+          }
+        });
+      }
+    }
+  };
+
   return (
-    <div className="h-full flex flex-col space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-bg-2 border border-border p-4 rounded-xl shadow-lg">
-        <PageHeader
-          title="Food Orders"
-          subtitle="Kitchen workflow and delivery management"
+    <div className="flex flex-col h-full bg-bg">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 shrink-0 border-b border-border bg-bg-2 shadow-sm">
+        <PageHeader 
+          title="Food Orders" 
+          subtitle="Manage active kitchen/pantry requests"
           icon="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
           badge="LIVE"
         />
@@ -182,14 +175,18 @@ export default function FoodOrdersPage() {
         {/* Header Controls Panel */}
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           {/* Bell Icon with Badge Count */}
-          <div className="relative p-2 rounded-lg bg-bg-3 border border-border flex items-center justify-center text-text-2">
+          <button 
+            onClick={handleTestNotification}
+            title="Click to test notification sound and popup"
+            className="relative p-2 rounded-lg bg-bg-3 border border-border flex items-center justify-center text-text-2 hover:border-accent hover:text-accent transition-colors"
+          >
             <Bell className={`w-5 h-5 ${pendingOrders.length > 0 ? 'text-neon-orange animate-swing' : ''}`} />
             {pendingOrders.length > 0 && (
               <span className="absolute -top-1.5 -right-1.5 bg-neon-orange text-black font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-bg-2 font-mono">
                 {pendingOrders.length}
               </span>
             )}
-          </div>
+          </button>
 
           {/* Sound Toggle */}
           <button
@@ -199,21 +196,6 @@ export default function FoodOrdersPage() {
           >
             {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5 text-text-3" />}
           </button>
-
-          {/* Auto-archive Config */}
-          <div className="flex items-center gap-1.5 bg-bg-3 border border-border px-3 py-1.5 rounded-lg text-xs">
-            <Settings className="w-4 h-4 text-text-3" />
-            <span className="text-text-3 font-semibold uppercase text-[10px]">Archive:</span>
-            <input
-              type="number"
-              min="1"
-              max="60"
-              value={archiveMinutes}
-              onChange={e => handleArchiveMinutesChange(e.target.value)}
-              className="w-10 bg-bg-2 border border-border/80 text-text font-mono text-center rounded focus:border-accent outline-none text-xs"
-            />
-            <span className="text-text-3 text-[10px] font-semibold">MIN</span>
-          </div>
 
           {/* View Toggles */}
           <div className="flex bg-bg-3 border border-border p-1 rounded-lg">

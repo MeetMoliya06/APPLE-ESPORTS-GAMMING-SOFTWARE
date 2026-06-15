@@ -5,7 +5,7 @@ async function testConnection() {
     // fetch token from a successful login
     const axios = require('axios');
     const response = await axios.post('http://localhost:5015/api/auth/admin/login', {
-        email: 'admin@neonarena.com',
+        email: 'admin@appleesports.com',
         password: 'AdminPassword123!'
     });
     const token = response.data.data.accessToken;

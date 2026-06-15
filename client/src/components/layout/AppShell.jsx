@@ -12,6 +12,7 @@ import BranchRequired from './BranchRequired';
 import { useAuth } from '../../contexts/AuthContext';
 import ShiftStartModal from '../shift/ShiftStartModal';
 import ShiftEndModal from '../shift/ShiftEndModal';
+import GlobalFoodOrderListener from './GlobalFoodOrderListener';
 
 export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -113,6 +114,9 @@ export default function AppShell() {
           onCancel={handleShiftEndCancel}
         />
       )}
+
+      {/* Global Background Listeners */}
+      <GlobalFoodOrderListener />
     </div>
   );
 }

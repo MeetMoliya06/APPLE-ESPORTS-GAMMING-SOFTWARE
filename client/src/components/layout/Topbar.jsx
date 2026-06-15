@@ -24,12 +24,14 @@ export default function Topbar({ onToggleSidebar, sidebarOpen, onLogoutClick }) 
     function tick() {
       const now = new Date();
       setClock(now.toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
         hour12: true,
       }));
       setDate(now.toLocaleDateString('en-IN', {
+        timeZone: 'Asia/Kolkata',
         weekday: 'short',
         day: '2-digit',
         month: 'short',

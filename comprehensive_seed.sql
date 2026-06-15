@@ -13,7 +13,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO users ("Id", "Email", "PasswordHash", "FullName", "Role", "Status", "CreatedAt", "UpdatedAt")
 VALUES (
     '22222222-2222-2222-2222-222222222222',
-    'admin@neonarena.com',
+    'admin@appleesports.com',
     crypt('Admin123!', gen_salt('bf', 12)),
     'System Admin',
     'super_admin',

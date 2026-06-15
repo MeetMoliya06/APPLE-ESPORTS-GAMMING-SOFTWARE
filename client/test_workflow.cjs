@@ -12,7 +12,7 @@ async function runTests() {
         // 1. Super Admin Login
         console.log('\n[Super Admin] Logging in...');
         const adminRes = await axios.post(`${API_URL}/auth/admin/login`, {
-            email: 'admin@neonarena.com',
+            email: 'admin@appleesports.com',
             password: 'Admin123!',
             deviceInfo: { device: 'test_script' }
         });

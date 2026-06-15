@@ -101,7 +101,7 @@ async function startServer() {
     // Start HTTP + Socket.IO server
     server.listen(PORT, () => {
       logger.info('═══════════════════════════════════════════════');
-      logger.info('  NeonArena Pro — Gaming Café ERP Server');
+      logger.info('  AppleEsports Pro — Gaming Café ERP Server');
       logger.info('═══════════════════════════════════════════════');
       logger.info(`  Environment : ${config.nodeEnv}`);
       logger.info(`  HTTP Server : http://localhost:${PORT}`);

@@ -12,7 +12,7 @@ async function probe() {
   let adminToken;
   try {
     const loginRes = await axios.post(`${API}/auth/admin/login`, {
-      email: 'admin@neonarena.com',
+      email: 'admin@appleesports.com',
       password: 'Admin123!'
     });
     adminToken = loginRes.data.data.accessToken;

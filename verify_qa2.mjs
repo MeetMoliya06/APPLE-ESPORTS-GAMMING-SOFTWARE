@@ -43,7 +43,7 @@ async function runVerification() {
 
   // 1. Login Admin
   const loginRes = await request('/auth/admin/login', 'POST', {
-    email: 'admin@neonarena.com',
+    email: 'admin@appleesports.com',
     password: 'Admin123!'
   });
   if (!logResult("Super Admin Login", loginRes.status, loginRes.data)) return;
