@@ -6,6 +6,7 @@ import PageHeader from '../../components/layout/PageHeader';
 import { EmptyState } from '../../components/ui/LoadingStates';
 import { useToast } from '../../components/ui/Toast';
 import api from '../../config/api';
+import { getMembers } from '../../api/members.api';
 import {
   getActiveReservations,
   createReservation,
@@ -13,7 +14,7 @@ import {
   startReservedSession,
   overrideReservation
 } from '../../api/reservations.api';
-import { Calendar, User, Clock, IndianRupee, FileText, Ban, Play, ShieldAlert, CheckCircle } from 'lucide-react';
+import { Calendar, User, Clock, IndianRupee, FileText, Ban, Play, ShieldAlert, CheckCircle, UserCheck, Search } from 'lucide-react';
 
 export default function ReservationsPage() {
   const { isSuperAdmin, user } = useAuth();
@@ -28,6 +29,14 @@ export default function ReservationsPage() {
   const [sessions, setSessions] = useState([]);
   const [pcs, setPcs] = useState([]);
   const [loadingList, setLoadingList] = useState(true);
+
+  // Member search states
+  const [isMemberBooking, setIsMemberBooking] = useState(false);
+  const [memberSearch, setMemberSearch] = useState('');
+  const [memberResults, setMemberResults] = useState([]);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [memberSearchLoading, setMemberSearchLoading] = useState(false);
+  const [showMemberDropdown, setShowMemberDropdown] = useState(false);
 
   // Form states
   const [form, setForm] = useState({
@@ -50,6 +59,44 @@ export default function ReservationsPage() {
   const [overrideData, setOverrideData] = useState(null); // { id, pcName }
   const [overrideReason, setOverrideReason] = useState('');
   const [overrideLoading, setOverrideLoading] = useState(false);
+
+  // ── Member search with debounce ──
+  useEffect(() => {
+    if (!isMemberBooking || memberSearch.length < 2 || !targetBranchId) {
+      setMemberResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setMemberSearchLoading(true);
+      try {
+        const res = await getMembers(targetBranchId, memberSearch, 1, 10);
+        setMemberResults(res?.items || []);
+        setShowMemberDropdown(true);
+      } catch {
+        setMemberResults([]);
+      } finally {
+        setMemberSearchLoading(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [memberSearch, isMemberBooking, targetBranchId]);
+
+  const handleMemberSelect = (member) => {
+    setSelectedMember(member);
+    setForm(f => ({ ...f, customerName: member.fullName }));
+    setMemberSearch(member.fullName);
+    setShowMemberDropdown(false);
+  };
+
+  const handleToggleMemberBooking = (val) => {
+    setIsMemberBooking(val);
+    if (!val) {
+      setSelectedMember(null);
+      setMemberSearch('');
+      setMemberResults([]);
+      setForm(f => ({ ...f, customerName: '' }));
+    }
+  };
 
   // ── Fetch Reservations & PCs ──
   const fetchReservationsList = useCallback(async () => {
@@ -151,6 +198,10 @@ export default function ReservationsPage() {
       toast.error('Customer Name is required');
       return;
     }
+    if (isMemberBooking && !selectedMember) {
+      toast.error('Please select a member from the search results');
+      return;
+    }
     if (!form.pcId) {
       toast.error('Please select a PC');
       return;
@@ -165,6 +216,7 @@ export default function ReservationsPage() {
       await createReservation({
         pcId: form.pcId,
         customerName: form.customerName.trim(),
+        memberId: selectedMember?.id || null,
         reservationTime: reservationTime,
         durationMin: Number(form.durationMin),
         advanceDeposit: Number(form.advanceDeposit),
@@ -181,6 +233,9 @@ export default function ReservationsPage() {
         notes: '',
         advanceDeposit: 0
       }));
+      setSelectedMember(null);
+      setMemberSearch('');
+      setIsMemberBooking(false);
       fetchReservationsList();
       fetchPcsAndSessions();
     } catch (err) {
@@ -272,20 +327,94 @@ export default function ReservationsPage() {
           </div>
 
           <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-4 space-y-3.5">
-            {/* Customer Name */}
-            <div className="space-y-1">
-              <label className="text-[10px] font-mono font-semibold text-text-2 uppercase tracking-wider flex items-center gap-1">
-                <User className="w-3 h-3 text-text-3" /> Customer Name *
-              </label>
-              <input
-                type="text"
-                placeholder="Enter client name..."
-                value={form.customerName}
-                onChange={e => setForm(f => ({ ...f, customerName: e.target.value }))}
-                className="w-full bg-bg-3 border border-border rounded px-3 py-2 text-xs text-text placeholder-text-3 focus:border-neon-purple focus:outline-none transition-colors"
-                required
-              />
+            {/* Member Booking Toggle */}
+            <div className="flex items-center justify-between bg-bg-3/50 border border-border rounded-lg px-3 py-2">
+              <div className="flex items-center gap-2">
+                <UserCheck className={`w-4 h-4 ${isMemberBooking ? 'text-neon-purple' : 'text-text-3'}`} />
+                <span className="text-[10px] font-mono font-semibold text-text-2 uppercase tracking-wider">
+                  Member Booking
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleToggleMemberBooking(!isMemberBooking)}
+                className={`relative w-9 h-5 rounded-full transition-colors ${isMemberBooking ? 'bg-neon-purple' : 'bg-bg-3 border border-border'}`}
+              >
+                <span className={`absolute top-0.5 w-4 h-4 rounded-full transition-all ${isMemberBooking ? 'left-[18px] bg-white' : 'left-0.5 bg-text-3'}`} />
+              </button>
             </div>
+
+            {/* Customer / Member Name */}
+            {isMemberBooking ? (
+              <div className="space-y-1 relative">
+                <label className="text-[10px] font-mono font-semibold text-text-2 uppercase tracking-wider flex items-center gap-1">
+                  <Search className="w-3 h-3 text-neon-purple" /> Search Member *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Search by name or phone..."
+                  value={memberSearch}
+                  onChange={e => {
+                    setMemberSearch(e.target.value);
+                    setSelectedMember(null);
+                    setForm(f => ({ ...f, customerName: '' }));
+                  }}
+                  onFocus={() => memberResults.length > 0 && setShowMemberDropdown(true)}
+                  className="w-full bg-bg-3 border border-neon-purple/40 rounded px-3 py-2 text-xs text-text placeholder-text-3 focus:border-neon-purple focus:outline-none transition-colors"
+                />
+                {memberSearchLoading && (
+                  <div className="absolute right-3 top-7">
+                    <div className="w-3.5 h-3.5 border border-neon-purple border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+                {/* Dropdown results */}
+                {showMemberDropdown && memberResults.length > 0 && (
+                  <div className="absolute z-20 w-full mt-1 bg-bg-2 border border-border rounded-lg shadow-xl max-h-40 overflow-y-auto">
+                    {memberResults.map(m => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => handleMemberSelect(m)}
+                        className="w-full px-3 py-2 text-left hover:bg-neon-purple/10 transition-colors flex items-center justify-between border-b border-border/40 last:border-0"
+                      >
+                        <div>
+                          <span className="text-xs font-semibold text-text">{m.fullName}</span>
+                          <span className="text-[10px] text-text-3 font-mono ml-2">{m.phone}</span>
+                        </div>
+                        <span className="text-[9px] font-mono text-neon-purple/70">₹{m.walletBalance?.toFixed(0) || 0}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {showMemberDropdown && memberSearch.length >= 2 && memberResults.length === 0 && !memberSearchLoading && (
+                  <div className="absolute z-20 w-full mt-1 bg-bg-2 border border-border rounded-lg shadow-xl p-3 text-center text-[10px] text-text-3 font-mono">
+                    No members found
+                  </div>
+                )}
+                {/* Selected member indicator */}
+                {selectedMember && (
+                  <div className="flex items-center gap-2 mt-1.5 bg-neon-purple/10 border border-neon-purple/30 rounded px-2.5 py-1.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-neon-purple" />
+                    <span className="text-[10px] font-semibold text-neon-purple">{selectedMember.fullName}</span>
+                    <span className="text-[9px] text-text-3 font-mono">• Wallet: ₹{selectedMember.walletBalance?.toFixed(0) || 0}</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <label className="text-[10px] font-mono font-semibold text-text-2 uppercase tracking-wider flex items-center gap-1">
+                  <User className="w-3 h-3 text-text-3" /> Customer Name *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter walk-in client name..."
+                  value={form.customerName}
+                  onChange={e => setForm(f => ({ ...f, customerName: e.target.value }))}
+                  className="w-full bg-bg-3 border border-border rounded px-3 py-2 text-xs text-text placeholder-text-3 focus:border-neon-purple focus:outline-none transition-colors"
+                  required
+                />
+              </div>
+            )}
 
             {/* Date and Time row */}
             <div className="grid grid-cols-2 gap-3">

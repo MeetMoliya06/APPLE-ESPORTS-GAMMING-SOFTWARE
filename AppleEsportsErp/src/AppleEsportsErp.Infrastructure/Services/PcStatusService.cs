@@ -40,10 +40,10 @@ public class PcStatusService : IPcStatusService
             .Where(s => s.BranchId == branchId && (s.State == SessionState.Active || s.State == SessionState.AwaitingBilling))
             .ToDictionaryAsync(s => s.PcId, s => s);
 
-        // Fetch upcoming reservations for these PCs (starts within next 24h)
+        // Fetch pending reservations for these PCs (current + upcoming)
         var upcomingReservations = await _db.Reservations
             .AsNoTracking()
-            .Where(r => r.BranchId == branchId && r.State == ReservationState.Pending && r.ReservationTime > now)
+            .Where(r => r.BranchId == branchId && r.State == ReservationState.Pending)
             .OrderBy(r => r.ReservationTime)
             .ToListAsync();
 
