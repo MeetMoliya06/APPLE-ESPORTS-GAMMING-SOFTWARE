@@ -96,3 +96,18 @@ export const deleteOperatorPermanent = async (id) => {
   return response.data;
 };
 
+// --- System Configuration ---
+export const getSystemConfigs = async () => {
+  const response = await api.get('/system-config');
+  return response.data;
+};
+
+export const saveSystemConfig = async (configData) => {
+  const response = await api.post('/system-config', configData);
+  return response.data;
+};
+
+export const forceLogoutOperator = async (id) => {
+  const response = await api.post(`/auth/force-logout/${id}`);
+  return response.data;
+};

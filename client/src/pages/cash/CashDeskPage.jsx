@@ -49,7 +49,9 @@ export default function CashDeskPage() {
   const handleStartVerification = async () => {
     setIsLocking(true);
     try {
-      await api.post('/cash-desk/verify-start');
+      await api.post('/cash-desk/verify-start', {}, {
+        headers: { 'X-Idempotency-Key': crypto.randomUUID() }
+      });
       await fetchActiveRegister();
     } catch (err) {
       setError(err.response?.data?.error || err.response?.data?.message || 'Failed to lock register for verification.');
@@ -61,7 +63,9 @@ export default function CashDeskPage() {
   const handleCloseShift = async () => {
     setIsClosing(true);
     try {
-      await api.post(`/cash-desk/close/${register.id}`);
+      await api.post(`/cash-desk/close/${register.id}`, {}, {
+        headers: { 'X-Idempotency-Key': crypto.randomUUID() }
+      });
       // Shift is closed. In a real system, you might end the operator's session here.
       // For now, we will log them out to simulate shift end.
       logout();

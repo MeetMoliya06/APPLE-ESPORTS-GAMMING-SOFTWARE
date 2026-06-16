@@ -64,6 +64,20 @@ const NAV_ITEMS = [
         icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
       },
       {
+        label: 'Online Desk',
+        route: '/app/online-desk',
+        dashboard: DASHBOARDS.ONLINE_DESK,
+        roles: [ROLES.SUPER_ADMIN, ROLES.OPERATOR],
+        icon: 'M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9',
+      },
+      {
+        label: 'Wallet Desk',
+        route: '/app/wallet-desk',
+        dashboard: DASHBOARDS.WALLET_DESK,
+        roles: [ROLES.SUPER_ADMIN, ROLES.OPERATOR],
+        icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
+      },
+      {
         label: 'End of Day',
         route: '/app/eod',
         dashboard: DASHBOARDS.EOD,

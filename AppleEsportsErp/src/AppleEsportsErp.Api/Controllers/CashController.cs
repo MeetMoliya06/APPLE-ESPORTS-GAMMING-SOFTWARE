@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using AppleEsportsErp.Api.Filters;
 using AppleEsportsErp.Application.DTOs.Cash;
 using AppleEsportsErp.Application.DTOs.Common;
@@ -23,34 +24,27 @@ public class CashController : ControllerBase
     }
 
     private Guid GetBranchId() => Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
-    private Guid GetOperatorId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-    
-    private Guid GetShiftId()
-    {
-        var shiftClaim = User.FindFirstValue("shiftId");
-        if (string.IsNullOrEmpty(shiftClaim))
-            throw new AppException("Active shift required for cash register operations.");
-        return Guid.Parse(shiftClaim);
-    }
 
     [HttpGet("active")]
     public async Task<IActionResult> GetActiveRegister()
     {
-        var result = await _cashRegisterService.GetActiveRegisterAsync(GetBranchId(), GetShiftId());
+        var result = await _cashRegisterService.GetActiveRegisterAsync(GetBranchId(), (await this.GetShiftIdAsync()));
         return Ok(ApiResponse<CashRegisterDto>.Ok(result));
     }
 
     [HttpPost("open")]
     public async Task<IActionResult> OpenRegister([FromBody] OpenRegisterDto dto)
     {
-        var result = await _cashRegisterService.OpenRegisterAsync(GetBranchId(), GetOperatorId(), GetShiftId(), dto);
+        var result = await _cashRegisterService.OpenRegisterAsync(GetBranchId(), (await this.GetOperatorIdAsync()), (await this.GetShiftIdAsync()), dto);
         return Ok(ApiResponse<CashRegisterDto>.Ok(result));
     }
 
     [HttpPost("transaction")]
     public async Task<IActionResult> AddTransaction([FromBody] AddCashTransactionDto dto)
     {
-        var result = await _cashRegisterService.AddTransactionAsync(GetBranchId(), GetOperatorId(), GetShiftId(), dto);
+        var result = await _cashRegisterService.AddTransactionAsync(GetBranchId(), (await this.GetOperatorIdAsync()), (await this.GetShiftIdAsync()), dto);
         return Ok(ApiResponse<CashRegisterDto>.Ok(result));
     }
 }
+
+

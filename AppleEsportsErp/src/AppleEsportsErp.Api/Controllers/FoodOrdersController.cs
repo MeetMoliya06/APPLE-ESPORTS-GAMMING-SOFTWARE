@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using AppleEsportsErp.Api.Filters;
 using AppleEsportsErp.Application.DTOs.Common;
 using AppleEsportsErp.Application.DTOs.FoodOrders;
@@ -23,15 +24,6 @@ public class FoodOrdersController : ControllerBase
     }
 
     private Guid GetBranchId() => Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
-    private Guid GetOperatorId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-    
-    private Guid GetShiftId()
-    {
-        var shiftClaim = User.FindFirstValue("shiftId");
-        if (string.IsNullOrEmpty(shiftClaim))
-            throw new AppException("Active shift required for food operations.");
-        return Guid.Parse(shiftClaim);
-    }
 
     [HttpGet]
     public async Task<IActionResult> GetActiveOrders([FromQuery] int page = 1, [FromQuery] int pageSize = 50)
@@ -50,14 +42,16 @@ public class FoodOrdersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> PlaceOrder([FromBody] CreateFoodOrderDto dto)
     {
-        var result = await _foodOrderService.PlaceOrderAsync(GetBranchId(), GetOperatorId(), GetShiftId(), dto);
+        var result = await _foodOrderService.PlaceOrderAsync(GetBranchId(), (await this.GetOperatorIdAsync()), (await this.GetShiftIdAsync()), dto);
         return Ok(ApiResponse<FoodOrderDto>.Ok(result));
     }
 
     [HttpPut("{id:guid}/status")]
     public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] UpdateOrderStatusDto dto)
     {
-        var result = await _foodOrderService.UpdateOrderStatusAsync(GetBranchId(), GetOperatorId(), id, dto);
+        var result = await _foodOrderService.UpdateOrderStatusAsync(GetBranchId(), (await this.GetOperatorIdAsync()), id, dto);
         return Ok(ApiResponse<FoodOrderDto>.Ok(result));
     }
 }
+
+

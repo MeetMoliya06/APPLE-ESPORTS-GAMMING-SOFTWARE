@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using Microsoft.EntityFrameworkCore;
 using AppleEsportsErp.Api.Filters;
 using AppleEsportsErp.Application.Interfaces;
@@ -102,3 +103,4 @@ public class AuditLogsController : ControllerBase
         return Ok(ApiResponse<object>.Ok(dtos));
     }
 }
+

@@ -18,7 +18,7 @@ export default function SessionActionModal({ pc, onClose, onActionSuccess }) {
   const [form, setForm] = useState({
     customerName: '',
     customerType: 'Walk-in', // 'Walk-in' | 'Member'
-    durationMinutes: 60,
+    durationMinutes: 0, // 0 means Open Session
     memberId: null,
   });
 
@@ -81,14 +81,17 @@ export default function SessionActionModal({ pc, onClose, onActionSuccess }) {
     setError(null);
     try {
       const ratePerHour = form.customerType.toLowerCase() === 'member' ? 80 : 100;
-      const expectedAmount = (form.durationMinutes / 60) * ratePerHour;
+      const expectedAmount = form.durationMinutes > 0 ? (form.durationMinutes / 60) * ratePerHour : 0;
+      const packageName = form.durationMinutes > 0 
+        ? `${form.customerType.toUpperCase()} - ${form.durationMinutes}m` 
+        : `${form.customerType.toUpperCase()} - OPEN`;
       
       await api.post('/sessions/start', {
         pcId: pc.id,
         customerName: form.customerName.trim(),
         customerType: form.customerType,
         durationMinutes: form.durationMinutes,
-        packageName: `${form.customerType.toUpperCase()} - ${form.durationMinutes}m`,
+        packageName: packageName,
         expectedAmount: expectedAmount,
         isOverride: isSuperAdmin,
         operatorId: user?.id,
@@ -242,8 +245,8 @@ export default function SessionActionModal({ pc, onClose, onActionSuccess }) {
                 <Clock className="w-3 h-3" /> Duration
               </label>
               <div className="grid grid-cols-4 gap-1.5">
-                {[30, 60, 120, 180].map(min => {
-                  const label = min < 60 ? `${min}m` : (min === 60 ? '1 Hr' : `${min / 60} Hrs`);
+                {[0, 60, 120, 180].map(min => {
+                  const label = min === 0 ? 'Open' : (min === 60 ? '1 Hr' : `${min / 60} Hrs`);
                   return (
                     <button
                       key={min}

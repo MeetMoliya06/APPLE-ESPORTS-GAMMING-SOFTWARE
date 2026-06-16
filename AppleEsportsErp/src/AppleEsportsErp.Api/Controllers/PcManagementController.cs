@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using AppleEsportsErp.Application.DTOs.Common;
 using AppleEsportsErp.Application.DTOs.PcManagement;
 using AppleEsportsErp.Application.Interfaces;
@@ -63,3 +64,4 @@ public class PcManagementController : ControllerBase
         return Ok(ApiResponse.Ok());
     }
 }
+

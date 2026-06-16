@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using AppleEsportsErp.Api.Filters;
 
 namespace AppleEsportsErp.Api.Controllers;
@@ -780,3 +781,4 @@ public class DashboardController : ControllerBase
         return Ok(AppleEsportsErp.Application.DTOs.Common.ApiResponse<IEnumerable<AppleEsportsErp.Application.DTOs.Dashboard.BranchDashboardSummaryDto>>.Ok(result));
     }
 }
+

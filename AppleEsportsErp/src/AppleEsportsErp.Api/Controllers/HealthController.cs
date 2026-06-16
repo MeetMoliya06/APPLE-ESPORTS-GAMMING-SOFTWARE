@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 
 namespace AppleEsportsErp.Api.Controllers;
 
@@ -22,3 +23,4 @@ public class HealthController : ControllerBase
         return Ok(diagnostics);
     }
 }
+

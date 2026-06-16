@@ -12,6 +12,7 @@ public class PcStatusDto
     
     // Active session details (if busy or awaiting billing)
     public Guid? ActiveSessionId { get; set; }
+    public Guid? ActiveBillId { get; set; }
     public DateTimeOffset? SessionStartTime { get; set; }
     public DateTimeOffset? SessionEndTime { get; set; }
     public string? CustomerName { get; set; }

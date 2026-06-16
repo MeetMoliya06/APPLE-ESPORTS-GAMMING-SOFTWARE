@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using AppleEsportsErp.Api.Filters;
 using AppleEsportsErp.Application.DTOs.Cash;
 using AppleEsportsErp.Application.DTOs.Common;
@@ -23,21 +24,12 @@ public class CashDeskController : ControllerBase
     }
 
     private Guid GetBranchId() => Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
-    private Guid GetOperatorId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-    
-    private Guid GetShiftId()
-    {
-        var shiftClaim = User.FindFirstValue("shiftId");
-        if (string.IsNullOrEmpty(shiftClaim))
-            throw new AppException("Active shift required for cash desk operations.");
-        return Guid.Parse(shiftClaim);
-    }
 
     [HttpPost("verify-start")]
     [Idempotent]
     public async Task<IActionResult> StartVerification()
     {
-        await _cashDeskService.StartVerificationAsync(GetBranchId(), GetOperatorId(), GetShiftId());
+        await _cashDeskService.StartVerificationAsync(GetBranchId(), (await this.GetOperatorIdAsync()), (await this.GetShiftIdAsync()));
         return Ok(new { success = true, message = "Verification started, register locked." });
     }
 
@@ -45,7 +37,7 @@ public class CashDeskController : ControllerBase
     [Idempotent]
     public async Task<IActionResult> SubmitDenominations([FromBody] SubmitDenominationDto dto)
     {
-        var result = await _cashDeskService.SubmitDenominationsAsync(GetBranchId(), GetOperatorId(), GetShiftId(), dto);
+        var result = await _cashDeskService.SubmitDenominationsAsync(GetBranchId(), (await this.GetOperatorIdAsync()), (await this.GetShiftIdAsync()), dto);
         return Ok(ApiResponse<DenominationCountDto>.Ok(result));
     }
 
@@ -53,7 +45,9 @@ public class CashDeskController : ControllerBase
     [Idempotent]
     public async Task<IActionResult> CloseRegister(Guid registerId)
     {
-        await _cashDeskService.CloseRegisterAsync(GetBranchId(), GetOperatorId(), GetShiftId(), registerId);
+        await _cashDeskService.CloseRegisterAsync(GetBranchId(), (await this.GetOperatorIdAsync()), (await this.GetShiftIdAsync()), registerId);
         return Ok(new { success = true, message = "Register closed successfully" });
     }
 }
+
+

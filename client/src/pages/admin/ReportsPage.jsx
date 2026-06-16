@@ -9,10 +9,12 @@ import {
   User,
   Clock,
   Search,
-  RefreshCw
+  RefreshCw,
+  Printer
 } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import { getRangeReport, getDiscrepancies } from '../../api/food.api';
+import { getCashReconciliationReport } from '../../api/reports.api';
 import { useBranch } from '../../contexts/BranchContext';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -33,6 +35,8 @@ export default function ReportsPage() {
   const [discrepancies, setDiscrepancies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [discrepancyLoading, setDiscrepancyLoading] = useState(false);
+  const [reconciliationData, setReconciliationData] = useState([]);
+  const [reconciliationLoading, setReconciliationLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchReports = async () => {
@@ -66,16 +70,34 @@ export default function ReportsPage() {
     }
   };
 
+  const fetchReconciliation = async () => {
+    if (!activeBranch) return;
+    setReconciliationLoading(true);
+    try {
+      const data = await getCashReconciliationReport({ 
+        startDate: `${startDate}T00:00:00Z`, 
+        endDate: `${endDate}T23:59:59Z` 
+      });
+      setReconciliationData(data?.data?.data || []);
+    } catch (err) {
+      console.error('Failed to load reconciliation report:', err);
+    } finally {
+      setReconciliationLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeBranch) {
       fetchReports();
       fetchDiscrepancies();
+      fetchReconciliation();
     }
   }, [activeBranch]);
 
   // Aggregate totals
   const totalGaming = reportData.daily?.reduce((sum, d) => sum + d.gamingRevenue, 0) || 0;
   const totalFood = reportData.daily?.reduce((sum, d) => sum + d.foodRevenue, 0) || 0;
+  const totalDiscount = reportData.daily?.reduce((sum, d) => sum + (d.discountAmount || 0), 0) || 0;
   const totalRevenue = reportData.daily?.reduce((sum, d) => sum + d.totalRevenue, 0) || 0;
 
   if (!isSuperAdmin) {
@@ -88,6 +110,18 @@ export default function ReportsPage() {
     );
   }
 
+  const handlePrint = () => {
+    const originalTitle = document.title;
+    const dateStr = new Date().toLocaleString('en-IN', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: false
+    }).replace(/[\/,\s:]+/g, '-');
+    document.title = `Apple_Esports_Report_${dateStr}`;
+    window.print();
+    document.title = originalTitle;
+  };
+
   return (
     <div className="space-y-8 p-1">
       {/* Header */}
@@ -98,7 +132,8 @@ export default function ReportsPage() {
           icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2"
         />
 
-        {/* Date Selector Panel */}
+        {/* Top Actions Panel */}
+        <div className="flex flex-col items-end gap-2 print-hidden">
         <div className="flex items-center gap-3 bg-bg-2 border border-border p-2 rounded-xl shadow-lg">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-text-3" />
@@ -123,10 +158,17 @@ export default function ReportsPage() {
             <RefreshCw className="w-3.5 h-3.5" /> Apply
           </button>
         </div>
+        <button
+            onClick={handlePrint}
+            className="btn-secondary py-1.5 px-3 flex items-center gap-1.5 text-xs font-bold"
+          >
+            <Printer className="w-3.5 h-3.5" /> Download / Print PDF
+          </button>
+        </div>
       </div>
 
       {/* Stats Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="card bg-bg-2/55 border border-border p-6 rounded-xl flex items-center gap-4 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-neon-blue/5 rounded-full blur-xl" />
           <div className="p-3.5 bg-neon-blue/10 border border-neon-blue/20 text-neon-blue rounded-lg">
@@ -159,10 +201,21 @@ export default function ReportsPage() {
             <div className="text-2xl font-mono font-extrabold text-neon-green mt-1">₹{totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
           </div>
         </div>
+
+        <div className="card bg-bg-2/55 border border-border p-6 rounded-xl flex items-center gap-4 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-neon-orange/5 rounded-full blur-xl" />
+          <div className="p-3.5 bg-neon-orange/10 border border-neon-orange/20 text-neon-orange rounded-lg">
+            <DollarSign className="w-6 h-6 line-through" />
+          </div>
+          <div>
+            <div className="text-text-3 text-xs font-bold uppercase tracking-wider">Total Discounts</div>
+            <div className="text-2xl font-mono font-extrabold text-neon-orange mt-1">₹{totalDiscount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          </div>
+        </div>
       </div>
 
       {/* Revenue Split Breakdown Tables */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:block print:break-before-page">
         
         {/* Daily Revenue Split */}
         <div className="card bg-bg-2 border border-border p-6 rounded-xl flex flex-col min-h-[400px]">
@@ -184,8 +237,8 @@ export default function ReportsPage() {
                 <thead>
                   <tr className="border-b border-border text-text-3 uppercase tracking-wider font-bold text-[10px]">
                     <th className="py-2.5">Date</th>
-                    <th className="py-2.5 text-right">Gaming</th>
-                    <th className="py-2.5 text-right">Food & Drink</th>
+                    <th className="py-2.5 text-right">Net Gaming</th>
+                    <th className="py-2.5 text-right">Net Food & Drink</th>
                     <th className="py-2.5 text-right">Total</th>
                   </tr>
                 </thead>
@@ -205,7 +258,7 @@ export default function ReportsPage() {
         </div>
 
         {/* Monthly Revenue Comparison (EOM) */}
-        <div className="card bg-bg-2 border border-border p-6 rounded-xl flex flex-col min-h-[400px]">
+        <div className="card bg-bg-2 border border-border p-6 rounded-xl flex flex-col min-h-[400px] print:break-before-page">
           <h2 className="font-heading font-extrabold text-sm uppercase tracking-wider text-text mb-4 flex items-center gap-2">
             <Calendar className="w-4 h-4 text-neon-blue" />
             Monthly EOM Summary
@@ -224,8 +277,8 @@ export default function ReportsPage() {
                 <thead>
                   <tr className="border-b border-border text-text-3 uppercase tracking-wider font-bold text-[10px]">
                     <th className="py-2.5">Month</th>
-                    <th className="py-2.5 text-right">Gaming</th>
-                    <th className="py-2.5 text-right">Food & Drink</th>
+                    <th className="py-2.5 text-right">Net Gaming</th>
+                    <th className="py-2.5 text-right">Net Food & Drink</th>
                     <th className="py-2.5 text-right">Total</th>
                   </tr>
                 </thead>
@@ -247,7 +300,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Discrepancy Logs Table */}
-      <div className="card bg-bg-2 border border-border p-6 rounded-xl">
+      <div className="card bg-bg-2 border border-border p-6 rounded-xl print:break-before-page">
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-heading font-extrabold text-sm uppercase tracking-wider text-text flex items-center gap-2">
             <AlertTriangle className="w-4.5 h-4.5 text-neon-orange" />
@@ -255,7 +308,7 @@ export default function ReportsPage() {
           </h2>
           <button
             onClick={fetchDiscrepancies}
-            className="btn-secondary py-1 px-3 text-[11px] font-bold uppercase tracking-wider"
+            className="btn-secondary py-1 px-3 text-[11px] font-bold uppercase tracking-wider print-hidden"
           >
             Refresh Logs
           </button>
@@ -310,6 +363,194 @@ export default function ReportsPage() {
           )}
         </div>
       </div>
+
+      {/* Discount Audit Logs Table */}
+      <div className="card bg-bg-2 border border-border p-6 rounded-xl print:break-before-page">
+        <h2 className="font-heading font-extrabold text-sm uppercase tracking-wider text-text flex items-center gap-2 mb-6">
+          <User className="w-4.5 h-4.5 text-neon-purple" />
+          Discount Audit Logs
+        </h2>
+
+        <div className="overflow-x-auto">
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : !reportData.discounts || reportData.discounts.length === 0 ? (
+            <div className="text-center text-text-3 text-xs italic py-8 border border-dashed border-border rounded-lg">
+              No discounts given in the selected date range.
+            </div>
+          ) : (
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-border text-text-3 uppercase tracking-wider font-bold text-[10px]">
+                  <th className="py-3 px-4">Date/Time</th>
+                  <th className="py-3 px-4">Bill Number</th>
+                  <th className="py-3 px-4 text-right">Subtotal</th>
+                  <th className="py-3 px-4 text-right">Discount</th>
+                  <th className="py-3 px-4 text-center">Type</th>
+                  <th className="py-3 px-4">Given By</th>
+                  <th className="py-3 px-4">Reason</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40 font-mono">
+                {reportData.discounts.map(discount => (
+                  <tr key={discount.billId} className="hover:bg-bg-3/40 transition-colors">
+                    <td className="py-3 px-4 text-text-2 flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-text-3" />
+                      {new Date(discount.date).toLocaleString()}
+                    </td>
+                    <td className="py-3 px-4 text-text font-bold">{discount.billId}</td>
+                    <td className="py-3 px-4 text-right text-text">₹{discount.subtotal.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-right text-neon-red font-bold">-₹{discount.discountAmount.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-center text-neon-purple">
+                      {discount.discountType === 'Percentage' ? `${discount.discountValue}% OFF` : `FLAT ₹${discount.discountValue}`}
+                    </td>
+                    <td className="py-3 px-4 text-neon-blue font-bold flex items-center gap-1">
+                      <User className="w-3 h-3" />
+                      {discount.givenBy}
+                    </td>
+                    <td className="py-3 px-4 text-text-3 italic font-sans truncate max-w-[150px]" title={discount.discountReason}>
+                      {discount.discountReason || 'No reason provided'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      {/* Complete Billing Audit Logs Table */}
+      <div className="card bg-bg-2 border border-border p-6 rounded-xl print:break-before-page">
+        <h2 className="font-heading font-extrabold text-sm uppercase tracking-wider text-text flex items-center gap-2 mb-6">
+          <Clock className="w-4.5 h-4.5 text-accent" />
+          Complete Billing Audit Logs
+        </h2>
+
+        <div className="overflow-x-auto">
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : !reportData.allBills || reportData.allBills.length === 0 ? (
+            <div className="text-center text-text-3 text-xs italic py-8 border border-dashed border-border rounded-lg">
+              No bills found in the selected date range.
+            </div>
+          ) : (
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-border text-text-3 uppercase tracking-wider font-bold text-[10px]">
+                  <th className="py-3 px-4">Date/Time</th>
+                  <th className="py-3 px-4">Bill Number</th>
+                  <th className="py-3 px-4">Operator</th>
+                  <th className="py-3 px-4">Customer</th>
+                  <th className="py-3 px-4 text-center">Payment</th>
+                  <th className="py-3 px-4 text-right">Gaming</th>
+                  <th className="py-3 px-4 text-right">Food</th>
+                  <th className="py-3 px-4 text-right">Discount</th>
+                  <th className="py-3 px-4 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40 font-mono">
+                {reportData.allBills.map(bill => (
+                  <tr key={bill.billId} className="hover:bg-bg-3/40 transition-colors">
+                    <td className="py-3 px-4 text-text-2 flex items-center gap-1">
+                      {new Date(bill.date).toLocaleString()}
+                    </td>
+                    <td className="py-3 px-4 text-text font-bold">{bill.billId}</td>
+                    <td className="py-3 px-4 text-neon-blue font-bold">{bill.operator}</td>
+                    <td className="py-3 px-4 text-text-2 font-sans">{bill.customer}</td>
+                    <td className="py-3 px-4 text-center text-text-3 uppercase">{bill.paymentType}</td>
+                    <td className="py-3 px-4 text-right text-text">₹{bill.gamingRevenue.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-right text-text">₹{bill.foodRevenue.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-right text-neon-red">{bill.discount > 0 ? `-₹${bill.discount.toFixed(2)}` : '-'}</td>
+                    <td className="py-3 px-4 text-right text-neon-green font-bold">₹{bill.totalRevenue.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+      {/* Cash Reconciliation & Denominations Table */}
+      <div className="card bg-bg-2 border border-border p-6 rounded-xl print:break-before-page">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="font-heading font-extrabold text-sm uppercase tracking-wider text-text flex items-center gap-2">
+            <DollarSign className="w-4.5 h-4.5 text-neon-green" />
+            Shift Cash Reconciliation & Denominations
+          </h2>
+          <button
+            onClick={fetchReconciliation}
+            className="btn-secondary py-1 px-3 text-[11px] font-bold uppercase tracking-wider print-hidden"
+          >
+            Refresh Log
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          {reconciliationLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : reconciliationData.length === 0 ? (
+            <div className="text-center text-text-3 text-xs italic py-8 border border-dashed border-border rounded-lg">
+              No shifts found in the selected date range.
+            </div>
+          ) : (
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-border text-text-3 uppercase tracking-wider font-bold text-[10px]">
+                  <th className="py-3 px-4">Shift Date/Time</th>
+                  <th className="py-3 px-4">Operator</th>
+                  <th className="py-3 px-4 text-right">Expected (Register)</th>
+                  <th className="py-3 px-4 text-right">Physical (Cash Desk)</th>
+                  <th className="py-3 px-4 text-center">Status</th>
+                  <th className="py-3 px-4 text-center">Denomination Breakdown</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40 font-mono">
+                {reconciliationData.map(report => (
+                  <tr key={report.shiftId} className="hover:bg-bg-3/40 transition-colors">
+                    <td className="py-3 px-4 text-text-2 flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-text-3" />
+                      {new Date(report.openedAt).toLocaleString()}
+                    </td>
+                    <td className="py-3 px-4 text-neon-blue font-bold">{report.operatorName}</td>
+                    <td className="py-3 px-4 text-right text-text">₹{report.expectedDrawerCash.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-right text-text">₹{report.physicalCashCounted.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-center">
+                      {report.isVerified ? (
+                        <span className="text-neon-green font-bold uppercase tracking-wider text-[10px] bg-neon-green/10 px-2 py-1 rounded border border-neon-green/20">Match</span>
+                      ) : (
+                        <span className="text-neon-red font-bold uppercase tracking-wider text-[10px] bg-neon-red/10 px-2 py-1 rounded border border-neon-red/20">Mismatch: {report.difference}</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <div className="flex flex-wrap gap-1 justify-center max-w-[200px]">
+                        {report.notes500 > 0 && <span className="bg-bg-3 px-1.5 py-0.5 rounded text-[10px] text-text-2 border border-border/50">500x{report.notes500}</span>}
+                        {report.notes200 > 0 && <span className="bg-bg-3 px-1.5 py-0.5 rounded text-[10px] text-text-2 border border-border/50">200x{report.notes200}</span>}
+                        {report.notes100 > 0 && <span className="bg-bg-3 px-1.5 py-0.5 rounded text-[10px] text-text-2 border border-border/50">100x{report.notes100}</span>}
+                        {report.notes50 > 0 && <span className="bg-bg-3 px-1.5 py-0.5 rounded text-[10px] text-text-2 border border-border/50">50x{report.notes50}</span>}
+                        {report.notes20 > 0 && <span className="bg-bg-3 px-1.5 py-0.5 rounded text-[10px] text-text-2 border border-border/50">20x{report.notes20}</span>}
+                        {report.notes10 > 0 && <span className="bg-bg-3 px-1.5 py-0.5 rounded text-[10px] text-text-2 border border-border/50">10x{report.notes10}</span>}
+                        {(report.coins5 > 0 || report.coins2 > 0 || report.coins1 > 0) && <span className="bg-bg-3 px-1.5 py-0.5 rounded text-[10px] text-text-2 border border-border/50">Coins</span>}
+                        {report.notes500 === 0 && report.notes200 === 0 && report.notes100 === 0 && report.notes50 === 0 && report.notes20 === 0 && report.notes10 === 0 && report.coins5 === 0 && report.coins2 === 0 && report.coins1 === 0 && <span className="text-text-3 italic text-[10px]">None</span>}
+                      </div>
+                      {report.mismatchReason && (
+                        <div className="text-[10px] text-neon-red/80 mt-1 italic">
+                          Reason: {report.mismatchReason}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
     </div>
   );
 }

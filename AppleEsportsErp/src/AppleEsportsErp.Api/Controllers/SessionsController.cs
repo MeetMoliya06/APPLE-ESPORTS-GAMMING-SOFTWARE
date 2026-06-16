@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using AppleEsportsErp.Api.Filters;
 using AppleEsportsErp.Application.DTOs.Common;
 using AppleEsportsErp.Application.DTOs.Sessions;
@@ -20,10 +21,7 @@ public class SessionsController : ControllerBase
     {
         _sessionService = sessionService;
     }
-
-    private Guid GetOperatorId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     private Guid GetBranchId() => Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
-    private Guid GetShiftId() => Guid.Parse(User.FindFirstValue("shiftId") ?? Guid.Empty.ToString());
 
     [HttpGet]
     public async Task<IActionResult> GetActiveSessions([FromQuery] int page = 1, [FromQuery] int pageSize = 50)
@@ -35,28 +33,30 @@ public class SessionsController : ControllerBase
     [HttpPost("start")]
     public async Task<IActionResult> StartSession([FromBody] SessionStartDto dto)
     {
-        var result = await _sessionService.StartSessionAsync(GetBranchId(), GetOperatorId(), GetShiftId(), dto);
+        var result = await _sessionService.StartSessionAsync(GetBranchId(), (await this.GetOperatorIdAsync()), (await this.GetShiftIdAsync()), dto);
         return Ok(ApiResponse<SessionDto>.Ok(result));
     }
 
     [HttpPost("{id}/stop")]
     public async Task<IActionResult> StopSession(Guid id)
     {
-        var result = await _sessionService.StopSessionAsync(GetBranchId(), GetOperatorId(), id);
+        var result = await _sessionService.StopSessionAsync(GetBranchId(), (await this.GetOperatorIdAsync()), id);
         return Ok(ApiResponse<SessionDto>.Ok(result));
     }
 
     [HttpPost("{id}/extend")]
     public async Task<IActionResult> ExtendSession(Guid id, [FromBody] SessionExtendDto dto)
     {
-        var result = await _sessionService.ExtendSessionAsync(GetBranchId(), GetOperatorId(), id, dto);
+        var result = await _sessionService.ExtendSessionAsync(GetBranchId(), (await this.GetOperatorIdAsync()), id, dto);
         return Ok(ApiResponse<SessionDto>.Ok(result));
     }
 
     [HttpPost("{id}/transfer")]
     public async Task<IActionResult> TransferSession(Guid id, [FromBody] SessionTransferDto dto)
     {
-        var result = await _sessionService.TransferSessionAsync(GetBranchId(), GetOperatorId(), id, dto);
+        var result = await _sessionService.TransferSessionAsync(GetBranchId(), (await this.GetOperatorIdAsync()), id, dto);
         return Ok(ApiResponse<SessionDto>.Ok(result));
     }
 }
+
+

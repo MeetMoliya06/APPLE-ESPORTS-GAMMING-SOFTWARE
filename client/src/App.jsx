@@ -28,6 +28,8 @@ import CustomerPanelPage from './pages/food/CustomerPanelPage';
 // ── Finance ──
 import CashRegisterPage from './pages/cash/CashRegisterPage';
 import CashDeskPage from './pages/cash/CashDeskPage';
+import OnlineDeskPage from './pages/finance/OnlineDeskPage';
+import WalletDeskPage from './pages/finance/WalletDeskPage';
 import EodDashboardPage from './pages/eod/EodDashboardPage';
 
 // ── Management ──
@@ -122,6 +124,22 @@ export default function App() {
                     element={
                       <ProtectedRoute dashboardKey={DASHBOARDS.CASH_DESK}>
                         <CashDeskPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="online-desk"
+                    element={
+                      <ProtectedRoute dashboardKey={DASHBOARDS.ONLINE_DESK}>
+                        <OnlineDeskPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="wallet-desk"
+                    element={
+                      <ProtectedRoute dashboardKey={DASHBOARDS.WALLET_DESK}>
+                        <WalletDeskPage />
                       </ProtectedRoute>
                     }
                   />

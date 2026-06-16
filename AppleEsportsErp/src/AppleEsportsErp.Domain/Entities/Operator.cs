@@ -31,6 +31,11 @@ public class Operator
 
     public DateTimeOffset? LastLogin { get; set; }
     public string? DeviceInfo { get; set; } // JSONB
+    
+    // Live session monitoring
+    public bool IsOnline { get; set; }
+    public string? CurrentSessionToken { get; set; }
+    
     public Guid? CreatedBy { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

@@ -172,6 +172,7 @@ public class AuthService : IAuthService
         op.Status = OperatorStatus.Active;
         op.LastLogin = DateTimeOffset.UtcNow;
         op.DeviceInfo = dto.DeviceInfo != null ? JsonSerializer.Serialize(dto.DeviceInfo) : null;
+        op.IsOnline = true;
         op.UpdatedAt = DateTimeOffset.UtcNow;
 
         await _db.SaveChangesAsync();
@@ -259,7 +260,11 @@ public class AuthService : IAuthService
 
             // Update operator status
             var op = await _db.Operators.FindAsync(userId);
-            if (op != null) op.Status = OperatorStatus.LoggedOut;
+            if (op != null) 
+            {
+                op.Status = OperatorStatus.LoggedOut;
+                op.IsOnline = false;
+            }
 
             await _db.SaveChangesAsync();
             _logger.LogInformation("Operator shift ended: {UserId}, shift: {ShiftId}", userId, shiftId);
@@ -317,6 +322,7 @@ public class AuthService : IAuthService
 
         // Set operator status to logged_out
         op.Status = OperatorStatus.LoggedOut;
+        op.IsOnline = false;
 
         await _db.SaveChangesAsync();
 

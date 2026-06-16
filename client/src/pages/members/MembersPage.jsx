@@ -755,8 +755,10 @@ export default function MembersPage() {
         totalCount: res?.totalCount ?? 0,
         totalPages: res?.totalPages ?? 1,
       });
-    } catch {
-      setMembers([]);
+    } catch (err) {
+      console.error("Failed to fetch members:", err);
+      // Do not wipe out the existing members list on network errors
+      // so the user doesn't see a sudden blank screen.
     } finally {
       setIsLoading(false);
     }

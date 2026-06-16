@@ -21,5 +21,5 @@ public class Shift
     public Branch Branch { get; set; } = null!;
     public ICollection<Session> Sessions { get; set; } = new List<Session>();
     public ICollection<Bill> Bills { get; set; } = new List<Bill>();
-    public CashRegister? CashRegister { get; set; }
+    public ICollection<CashRegister> CashRegisters { get; set; } = new List<CashRegister>();
 }

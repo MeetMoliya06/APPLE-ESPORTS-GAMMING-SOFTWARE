@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using AppleEsportsErp.Api.Filters;
 using AppleEsportsErp.Application.DTOs.Common;
 using AppleEsportsErp.Application.DTOs.Eod;
@@ -39,6 +40,8 @@ public class EodController : ControllerBase
 
         var bills = await _unitOfWork.Repository<AppleEsportsErp.Domain.Entities.Bill>()
             .Query()
+            .Include(b => b.DiscountByAdmin)
+            .Include(b => b.Operator)
             .Where(b => b.BranchId == targetBranchId 
                      && b.Status == AppleEsportsErp.Domain.Enums.BillStatus.Completed 
                      && b.CompletedAt >= startUtc 
@@ -49,8 +52,9 @@ public class EodController : ControllerBase
             .GroupBy(b => b.CompletedAt!.Value.Date)
             .Select(g => new {
                 Date = g.Key.ToString("yyyy-MM-dd"),
-                GamingRevenue = g.Sum(b => b.GamingAmount),
-                FoodRevenue = g.Sum(b => b.FoodAmount),
+                GamingRevenue = g.Sum(b => b.Subtotal > 0 ? b.GamingAmount - (b.GamingAmount / b.Subtotal * b.DiscountAmount) : b.GamingAmount),
+                FoodRevenue = g.Sum(b => b.Subtotal > 0 ? b.FoodAmount - (b.FoodAmount / b.Subtotal * b.DiscountAmount) : b.FoodAmount),
+                DiscountAmount = g.Sum(b => b.DiscountAmount),
                 TotalRevenue = g.Sum(b => b.TotalAmount)
             })
             .OrderBy(r => r.Date)
@@ -60,21 +64,54 @@ public class EodController : ControllerBase
             .GroupBy(b => new { b.CompletedAt!.Value.Year, b.CompletedAt!.Value.Month })
             .Select(g => new {
                 Month = $"{g.Key.Year}-{g.Key.Month:D2}",
-                GamingRevenue = g.Sum(b => b.GamingAmount),
-                FoodRevenue = g.Sum(b => b.FoodAmount),
+                GamingRevenue = g.Sum(b => b.Subtotal > 0 ? b.GamingAmount - (b.GamingAmount / b.Subtotal * b.DiscountAmount) : b.GamingAmount),
+                FoodRevenue = g.Sum(b => b.Subtotal > 0 ? b.FoodAmount - (b.FoodAmount / b.Subtotal * b.DiscountAmount) : b.FoodAmount),
+                DiscountAmount = g.Sum(b => b.DiscountAmount),
                 TotalRevenue = g.Sum(b => b.TotalAmount)
             })
             .OrderBy(r => r.Month)
             .ToList();
 
+        var discountAudit = bills
+            .Where(b => b.DiscountAmount > 0)
+            .Select(b => new {
+                BillId = b.BillNumber,
+                Date = b.CompletedAt,
+                Subtotal = b.Subtotal,
+                DiscountAmount = b.DiscountAmount,
+                DiscountType = b.DiscountType?.ToString(),
+                DiscountValue = b.DiscountValue,
+                DiscountReason = b.DiscountReason,
+                GivenBy = b.DiscountByAdmin != null 
+                    ? $"Super Admin ({b.DiscountByAdmin.FullName})" 
+                    : (b.Operator != null ? $"Operator ({b.Operator.FullName})" : "Unknown")
+            })
+            .OrderByDescending(d => d.Date)
+            .ToList();
+
+        var allBills = bills.Select(b => new {
+            BillId = b.BillNumber,
+            Date = b.CompletedAt,
+            Operator = b.Operator != null ? b.Operator.FullName : "Unknown",
+            Customer = string.IsNullOrEmpty(b.CustomerName) ? "Walk-in" : b.CustomerName,
+            GamingRevenue = b.GamingAmount,
+            FoodRevenue = b.FoodAmount,
+            Discount = b.DiscountAmount,
+            TotalRevenue = b.TotalAmount,
+            PaymentType = b.PaymentType?.ToString() ?? "Unknown"
+        })
+        .OrderByDescending(b => b.Date)
+        .ToList();
+
         return Ok(ApiResponse<object>.Ok(new {
             Daily = dailyReport,
-            Monthly = monthlyReport
+            Monthly = monthlyReport,
+            Discounts = discountAudit,
+            AllBills = allBills
         }));
     }
 
     private Guid GetBranchId() => Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
-    private Guid GetOperatorId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [HttpGet("report")]
     [HttpGet("preview")]
@@ -98,7 +135,7 @@ public class EodController : ControllerBase
     public async Task<IActionResult> FinalizeEod([FromBody] FinalizeEodRequest request)
     {
         var targetDate = (request.Date ?? DateTimeOffset.UtcNow).ToUniversalTime();
-        var result = await _eodService.FinalizeEodAsync(GetBranchId(), GetOperatorId(), targetDate);
+        var result = await _eodService.FinalizeEodAsync(GetBranchId(), (await this.GetOperatorIdAsync()), targetDate);
         return Ok(ApiResponse<EodSnapshotDto>.Ok(result));
     }
 
@@ -115,3 +152,4 @@ public class FinalizeEodRequest
 {
     public DateTimeOffset? Date { get; set; }
 }
+

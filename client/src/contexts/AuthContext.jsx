@@ -29,9 +29,14 @@ export function AuthProvider({ children }) {
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
         })
-        .catch(() => {
-          // Token invalid — clear state
-          logout();
+        .catch((error) => {
+          // Token invalid or network error.
+          // If it's explicitly a 401/403, log them out. 
+          // (Though the interceptor handles most 401s, this is a fallback).
+          // If it's a network error (no response), KEEP them logged in so they don't lose session on brief disconnects.
+          if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            logout();
+          }
         })
         .finally(() => setLoading(false));
     } else {

@@ -28,8 +28,8 @@ public class CashRegisterConfiguration : IEntityTypeConfiguration<CashRegister>
         builder.HasIndex(e => e.ShiftId).HasDatabaseName("idx_cash_register_shift");
         builder.HasIndex(e => e.BranchId).HasDatabaseName("idx_cash_register_branch");
 
-        builder.HasOne(e => e.Shift).WithOne(s => s.CashRegister)
-            .HasForeignKey<CashRegister>(e => e.ShiftId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(e => e.Shift).WithMany(s => s.CashRegisters)
+            .HasForeignKey(e => e.ShiftId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(e => e.Branch).WithMany()
             .HasForeignKey(e => e.BranchId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(e => e.Operator).WithMany()

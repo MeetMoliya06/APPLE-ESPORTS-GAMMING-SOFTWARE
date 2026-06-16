@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using Microsoft.EntityFrameworkCore;
 using AppleEsportsErp.Application.DTOs.Auth;
 using AppleEsportsErp.Application.DTOs.Common;
@@ -112,11 +113,27 @@ public class AuthController : ControllerBase
         var adminHash = BCrypt.Net.BCrypt.HashPassword("Admin123!");
         var opHash = BCrypt.Net.BCrypt.HashPassword("1234");
 
-        var admin = await db.Users.FirstOrDefaultAsync(u => u.Email == "admin@appleesports.com");
+        var admin = await db.Users.FirstOrDefaultAsync(u => u.Role == AppleEsportsErp.Application.Constants.Roles.SuperAdmin);
         if (admin != null)
         {
+            admin.Email = "admin@appleesports.com";
             admin.PasswordHash = adminHash;
             admin.Status = AppleEsportsErp.Domain.Enums.UserStatus.Active;
+        }
+        else
+        {
+            admin = new AppleEsportsErp.Domain.Entities.User
+            {
+                Id = Guid.NewGuid(),
+                FullName = "System Administrator",
+                Email = "admin@appleesports.com",
+                Role = AppleEsportsErp.Application.Constants.Roles.SuperAdmin,
+                Status = AppleEsportsErp.Domain.Enums.UserStatus.Active,
+                PasswordHash = adminHash,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
+            };
+            db.Users.Add(admin);
         }
 
         var operators = await db.Operators.ToListAsync();
@@ -143,4 +160,5 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse.Ok());
     }
 }
+
 

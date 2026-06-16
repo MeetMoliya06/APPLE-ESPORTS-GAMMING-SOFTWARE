@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using AppleEsportsErp.Api.Filters;
 using AppleEsportsErp.Application.DTOs.Common;
 using AppleEsportsErp.Application.DTOs.Members;
@@ -22,7 +23,6 @@ public class MembersController : ControllerBase
     }
 
     private Guid GetBranchId() => Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
-    private Guid GetOperatorId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [HttpGet]
     public async Task<IActionResult> GetMembers([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
@@ -48,7 +48,7 @@ public class MembersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> RegisterMember([FromBody] RegisterMemberDto dto)
     {
-        var result = await _memberService.RegisterMemberAsync(GetBranchId(), GetOperatorId(), dto);
+        var result = await _memberService.RegisterMemberAsync(GetBranchId(), (await this.GetOperatorIdAsync()), dto);
         return Ok(ApiResponse<MemberDto>.Ok(result));
     }
 
@@ -56,14 +56,14 @@ public class MembersController : ControllerBase
     public async Task<IActionResult> UpdateMember(Guid id, [FromBody] UpdateMemberDto dto)
     {
         Console.WriteLine($"[DEBUG UpdateMember] id: {id}, FullName: {dto.FullName}, DisableLogin: {dto.DisableLogin}, Username: {dto.Username}");
-        var result = await _memberService.UpdateMemberAsync(GetBranchId(), GetOperatorId(), id, dto);
+        var result = await _memberService.UpdateMemberAsync(GetBranchId(), (await this.GetOperatorIdAsync()), id, dto);
         return Ok(ApiResponse<MemberDto>.Ok(result));
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteMember(Guid id)
     {
-        await _memberService.DeleteMemberAsync(GetBranchId(), GetOperatorId(), id);
+        await _memberService.DeleteMemberAsync(GetBranchId(), (await this.GetOperatorIdAsync()), id);
         return Ok(ApiResponse<object>.Ok(null));
     }
 
@@ -76,3 +76,4 @@ public class MembersController : ControllerBase
         return Ok(ApiResponse<MemberLoginResponseDto>.Ok(result));
     }
 }
+

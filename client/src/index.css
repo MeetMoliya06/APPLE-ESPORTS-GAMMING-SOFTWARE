@@ -158,3 +158,30 @@
 .scrollbar-thin::-webkit-scrollbar-thumb {
   @apply bg-border rounded;
 }
+
+/* Print Styles */
+@media print {
+  @page {
+    size: landscape;
+    margin: 10mm;
+  }
+  /* Hide sidebar and topbar */
+  aside, header, nav, .print-hidden {
+    display: none !important;
+  }
+  /* Expand main content */
+  main, .card {
+    border: none !important;
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  .card-header, h2, div, td, th {
+    color: black !important;
+    border-color: #ccc !important;
+  }
+}

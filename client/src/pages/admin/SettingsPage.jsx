@@ -7,11 +7,14 @@ import {
   getBranches, createBranch, updateBranch, deleteBranch, activateBranch, deleteBranchPermanent,
   getOperators, createOperator, updateOperator, deleteOperator, activateOperator, deleteOperatorPermanent,
   getBranchPcsDetailed, createPc, updatePc, deletePc,
-  getAuditLogs
+  getAuditLogs,
+  forceLogoutOperator, getSystemConfigs, saveSystemConfig
 } from '../../api/settings.api';
 import {
   Store, Users, Activity, MoreVertical, Edit, Trash2, Plus, Save, Clock, MapPin, Monitor, Wrench, Shield, Check, Info, Eye, EyeOff
 } from 'lucide-react';
+import SystemConfigTab from './SystemConfigTab';
+import SecuritySettingsTab from './SecuritySettingsTab';
 import './SettingsPage.css';
 
 const PERMISSION_KEYS = [
@@ -198,6 +201,18 @@ export default function SettingsPage() {
     }
   };
 
+  const handleForceLogout = async (id) => {
+    if (window.confirm("Are you sure you want to forcefully end this operator's live session? They will be kicked out immediately.")) {
+      try {
+        await forceLogoutOperator(id);
+        toast.success('Operator session terminated forcefully');
+        fetchData();
+      } catch (err) {
+        toast.error(err.response?.data?.error || 'Failed to force logout');
+      }
+    }
+  };
+
   // ----- PC FLEET HANDLERS -----
   const openPcManager = async (branch) => {
     setPcModal({ isOpen: true, branch, pcs: [], loading: true });
@@ -302,6 +317,18 @@ export default function SettingsPage() {
               onClick={() => setActiveTab('audit')}
             >
               <Activity size={16} /> System Audit Logs
+            </button>
+            <button 
+              className={`nav-item w-full ${activeTab === 'system-config' ? 'active' : ''}`} 
+              onClick={() => setActiveTab('system-config')}
+            >
+              <Wrench size={16} /> System Configuration
+            </button>
+            <button 
+              className={`nav-item w-full ${activeTab === 'security' ? 'active' : ''}`} 
+              onClick={() => setActiveTab('security')}
+            >
+              <Shield size={16} /> Security Settings
             </button>
           </nav>
         </div>
@@ -424,7 +451,15 @@ export default function SettingsPage() {
                             <td className="text-text-2 font-mono">@{o.username}</td>
                             <td className="text-text-2">{o.branchName}</td>
                             <td>
-                              <span className={`status-badge ${o.status?.toLowerCase()}`}>{o.status}</span>
+                              <div className="flex flex-col gap-1">
+                                <span className={`status-badge ${o.status?.toLowerCase()}`}>{o.status}</span>
+                                {o.isOnline && (
+                                  <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded border border-green-400/20 w-fit">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
+                                    ONLINE
+                                  </span>
+                                )}
+                              </div>
                             </td>
                             <td className="text-right relative">
                               <button 
@@ -436,6 +471,9 @@ export default function SettingsPage() {
                               {activeDropdown === `op-${o.id}` && (
                                 <div className="dropdown-menu" style={{ top: dropdownPos.top, right: dropdownPos.right }}>
                                   <button onClick={() => { closeDropdown(); setOperatorDrawer({ isOpen: true, data: o }); }}><Edit size={12} /> Edit operator</button>
+                                  {o.isOnline && (
+                                    <button className="danger" onClick={() => { closeDropdown(); handleForceLogout(o.id); }}><Activity size={12} /> Force Logout Session</button>
+                                  )}
                                   {o.status === 'Active' ? (
                                     <button className="danger" onClick={() => { closeDropdown(); handleDeleteOperator(o.id); }}><Trash2 size={12} /> Disable Account</button>
                                   ) : (
@@ -507,6 +545,12 @@ export default function SettingsPage() {
                   </div>
                 </div>
               )}
+
+              {/* SYSTEM CONFIG TAB */}
+              {activeTab === 'system-config' && <SystemConfigTab />}
+
+              {/* SECURITY SETTINGS TAB */}
+              {activeTab === 'security' && <SecuritySettingsTab />}
             </>
           )}
         </div>

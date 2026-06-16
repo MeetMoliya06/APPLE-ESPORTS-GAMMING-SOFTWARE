@@ -56,13 +56,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // ── 2. JWT Authentication (SOP §21 + Q1: full claims embedded) ──
 var jwtKey = Encoding.UTF8.GetBytes(jwtConfig["Secret"]!);
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
+    options.UseSecurityTokenValidators = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
@@ -220,8 +217,11 @@ builder.Services.AddScoped<ICashDeskService, CashDeskService>();
 builder.Services.AddScoped<IEodService, EodService>();
 builder.Services.AddScoped<IPcManagementService, PcManagementService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IReportsService, ReportsService>();
+builder.Services.AddScoped<ISystemDesksService, AppleEsportsErp.Infrastructure.Services.SystemDesksService>();
 builder.Services.AddScoped<IUnitOfWork, AppleEsportsErp.Infrastructure.Repositories.UnitOfWork>();
 builder.Services.AddHostedService<AppleEsportsErp.Api.Services.ReservationBackgroundService>();
+builder.Services.AddHostedService<AppleEsportsErp.Api.Services.OpenSessionMonitorService>();
 
 // ── 9. Controllers + Swagger ──
 builder.Services.AddControllers()
@@ -270,6 +270,8 @@ using (var scope = app.Services.CreateScope())
             Log.Information("Database migrations applied ✓");
             AppleEsportsErp.Api.DbUpdater.UpdateSchema(app);
             Log.Information("Database schema patches applied ✓");
+            AppleEsportsErp.Api.DataSeeder.SeedBranchesAsync(db).GetAwaiter().GetResult();
+            Log.Information("Database seeded with default branches and PCs ✓");
         }
         else
         {
@@ -298,6 +300,13 @@ app.UseCors("AppleEsportsCors");
 
 // ── 3. Authentication (maps from auth.js verifyToken) ──
 app.UseAuthentication();
+
+// ── Auto Migrate Database ──
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 // ── 4. Authorization (maps from roles.js authorize/requireDashboardAccess) ──
 app.UseAuthorization();

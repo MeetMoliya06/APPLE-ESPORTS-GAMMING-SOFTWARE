@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/ui/Toast';
 import ExtendSessionModal from './ExtendSessionModal';
+import SessionDiscountModal from './SessionDiscountModal';
 
 // ── Elapsed time from a start ISO string (counting UP) ──
 function useElapsedTime(startTimeIso) {
@@ -51,6 +52,7 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
   const elapsed = useElapsedTime(pc.sessionStartTime);
   const [actionLoading, setActionLoading] = useState(null); // 'stop' | 'extend' | etc.
   const [showExtendModal, setShowExtendModal] = useState(false);
+  const [showDiscountModal, setShowDiscountModal] = useState(false);
 
   // Live charge: if fixed session, just totalAmount. if open-ended, totalAmount + elapsed rate.
   const liveCharge = pc.sessionEndTime
@@ -185,8 +187,8 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
             <ActionBtn
               color="purple"
               icon={<Gift className="w-3 h-3" />}
-              label="Promo"
-              onClick={() => alert("Promo codes feature coming soon!")}
+              label="Discount"
+              onClick={() => setShowDiscountModal(true)}
               small
             />
           )}
@@ -202,6 +204,12 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
             }}
           />
         )}
+        <SessionDiscountModal
+          isOpen={showDiscountModal}
+          onClose={() => setShowDiscountModal(false)}
+          pc={pc}
+          onRefresh={onRefresh}
+        />
       </motion.div>
     );
   }

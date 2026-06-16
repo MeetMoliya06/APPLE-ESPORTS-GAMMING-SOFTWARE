@@ -49,6 +49,8 @@ export const DASHBOARDS = {
   FOOD_ORDERS: 'food_orders',
   CASH_REGISTER: 'cash_register',
   CASH_DESK: 'cash_desk',
+  ONLINE_DESK: 'online_desk',
+  WALLET_DESK: 'wallet_desk',
   MEMBERS: 'members',
   MENU_EDITOR: 'menu_editor',
   MAIN_DASHBOARD: 'main_dashboard',

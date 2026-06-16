@@ -28,7 +28,7 @@ public class CashRegisterService : ICashRegisterService
     {
         var register = await _unitOfWork.Repository<CashRegister>().Query()
             .Include(r => r.CashTransactions)
-            .FirstOrDefaultAsync(r => r.BranchId == branchId && r.ShiftId == shiftId && r.Status == CashRegisterStatus.Open)
+            .FirstOrDefaultAsync(r => r.BranchId == branchId && r.ShiftId == shiftId && r.Status != CashRegisterStatus.Closed)
             ?? throw new NotFoundException("No active cash register found for this shift.");
 
         return MapToDto(register);

@@ -20,6 +20,7 @@ public class SessionService : ISessionService
     private readonly IAuditService _audit;
     private readonly IPcStatusService _pcStatus;
     private readonly ILogger<SessionService> _logger;
+    private readonly IWalletService _walletService;
 
     public SessionService(
         IUnitOfWork uow,
@@ -27,7 +28,8 @@ public class SessionService : ISessionService
         IHubNotificationService hubNotifier,
         IAuditService audit,
         IPcStatusService pcStatus,
-        ILogger<SessionService> logger)
+        ILogger<SessionService> logger,
+        IWalletService walletService)
     {
         _uow = uow;
         _db = db;
@@ -35,6 +37,7 @@ public class SessionService : ISessionService
         _audit = audit;
         _pcStatus = pcStatus;
         _logger = logger;
+        _walletService = walletService;
     }
 
     public async Task<PaginatedResult<SessionDto>> GetActiveSessionsAsync(Guid branchId, int page, int pageSize)
@@ -61,7 +64,7 @@ public class SessionService : ISessionService
             StartTime = s.StartTime,
             EndTime = s.EndTime,
             DurationMinutes = s.ActualDurationMin ?? s.PlannedDurationMin ?? 0,
-            ExpectedAmount = s.TotalAmount,
+            ExpectedAmount = s.Bills.FirstOrDefault()?.TotalAmount ?? s.TotalAmount,
             PackageName = s.GamingType,
             Status = s.State,
             BillId = s.Bills.FirstOrDefault()?.Id ?? Guid.Empty
@@ -104,8 +107,8 @@ public class SessionService : ISessionService
                 CustomerName = dto.CustomerName,
                 MemberId = dto.MemberId,
                 StartTime = now,
-                EndTime = now.AddMinutes((double)dto.DurationMinutes),
-                PlannedDurationMin = (int)dto.DurationMinutes,
+                EndTime = dto.DurationMinutes > 0 ? now.AddMinutes((double)dto.DurationMinutes) : null,
+                PlannedDurationMin = dto.DurationMinutes > 0 ? (int)dto.DurationMinutes : null,
                 TotalAmount = dto.ExpectedAmount,
                 GamingAmount = dto.ExpectedAmount,
                 GamingType = dto.PackageName,
@@ -211,6 +214,7 @@ public class SessionService : ISessionService
             var session = await _db.Sessions
                 .Include(s => s.Pc)
                 .Include(s => s.Bills)
+                    .ThenInclude(b => b.Items)
                 .FirstOrDefaultAsync(s => s.Id == sessionId && s.BranchId == branchId);
 
             if (session == null)
@@ -225,9 +229,70 @@ public class SessionService : ISessionService
             session.EndTime = now;
             session.ActualDurationMin = (int)(now - session.StartTime).TotalMinutes;
             
+            var bill = session.Bills.FirstOrDefault();
+
+            // 1. If Open Session, Calculate Cost
+            if (session.PlannedDurationMin == null)
+            {
+                decimal ratePerHour = session.MemberId.HasValue ? 80m : 100m;
+                decimal hours = Math.Max((decimal)session.ActualDurationMin.Value / 60m, 1m / 60m); // Min 1 min charge
+                session.GamingAmount = Math.Round(hours * ratePerHour, 2);
+                session.TotalAmount = session.GamingAmount + session.FoodAmount;
+
+                if (bill != null)
+                {
+                    bill.GamingAmount = session.GamingAmount;
+                    bill.Subtotal = session.TotalAmount;
+                    bill.TotalAmount = session.TotalAmount;
+                    
+                    var gamingItem = bill.Items.FirstOrDefault(i => i.ItemType == "gaming");
+                    if (gamingItem != null)
+                    {
+                        gamingItem.ItemName = $"Open Session ({session.ActualDurationMin}m)";
+                        gamingItem.TotalPrice = session.GamingAmount;
+                        gamingItem.UnitPrice = session.GamingAmount;
+                    }
+                }
+            }
+
+            // 2. Automatic Wallet Deduction for Members
+            if (session.MemberId.HasValue && bill != null && bill.Status != BillStatus.Completed)
+            {
+                var member = await _db.Members.FindAsync(session.MemberId.Value);
+                if (member != null)
+                {
+                    // Deduct up to the TotalAmount (Gaming + Food if any)
+                    var amountToDeduct = bill.TotalAmount;
+                    
+                    member.GamingBalance -= amountToDeduct; // Can go negative if they don't have enough
+                    _uow.Repository<Member>().Update(member);
+
+                    var walletTx = new WalletTransaction
+                    {
+                        MemberId = member.Id,
+                        BranchId = branchId,
+                        OperatorId = operatorId,
+                        Action = WalletAction.Correction,
+                        TargetWallet = WalletType.Gaming,
+                        Amount = amountToDeduct,
+                        BalanceBefore = member.GamingBalance + amountToDeduct,
+                        BalanceAfter = member.GamingBalance,
+                        PaymentType = "Wallet",
+                        CashAmount = 0,
+                        OnlineAmount = 0,
+                        BillId = bill.Id,
+                        Reason = "Automatic Session & Bill Deduction",
+                        CreatedAt = now
+                    };
+                    await _uow.Repository<WalletTransaction>().AddAsync(walletTx);
+
+                    bill.Status = BillStatus.Completed;
+                    bill.WalletAmount = amountToDeduct;
+                }
+            }
+            
             var pc = session.Pc!;
             
-            // If all associated bills are already completed/paid, transition PC to Idle
             var hasUnpaidBill = session.Bills.Any(b => b.Status != BillStatus.Completed);
             if (!hasUnpaidBill)
             {
@@ -240,6 +305,7 @@ public class SessionService : ISessionService
             pc.CurrentSessionId = null;
             
             _uow.Repository<Session>().Update(session);
+            if (bill != null) _uow.Repository<Bill>().Update(bill);
             _uow.Repository<Pc>().Update(pc);
             
             await _uow.CommitTransactionAsync();

@@ -36,6 +36,7 @@ public class PcStatusService : IPcStatusService
         // Fetch active sessions for these PCs
         var activeSessions = await _db.Sessions
             .AsNoTracking()
+            .Include(s => s.Bills)
             .Where(s => s.BranchId == branchId && (s.State == SessionState.Active || s.State == SessionState.AwaitingBilling))
             .ToDictionaryAsync(s => s.PcId, s => s);
 
@@ -72,7 +73,9 @@ public class PcStatusService : IPcStatusService
                 dto.CustomerName = session.CustomerName;
                 dto.SessionStartTime = session.StartTime;
                 dto.CustomerType = session.MemberId.HasValue ? "Member" : "Walk-in";
-                dto.TotalAmount = session.TotalAmount;
+                var activeBill = session.Bills.FirstOrDefault();
+                dto.ActiveBillId = activeBill?.Id;
+                dto.TotalAmount = activeBill?.TotalAmount ?? session.TotalAmount;
                 if (session.EndTime.HasValue)
                     dto.SessionEndTime = session.EndTime;
             }

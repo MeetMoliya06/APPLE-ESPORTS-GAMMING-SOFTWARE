@@ -117,13 +117,59 @@ public class DashboardService : IDashboardService
         return recentLogs.Select(l => new RecentActivityDto
         {
             Id = l.Id,
-            Type = l.Action,
-            Description = l.Details ?? "",
+            Type = FormatActivityType(l.Action),
+            Description = FormatActivityDescription(l.Action, l.Details ?? ""),
             Timestamp = l.CreatedAt.DateTime,
             OperatorName = l.UserName ?? "System",
             BranchId = l.BranchId,
             Category = DetermineCategory(l.Action)
         });
+    }
+
+    private string FormatActivityType(string action)
+    {
+        return action switch
+        {
+            "login" => "User Login",
+            "bill_complete" => "Bill Generated",
+            "payment_process" => "Payment Processed",
+            "session_start" => "Session Started",
+            "session_end" => "Session Ended",
+            "session_extend" => "Session Extended",
+            "food_order_create" => "Food Order Created",
+            "food_order_status_change" => "Food Order Status Updated",
+            "cash_register_open" => "Register Opened",
+            "cash_register_close" => "Register Closed",
+            _ => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(action.Replace('_', ' '))
+        };
+    }
+
+    private string FormatActivityDescription(string action, string detailsJson)
+    {
+        if (string.IsNullOrWhiteSpace(detailsJson) || detailsJson == "null")
+            return "Action completed successfully.";
+
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(detailsJson);
+            var root = doc.RootElement;
+
+            return action switch
+            {
+                "login" => "Logged into the system.",
+                "bill_complete" => $"Generated bill {root.GetProperty("BillNumber").GetString()}.",
+                "payment_process" => $"Received ₹{root.GetProperty("Total").GetDecimal()} via {root.GetProperty("PaymentType").GetString()}.",
+                "session_start" => $"Started a new gaming session.",
+                "session_end" => $"Ended a gaming session.",
+                "cash_register_open" => "Opened the cash register for a new shift.",
+                "cash_register_close" => "Closed the cash register and ended the shift.",
+                _ => detailsJson // Fallback
+            };
+        }
+        catch
+        {
+            return detailsJson; // Fallback to raw JSON if parsing fails
+        }
     }
 
     private string DetermineCategory(string action)
@@ -161,7 +207,7 @@ public class DashboardService : IDashboardService
 
             // Total operators assigned to this branch (registered, regardless of shift)
             var assignedOperatorsCount = await _context.Operators
-                .CountAsync(o => o.BranchId == branchId && o.Status == OperatorStatus.Active);
+                .CountAsync(o => o.BranchId == branchId && o.Status == OperatorStatus.Active && !o.Username.StartsWith("system_admin"));
 
             // Sales (since midnight today)
             var todaysBills = await _context.Bills

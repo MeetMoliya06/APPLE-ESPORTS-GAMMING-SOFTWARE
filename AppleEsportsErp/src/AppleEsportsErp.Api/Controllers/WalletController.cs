@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using AppleEsportsErp.Api.Filters;
 using AppleEsportsErp.Application.DTOs.Common;
 using AppleEsportsErp.Application.DTOs.Wallets;
@@ -23,15 +24,6 @@ public class WalletController : ControllerBase
     }
 
     private Guid GetBranchId() => Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
-    private Guid GetOperatorId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-    
-    private Guid GetShiftId()
-    {
-        var shiftClaim = User.FindFirstValue("shiftId");
-        if (string.IsNullOrEmpty(shiftClaim))
-            throw new AppException("Active shift required for wallet operations.");
-        return Guid.Parse(shiftClaim);
-    }
 
     [HttpGet("{memberId:guid}")]
     public async Task<IActionResult> GetWalletHistory(Guid memberId, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
@@ -44,7 +36,7 @@ public class WalletController : ControllerBase
     [Idempotent]
     public async Task<IActionResult> TopUpWallet(Guid memberId, [FromBody] TopUpWalletDto dto)
     {
-        var result = await _walletService.TopUpWalletAsync(GetBranchId(), GetOperatorId(), GetShiftId(), memberId, dto);
+        var result = await _walletService.TopUpWalletAsync(GetBranchId(), (await this.GetOperatorIdAsync()), (await this.GetShiftIdAsync()), memberId, dto);
         return Ok(ApiResponse<WalletTransactionDto>.Ok(result));
     }
 
@@ -52,7 +44,9 @@ public class WalletController : ControllerBase
     [Idempotent]
     public async Task<IActionResult> DeductWallet(Guid memberId, [FromBody] DeductWalletDto dto)
     {
-        var result = await _walletService.DeductWalletAsync(GetBranchId(), GetOperatorId(), memberId, dto);
+        var result = await _walletService.DeductWalletAsync(GetBranchId(), (await this.GetOperatorIdAsync()), memberId, dto);
         return Ok(ApiResponse<WalletTransactionDto>.Ok(result));
     }
 }
+
+

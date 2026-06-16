@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using AppleEsportsErp.Api.Filters;
 using AppleEsportsErp.Application.DTOs.Billing;
 using AppleEsportsErp.Application.DTOs.Common;
@@ -23,15 +24,6 @@ public class BillingController : ControllerBase
     }
 
     private Guid GetBranchId() => Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
-    private Guid GetOperatorId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-    
-    private Guid GetShiftId()
-    {
-        var shiftClaim = User.FindFirstValue("shiftId");
-        if (string.IsNullOrEmpty(shiftClaim))
-            throw new AppException("Active shift required for billing operations.");
-        return Guid.Parse(shiftClaim);
-    }
 
     [HttpGet]
     public async Task<IActionResult> GetActiveBills([FromQuery] int page = 1, [FromQuery] int pageSize = 50)
@@ -52,7 +44,9 @@ public class BillingController : ControllerBase
     [Authorize(Policy = "SuperAdminOnly")]
     public async Task<IActionResult> ApplyDiscount(Guid id, [FromBody] ApplyDiscountDto dto)
     {
-        var result = await _billingService.ApplyDiscountAsync(GetBranchId(), GetOperatorId(), id, dto);
+        // For applying discount, we need the SuperAdmin's User ID, NOT the System Administrator Operator ID.
+        var superAdminId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await _billingService.ApplyDiscountAsync(GetBranchId(), superAdminId, id, dto);
         return Ok(ApiResponse<BillDto>.Ok(result));
     }
 
@@ -60,14 +54,15 @@ public class BillingController : ControllerBase
     [Idempotent]
     public async Task<IActionResult> ProcessPayment(Guid id, [FromBody] ProcessPaymentDto dto)
     {
-        var result = await _billingService.ProcessPaymentAsync(GetBranchId(), GetOperatorId(), GetShiftId(), id, dto);
+        var result = await _billingService.ProcessPaymentAsync(GetBranchId(), (await this.GetOperatorIdAsync()), (await this.GetShiftIdAsync()), id, dto);
         return Ok(ApiResponse<BillDto>.Ok(result));
     }
 
     [HttpDelete("{id:guid}/items/{itemId:guid}")]
     public async Task<IActionResult> RemoveBillItem(Guid id, Guid itemId)
     {
-        var result = await _billingService.RemoveBillItemAsync(GetBranchId(), GetOperatorId(), id, itemId);
+        var result = await _billingService.RemoveBillItemAsync(GetBranchId(), (await this.GetOperatorIdAsync()), id, itemId);
         return Ok(ApiResponse<BillDto>.Ok(result));
     }
 }
+

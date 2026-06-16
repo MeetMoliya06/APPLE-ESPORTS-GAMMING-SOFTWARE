@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AppleEsportsErp.Api.Extensions;
 using AppleEsportsErp.Api.Filters;
 using AppleEsportsErp.Application.DTOs.Common;
 using AppleEsportsErp.Application.DTOs.Reservations;
@@ -22,7 +23,6 @@ public class ReservationsController : ControllerBase
     }
 
     private Guid GetBranchId() => Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
-    private Guid GetOperatorId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [HttpGet]
     public async Task<IActionResult> GetActiveReservations([FromQuery] int page = 1, [FromQuery] int pageSize = 50)
@@ -34,28 +34,29 @@ public class ReservationsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateReservation([FromBody] CreateReservationDto dto)
     {
-        var result = await _reservationService.CreateReservationAsync(GetBranchId(), GetOperatorId(), dto);
+        var result = await _reservationService.CreateReservationAsync(GetBranchId(), (await this.GetOperatorIdAsync()), dto);
         return Ok(ApiResponse<ReservationDto>.Ok(result));
     }
 
     [HttpPost("{id}/cancel")]
     public async Task<IActionResult> CancelReservation(Guid id, [FromBody] CancelReservationDto dto)
     {
-        var result = await _reservationService.CancelReservationAsync(GetBranchId(), GetOperatorId(), id, dto);
+        var result = await _reservationService.CancelReservationAsync(GetBranchId(), (await this.GetOperatorIdAsync()), id, dto);
         return Ok(ApiResponse<ReservationDto>.Ok(result));
     }
 
     [HttpPost("{id}/start")]
     public async Task<IActionResult> StartReservedSession(Guid id)
     {
-        var result = await _reservationService.StartReservedSessionAsync(GetBranchId(), GetOperatorId(), id);
+        var result = await _reservationService.StartReservedSessionAsync(GetBranchId(), (await this.GetOperatorIdAsync()), id);
         return Ok(ApiResponse<ReservationDto>.Ok(result));
     }
 
     [HttpPost("{id}/override")]
     public async Task<IActionResult> OverrideReservation(Guid id, [FromBody] OverrideReservationDto dto)
     {
-        var result = await _reservationService.OverrideReservationAsync(GetBranchId(), GetOperatorId(), id, dto);
+        var result = await _reservationService.OverrideReservationAsync(GetBranchId(), (await this.GetOperatorIdAsync()), id, dto);
         return Ok(ApiResponse<ReservationDto>.Ok(result));
     }
 }
+

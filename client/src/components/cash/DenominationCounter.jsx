@@ -65,7 +65,9 @@ export default function DenominationCounter({ expectedTotal, onVerified }) {
         mismatchReason: isExactMatch ? undefined : mismatchReason.trim()
       };
 
-      await api.post('/cash-desk/denominations', payload);
+      await api.post('/cash-desk/denominations', payload, {
+        headers: { 'X-Idempotency-Key': crypto.randomUUID() }
+      });
       onVerified();
     } catch (err) {
       setError(err.response?.data?.error || err.response?.data?.message || 'Failed to submit denominations.');
