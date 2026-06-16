@@ -110,8 +110,8 @@
 .table-container {
   border: 1px solid #2d2d3a;
   border-radius: 4px;
-  /* overflow must be visible so dropdown menus can escape the table boundary */
-  overflow: visible;
+  /* overflow auto allows horizontal and vertical scrolling within constraints */
+  overflow: auto;
   background-color: #1a1a24;
   position: relative;
 }

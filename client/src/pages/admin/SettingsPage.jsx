@@ -32,6 +32,50 @@ const PERMISSION_KEYS = [
   { id: 'settings', label: 'System Settings', desc: 'Configure operators, branches, and logs' }
 ];
 
+const formatDetails = (details) => {
+  if (!details) return null;
+  
+  let parsed = null;
+  if (typeof details === 'object') {
+    parsed = details;
+  } else if (typeof details === 'string') {
+    try {
+      parsed = JSON.parse(details);
+    } catch (e) {
+      return details;
+    }
+  }
+  
+  if (parsed && typeof parsed === 'object') {
+    if (Array.isArray(parsed)) {
+      return JSON.stringify(parsed);
+    }
+    
+    const parts = [];
+    for (const [key, val] of Object.entries(parsed)) {
+      if (val === null || val === undefined || val === '') continue;
+      
+      const formattedKey = key
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, (str) => str.toUpperCase());
+      
+      let formattedVal = val;
+      if (typeof val === 'object') {
+        formattedVal = JSON.stringify(val);
+      }
+      
+      parts.push(
+        <span key={key} className="inline-block mr-3 mb-1 break-all">
+          <strong className="text-text-2">{formattedKey}:</strong> <span className="text-text-3 font-mono">{String(formattedVal)}</span>
+        </span>
+      );
+    }
+    return parts.length > 0 ? <div className="flex flex-wrap items-center mt-1">{parts}</div> : details;
+  }
+  
+  return details;
+};
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('branches');
   const toast = useToast();
@@ -526,9 +570,9 @@ export default function SettingsPage() {
                                 {log.action}
                               </span>
                             </td>
-                            <td className="text-text-2">
+                            <td className="text-text-2 max-w-[400px] break-words">
                               {log.targetType ? `${log.targetType}` : '-'}
-                              {log.details && <span className="text-[10px] block text-text-3 font-mono mt-0.5">{log.details}</span>}
+                              {log.details && <div className="text-[10px] block text-text-3 mt-0.5">{formatDetails(log.details)}</div>}
                             </td>
                             <td className="text-text-2 font-mono text-[10px]">{log.ipAddress || '127.0.0.1'}</td>
                           </tr>
