@@ -8,12 +8,12 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:5015',
+        target: process.env.API_URL || 'http://localhost:5015',
         changeOrigin: true,
         secure: false,
       },
       '/hubs': {
-        target: 'http://localhost:5015',
+        target: process.env.API_URL || 'http://localhost:5015',
         changeOrigin: true,
         secure: false,
         ws: true,

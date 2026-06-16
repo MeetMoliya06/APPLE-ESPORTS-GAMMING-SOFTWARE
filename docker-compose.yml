@@ -17,7 +17,7 @@ services:
     networks:
       - appleesports_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,9 +29,9 @@ services:
     restart: always
     environment:
       POSTGRES_HOST: postgres
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_DB: ${DB_NAME:-AppleEsportsErp}
+      POSTGRES_USER: ${DB_USER:-gamecafe_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-GameCafe_Secure_2026!}
+      POSTGRES_DB: ${DB_NAME:-gamecafe_erp}
       SCHEDULE: '@daily'
       BACKUP_KEEP_DAYS: 30
       BACKUP_KEEP_WEEKS: 12
@@ -72,7 +72,7 @@ services:
       - "5015:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${DB_NAME:-AppleEsportsErp};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres}
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${DB_NAME:-gamecafe_erp};Username=${DB_USER:-gamecafe_admin};Password=${DB_PASSWORD:-GameCafe_Secure_2026!}
       - Jwt__Secret=${JWT_SECRET:-supersecretkey_min_32_chars_long!!}
       - Jwt__RefreshSecret=${JWT_REFRESH_SECRET:-supersecretkey_refresh_min_32_chars_long!!}
       - Jwt__Issuer=AppleEsportsErp
@@ -110,6 +110,8 @@ services:
       - ./client:/app
       - /app/node_modules
     command: sh -c "npm install --legacy-peer-deps && npm run dev -- --host 0.0.0.0"
+    environment:
+      - API_URL=http://api:8080
     networks:
       - appleesports_net
 
