@@ -105,7 +105,7 @@ services:
     container_name: appleesports-v2-client-dev
     working_dir: /app
     ports:
-      - "5176:5173"
+      - "5173:5173"
     volumes:
       - ./client:/app
       - /app/node_modules
