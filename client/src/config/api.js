@@ -62,7 +62,7 @@ api.interceptors.response.use(
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.href = '/';
         return Promise.reject(refreshError);
       }
     }
@@ -70,7 +70,7 @@ api.interceptors.response.use(
     // Force logout response (SOP §11: Live Access Revocation)
     if (error.response?.status === 403 && error.response?.data?.code === 'ACCOUNT_INACTIVE') {
       localStorage.clear();
-      window.location.href = '/login?reason=account_inactive';
+      window.location.href = '/?reason=account_inactive';
       return Promise.reject(error);
     }
 

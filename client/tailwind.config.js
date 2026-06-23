@@ -46,11 +46,11 @@ export default {
         },
         // PC State Colors (SOP §7.1)
         pc: {
-          idle: '#4a5568',
-          active: '#dc2626',
-          reserved: '#9b72ff',
-          awaiting: '#ff8c42',
-          offline: '#ff4d6d',
+          idle: '#4da6ff', // blue
+          active: '#22d3a6', // green
+          reserved: '#eab308', // yellow
+          awaiting: '#ff8c42', // orange
+          offline: '#dc2626', // red
         },
         // Text hierarchy
         text: {

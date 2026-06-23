@@ -86,6 +86,9 @@ export function AuthProvider({ children }) {
 
   // ── Logout (SOP §10: shift closure for operators) ──
   const logout = useCallback(async () => {
+    // Capture role to determine where to redirect after logout
+    const role = user?.role || user?.Role || '';
+    
     try {
       const token = localStorage.getItem('accessToken');
       if (token) {
@@ -98,18 +101,37 @@ export function AuthProvider({ children }) {
       localStorage.removeItem('activeBranchId');
       setUser(null);
       setError(null);
+
+      // Explicitly navigate to the correct login portal
+      let redirectPath = '/';
+      if (role === ROLES.SUPER_ADMIN) {
+        redirectPath = '/login/superadmin';
+      } else if (typeof role === 'string' && role.toLowerCase().includes('admin')) {
+        redirectPath = '/login/admin';
+      } else if (typeof role === 'string' && role.toLowerCase().includes('operator')) {
+        redirectPath = '/login/operator';
+      }
+      
+      window.location.href = redirectPath;
     }
   }, [user]);
 
   // ── Role checks ──
-  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
-  const isOperator = user?.role === ROLES.OPERATOR;
+  const userRole = user?.role || user?.Role;
+  const isSuperAdmin = userRole === ROLES.SUPER_ADMIN || (typeof userRole === 'string' && userRole.toLowerCase().includes('admin'));
+  const isOperator = userRole === ROLES.OPERATOR || (typeof userRole === 'string' && userRole.toLowerCase().includes('operator'));
   const isAuthenticated = !!user;
 
   // ── Dashboard permission check (SOP §19.2) ──
   const hasDashboardAccess = useCallback((dashboardKey) => {
     if (!user) return false;
-    if (user.role === ROLES.SUPER_ADMIN) return true;
+    const role = user.role || user.Role;
+    if (role === ROLES.SUPER_ADMIN) return true;
+    
+    // For Admin, they have access to all branches, but we still check their dashboard UI permissions.
+    // However, they always have access to the main dashboard.
+    if (dashboardKey === 'main_dashboard' && role === ROLES.ADMIN) return true;
+
     return user.dashboardPermissions?.[dashboardKey] === true;
   }, [user]);
 

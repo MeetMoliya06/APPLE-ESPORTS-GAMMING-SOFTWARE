@@ -12,7 +12,7 @@ namespace AppleEsportsErp.Api.Controllers;
 
 [ApiController]
 [Route("api/system-config")]
-[Authorize(Policy = "SuperAdminOnly")]
+[Authorize(Policy = "Dashboard:settings")]
 public class SystemConfigController : ControllerBase
 {
     private readonly AppDbContext _db;

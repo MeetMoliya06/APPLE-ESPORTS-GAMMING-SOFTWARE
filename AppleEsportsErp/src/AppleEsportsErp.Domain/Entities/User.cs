@@ -13,6 +13,7 @@ public class User
     public UserStatus Status { get; set; } = UserStatus.Active;
     public DateTimeOffset? LastLogin { get; set; }
     public string? DeviceInfo { get; set; } // JSONB stored as string
+    public string? DashboardPermissions { get; set; } // JSONB stored as string for Admins
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }

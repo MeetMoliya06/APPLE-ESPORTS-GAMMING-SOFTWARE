@@ -14,9 +14,18 @@ import AppShell from './components/layout/AppShell';
 import { ROLES, DASHBOARDS } from './config/constants';
 
 // ── Auth Pages ──
-import LoginPage from './pages/auth/LoginPage';
+import OperatorLoginPage from './pages/auth/OperatorLoginPage';
+import AdminLoginPage from './pages/auth/AdminLoginPage';
+import SuperAdminLoginPage from './pages/auth/SuperAdminLoginPage';
 import UnauthorizedPage from './pages/auth/UnauthorizedPage';
 import NotFoundPage from './pages/NotFoundPage';
+
+// ── Public User Pages ──
+import LandingGatewayPage from './pages/public/LandingGatewayPage';
+import UserFlowSelectionPage from './pages/public/UserFlowSelectionPage';
+import MemberLoginPage from './pages/public/MemberLoginPage';
+import LimitedUserPage from './pages/public/LimitedUserPage';
+import MemberPortalPage from './pages/public/MemberPortalPage';
 
 // ── Operations ──
 import BillingCounterPage from './pages/billing/BillingCounterPage';
@@ -46,7 +55,7 @@ import ReportsPage from './pages/admin/ReportsPage';
 function HomeRedirect() {
   const { isSuperAdmin, isAuthenticated } = useAuth();
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   return isSuperAdmin ? <Navigate to="/app/dashboard" replace /> : <Navigate to="/app/billing" replace />;
 }
@@ -60,15 +69,23 @@ export default function App() {
             <ToastProvider>
               <Routes>
                 {/* ══════════ Public Routes ══════════ */}
-                <Route path="/login" element={<LoginPage />} />
+                <Route path="/login/operator" element={<OperatorLoginPage />} />
+                <Route path="/login/admin" element={<AdminLoginPage />} />
+                <Route path="/login/superadmin" element={<SuperAdminLoginPage />} />
+                {/* Fallback to clear out stuck /login URLs */}
+                <Route path="/login" element={<Navigate to="/" replace />} />
                 <Route path="/unauthorized" element={<UnauthorizedPage />} />
                 <Route path="/customer-panel" element={<CustomerPanelPage />} />
+                <Route path="/user/select" element={<UserFlowSelectionPage />} />
+                <Route path="/user/member-login" element={<MemberLoginPage />} />
+                <Route path="/user/limited" element={<LimitedUserPage />} />
+                <Route path="/user/member-portal" element={<MemberPortalPage />} />
 
                 {/* ══════════ Protected App Shell ══════════ */}
                 <Route
                   path="/app"
                   element={
-                    <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN, ROLES.OPERATOR]}>
+                    <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.OPERATOR]}>
                       <AppShell />
                     </ProtectedRoute>
                   }
@@ -174,7 +191,7 @@ export default function App() {
                   <Route
                     path="dashboard"
                     element={
-                      <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN, ROLES.OPERATOR]}>
+                      <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.OPERATOR]}>
                         <MainDashboardPage />
                       </ProtectedRoute>
                     }
@@ -182,7 +199,7 @@ export default function App() {
                   <Route
                     path="reports"
                     element={
-                      <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+                      <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN, ROLES.ADMIN]} dashboardKey={DASHBOARDS.REPORTS}>
                         <ReportsPage />
                       </ProtectedRoute>
                     }
@@ -190,7 +207,7 @@ export default function App() {
                   <Route
                     path="pc-status"
                     element={
-                      <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+                      <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN, ROLES.ADMIN]} dashboardKey={DASHBOARDS.PC_STATUS}>
                         <PcStatusPage />
                       </ProtectedRoute>
                     }
@@ -198,7 +215,7 @@ export default function App() {
                   <Route
                     path="settings"
                     element={
-                      <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+                      <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN, ROLES.ADMIN]} dashboardKey={DASHBOARDS.SETTINGS}>
                         <SettingsPage />
                       </ProtectedRoute>
                     }
@@ -209,7 +226,7 @@ export default function App() {
                 </Route>
 
                 {/* ══════════ Root Redirects ══════════ */}
-                <Route path="/" element={<HomeRedirect />} />
+                <Route path="/" element={<LandingGatewayPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </ToastProvider>

@@ -1,0 +1,17 @@
+You are Claude Code. The user is building a Cyber Cafe ERP system (AppleEsportsErp) and wants to design a bulletproof "Offline / LAN Mode" for when the external internet goes down. The primary database is on AWS.
+
+The user rejected the previous architectural plans and wants YOU to design the perfect architecture.
+
+Here are the user's exact requirements and constraints:
+1. When the internet goes off, the whole system should work on the LAN. When the internet comes back, it should update and switch back to AWS.
+2. Customers should NOT have to manually click anything to reconnect or sync. It should be fully automatic.
+3. If the power cuts mid-session, the system should track time offline on that particular PC. When it connects to the LAN, it should update, and when the internet returns, it should switch to AWS.
+4. The Gaming PCs MUST NOT rely on the Operator's PC as a middleman to sync to AWS. The user said: "IF THEY DONT TALK TO THE SERVER THEN THEY WILL SEND DATA TO OPERATOR AND OPERATOR PC WILL UPDATE TO AWS THAT IS A BIG MESS BECAUSE IF DATA DIDNT REACH TO THE OPERATOR DUE TO SOME REASON THEN THIS WOULD BE A FAILED ARCHITECHTURE !!!"
+5. The Gaming PCs MUST NOT run heavy local databases (like SQLite) or consume CPU that affects high-end gaming.
+6. The Operator PC should have all the calculations.
+7. If the prepaid time gets over and the internet has not come yet, the software MUST stop the session at that exact point.
+8. The Operator must be able to close sessions and have full authority to handle Customer PCs over the LAN.
+9. "IF THE INTERNET BLOW UP AND OPERATOR HAS NOT LOGGED IN THEN OR THE MEMBER OR THE ADMIN WHAT WILL HAPPEN ? BECUASE OUR ALL THE THING IS ON THE AWS SO PLEASE THINK IT LIKE THAT WAY ALSO YOU NEED TO THINK A SEXY SOL FOR THIS ALSO"
+10. "in the internet outage system how can we manage the logins and log out ?"
+
+Please analyze these constraints carefully and propose a completely new, flawless architectural plan that satisfies every single point. Save your final proposal in a file named "claude_offline_architecture.md". Do not write code yet, just provide the architectural plan.

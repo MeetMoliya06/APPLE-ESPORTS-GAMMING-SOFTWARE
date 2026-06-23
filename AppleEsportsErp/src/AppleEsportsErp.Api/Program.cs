@@ -113,7 +113,7 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim(ClaimTypes.Role, Roles.SuperAdmin));
 
     options.AddPolicy("OperatorOrAdmin", policy =>
-        policy.RequireClaim(ClaimTypes.Role, Roles.SuperAdmin, Roles.Operator));
+        policy.RequireClaim(ClaimTypes.Role, Roles.SuperAdmin, Roles.Admin, Roles.Operator));
 
     // Dashboard-specific policies
     foreach (var dashboard in new[] { Dashboards.BillingCounter, Dashboards.Sessions, Dashboards.Reservations,
@@ -222,6 +222,7 @@ builder.Services.AddScoped<ISystemDesksService, AppleEsportsErp.Infrastructure.S
 builder.Services.AddScoped<IUnitOfWork, AppleEsportsErp.Infrastructure.Repositories.UnitOfWork>();
 builder.Services.AddHostedService<AppleEsportsErp.Api.Services.ReservationBackgroundService>();
 builder.Services.AddHostedService<AppleEsportsErp.Api.Services.OpenSessionMonitorService>();
+builder.Services.AddScoped<IOfflineSyncService, OfflineSyncService>();
 
 // ── 9. Controllers + Swagger ──
 builder.Services.AddControllers()
@@ -280,7 +281,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        Log.Warning("Database migration skipped: {Message}", ex.Message);
+        Log.Warning("Database migration skipped: {Message} | Inner: {Inner}", ex.Message, ex.InnerException?.Message);
     }
 }
 

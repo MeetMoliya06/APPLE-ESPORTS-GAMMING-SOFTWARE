@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import SystemConfigTab from './SystemConfigTab';
 import SecuritySettingsTab from './SecuritySettingsTab';
+import AdminsTab from './AdminsTab';
 import './SettingsPage.css';
 
 const PERMISSION_KEYS = [
@@ -366,6 +367,12 @@ export default function SettingsPage() {
               <Activity size={16} /> System Audit Logs
             </button>
             <button 
+              className={`nav-item w-full ${activeTab === 'admins' ? 'active' : ''}`} 
+              onClick={() => setActiveTab('admins')}
+            >
+              <Shield size={16} /> Global Admins
+            </button>
+            <button 
               className={`nav-item w-full ${activeTab === 'system-config' ? 'active' : ''}`} 
               onClick={() => setActiveTab('system-config')}
             >
@@ -598,6 +605,9 @@ export default function SettingsPage() {
 
               {/* SECURITY SETTINGS TAB */}
               {activeTab === 'security' && <SecuritySettingsTab />}
+              
+              {/* GLOBAL ADMINS TAB */}
+              {activeTab === 'admins' && <AdminsTab />}
             </>
           )}
         </div>

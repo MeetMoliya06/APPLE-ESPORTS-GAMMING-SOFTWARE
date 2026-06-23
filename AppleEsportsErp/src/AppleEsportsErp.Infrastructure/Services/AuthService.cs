@@ -73,9 +73,14 @@ public class AuthService : IAuthService
         var claims = new Dictionary<string, string>
         {
             [ClaimTypes.NameIdentifier] = user.Id.ToString(),
-            [ClaimTypes.Role] = Roles.SuperAdmin,
+            [ClaimTypes.Role] = user.Role,
             [ClaimTypes.Name] = user.FullName,
         };
+
+        if (user.Role == Roles.Admin && !string.IsNullOrEmpty(user.DashboardPermissions))
+        {
+            claims["dashboardPermissions"] = user.DashboardPermissions;
+        }
 
         var accessToken = _jwt.GenerateAccessToken(claims);
         var refreshToken = _jwt.GenerateRefreshToken(claims);
@@ -90,13 +95,13 @@ public class AuthService : IAuthService
         await _audit.LogAsync(new AuditEntry
         {
             UserId = user.Id,
-            UserRole = Roles.SuperAdmin,
+            UserRole = user.Role,
             UserName = user.FullName,
             Action = AuditActions.Login,
             Details = new { method = "email_password", deviceInfo = dto.DeviceInfo },
         });
 
-        _logger.LogInformation("Super Admin logged in: {Name}", user.FullName);
+        _logger.LogInformation("{Role} logged in: {Name}", user.Role, user.FullName);
 
         return new LoginResponseDto
         {
@@ -105,7 +110,10 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                Role = Roles.SuperAdmin,
+                Role = user.Role,
+                DashboardPermissions = user.DashboardPermissions != null 
+                    ? JsonSerializer.Deserialize<object>(user.DashboardPermissions) 
+                    : null,
                 Status = user.Status.ToString().ToLowerInvariant(),
                 LastLogin = user.LastLogin,
             },
@@ -399,7 +407,7 @@ public class AuthService : IAuthService
     /// </summary>
     public async Task<UserProfileDto> GetCurrentUserAsync(Guid userId, string role)
     {
-        if (role == Roles.SuperAdmin)
+        if (role == Roles.SuperAdmin || role == Roles.Admin)
         {
             var user = await _db.Users.FindAsync(userId);
             if (user == null) throw new NotFoundException("User not found", "USER_NOT_FOUND");
@@ -409,7 +417,10 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                Role = Roles.SuperAdmin,
+                Role = user.Role,
+                DashboardPermissions = user.DashboardPermissions != null 
+                    ? JsonSerializer.Deserialize<object>(user.DashboardPermissions) 
+                    : null,
                 Status = user.Status.ToString().ToLowerInvariant(),
                 LastLogin = user.LastLogin,
             };
@@ -489,5 +500,60 @@ public class AuthService : IAuthService
         var admin = await _db.Users.FirstOrDefaultAsync(u => u.Role == Roles.SuperAdmin || u.Email == "admin@appleesports.com");
         if (admin == null) return false;
         return BCryptNet.Verify(password, admin.PasswordHash);
+    }
+
+    /// <summary>
+    /// Generate a 30-day emergency offline JWT.
+    /// The token is signed with the same access secret so the existing JWT middleware validates it.
+    /// A "token_type" claim of "emergency_offline" allows the client to distinguish it from regular tokens.
+    /// </summary>
+    public async Task<string> GenerateEmergencyTokenAsync(Guid userId, string role, string? branchId, string? dashboardPermissions)
+    {
+        var claims = new Dictionary<string, string>
+        {
+            [ClaimTypes.NameIdentifier] = userId.ToString(),
+            [ClaimTypes.Role] = role,
+            ["token_type"] = "emergency_offline",
+        };
+
+        if (!string.IsNullOrEmpty(branchId))
+            claims["branchId"] = branchId;
+
+        if (!string.IsNullOrEmpty(dashboardPermissions))
+            claims["dashboardPermissions"] = dashboardPermissions;
+
+        // Resolve the user's display name for the audit log
+        string userName = "Unknown";
+        if (role == Roles.Operator)
+        {
+            var op = await _db.Operators.FindAsync(userId);
+            if (op != null)
+            {
+                claims[ClaimTypes.Name] = op.FullName;
+                userName = op.FullName;
+            }
+        }
+        else
+        {
+            var user = await _db.Users.FindAsync(userId);
+            if (user != null)
+            {
+                claims[ClaimTypes.Name] = user.FullName;
+                userName = user.FullName;
+            }
+        }
+
+        await _audit.LogAsync(new AuditEntry
+        {
+            UserId = role != Roles.Operator ? userId : null,
+            OperatorId = role == Roles.Operator ? userId : null,
+            UserRole = role,
+            UserName = userName,
+            Action = "emergency_token_generated",
+            BranchId = !string.IsNullOrEmpty(branchId) && Guid.TryParse(branchId, out var bid) ? bid : null,
+            Details = new { tokenType = "emergency_offline", expiryHours = 720 },
+        });
+
+        return _jwt.GenerateEmergencyToken(claims);
     }
 }

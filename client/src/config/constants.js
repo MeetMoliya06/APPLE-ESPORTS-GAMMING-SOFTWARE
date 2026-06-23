@@ -5,6 +5,7 @@
 
 export const ROLES = {
   SUPER_ADMIN: 'super_admin',
+  ADMIN: 'admin',
   OPERATOR: 'operator',
   USER_PANEL: 'user_panel',
 };
@@ -74,5 +75,5 @@ export const PC_STATE_LABELS = {
   [PC_STATES.ACTIVE]: 'Active',
   [PC_STATES.RESERVED]: 'Reserved',
   [PC_STATES.AWAITING_BILLING]: 'Awaiting Bill',
-  [PC_STATES.OFFLINE]: 'Offline',
+  [PC_STATES.OFFLINE]: 'Shut Down',
 };

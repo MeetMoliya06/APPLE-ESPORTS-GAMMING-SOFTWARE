@@ -39,6 +39,10 @@ public class AppDbContext : DbContext
     public DbSet<SystemConfig> SystemConfigs => Set<SystemConfig>();
     public DbSet<EodSnapshot> EodSnapshots => Set<EodSnapshot>();
 
+    // Decentralized LAN Offline Architecture sync tables
+    public DbSet<OfflineSyncSession> OfflineSyncSessions => Set<OfflineSyncSession>();
+    public DbSet<OfflineSyncBilling> OfflineSyncBillings => Set<OfflineSyncBilling>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

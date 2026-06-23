@@ -38,9 +38,9 @@ const AdminPcCard = ({ pc }) => {
   const isIdle = pc.state === 'Idle';
   const isMaintenance = pc.state === 'UnderMaintenance';
 
-  let borderClass = 'border-border hover:border-text-3';
-  let bgClass = 'bg-bg-2';
-  let timeColor = 'text-text-3';
+  let borderClass = 'border-pc-idle/30 hover:border-pc-idle/50';
+  let bgClass = 'bg-pc-idle/5';
+  let timeColor = 'text-pc-idle';
   
   if (isActive) {
     borderClass = 'border-pc-active/50';
@@ -51,13 +51,13 @@ const AdminPcCard = ({ pc }) => {
     bgClass = 'bg-neon-orange/10';
     timeColor = 'text-neon-orange';
   } else if (isReserved) {
-    borderClass = 'border-neon-purple/50';
-    bgClass = 'bg-neon-purple/10';
-    timeColor = 'text-neon-purple';
+    borderClass = 'border-pc-reserved/50';
+    bgClass = 'bg-pc-reserved/10';
+    timeColor = 'text-pc-reserved';
   } else if (isMaintenance) {
-    borderClass = 'border-neon-red/30';
+    borderClass = 'border-pc-offline/30';
     bgClass = 'bg-bg-2/60 opacity-75';
-    timeColor = 'text-neon-red';
+    timeColor = 'text-pc-offline';
   }
 
   // Calculate live charge
@@ -219,8 +219,8 @@ export default function PcStatusPage() {
             icon={<Clock className="w-4 h-4" />}
             label="RESERVED"
             value={stats.reservedStations}
-            color="text-neon-purple"
-            borderColor="border-neon-purple/20"
+            color="text-pc-reserved"
+            borderColor="border-pc-reserved/20"
           />
         </div>
 
@@ -243,16 +243,16 @@ export default function PcStatusPage() {
                 <span className="w-2 h-2 rounded bg-pc-active" /> Active
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded bg-bg-4 border border-border" /> Idle
+                <span className="w-2 h-2 rounded bg-pc-idle" /> Idle
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded bg-neon-purple" /> Reserved
+                <span className="w-2 h-2 rounded bg-pc-reserved" /> Reserved
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded bg-neon-orange" /> Awaiting Bill
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded bg-neon-red" /> Maintenance
+                <span className="w-2 h-2 rounded bg-pc-offline" /> Maintenance
               </div>
             </div>
           </>

@@ -17,7 +17,8 @@ export default function RoleGate({ children, roles, dashboard, fallback = null }
   if (!user) return fallback;
 
   // Check role
-  if (roles && !roles.includes(user.role)) {
+  const userRole = user.role || user.Role;
+  if (roles && !roles.some(r => r === userRole || (typeof userRole === 'string' && userRole.toLowerCase().includes(r.replace('_', ''))))) {
     return fallback;
   }
 

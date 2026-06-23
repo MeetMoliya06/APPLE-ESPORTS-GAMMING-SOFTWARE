@@ -34,4 +34,10 @@ public interface IAuthService
 
     /// <summary>Verify if admin password is valid</summary>
     Task<bool> VerifyAdminPasswordAsync(string password);
+
+    /// <summary>
+    /// Generate a 30-day emergency offline JWT for the given user.
+    /// Embeds role, branchId, and dashboardPermissions so the client can operate offline.
+    /// </summary>
+    Task<string> GenerateEmergencyTokenAsync(Guid userId, string role, string? branchId, string? dashboardPermissions);
 }

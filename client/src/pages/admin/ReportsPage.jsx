@@ -10,9 +10,11 @@ import {
   Clock,
   Search,
   RefreshCw,
-  Printer
+  Printer,
+  Monitor
 } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
+import api from '../../config/api';
 import { getRangeReport, getDiscrepancies } from '../../api/food.api';
 import { getCashReconciliationReport } from '../../api/reports.api';
 import { useBranch } from '../../contexts/BranchContext';
@@ -450,6 +452,7 @@ export default function ReportsPage() {
                   <th className="py-3 px-4 text-right">Food</th>
                   <th className="py-3 px-4 text-right">Discount</th>
                   <th className="py-3 px-4 text-right">Total</th>
+                  <th className="py-3 px-4">Notes</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/40 font-mono">
@@ -466,6 +469,7 @@ export default function ReportsPage() {
                     <td className="py-3 px-4 text-right text-text">₹{bill.foodRevenue.toFixed(2)}</td>
                     <td className="py-3 px-4 text-right text-neon-red">{bill.discount > 0 ? `-₹${bill.discount.toFixed(2)}` : '-'}</td>
                     <td className="py-3 px-4 text-right text-neon-green font-bold">₹{bill.totalRevenue.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-text-3 text-[10px] whitespace-pre-wrap">{bill.sessionNotes || '-'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -473,6 +477,7 @@ export default function ReportsPage() {
           )}
         </div>
       </div>
+
       {/* Cash Reconciliation & Denominations Table */}
       <div className="card bg-bg-2 border border-border p-6 rounded-xl print:break-before-page">
         <div className="flex justify-between items-center mb-6">

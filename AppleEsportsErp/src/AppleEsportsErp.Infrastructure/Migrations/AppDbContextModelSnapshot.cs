@@ -1204,6 +1204,126 @@ namespace AppleEsportsErp.Infrastructure.Migrations
                     b.ToTable("members", (string)null);
                 });
 
+            modelBuilder.Entity("AppleEsportsErp.Domain.Entities.OfflineSyncBilling", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<string>("BranchId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RawPayload")
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid?>("ResolvedBranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("SyncedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("SyncStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasDefaultValue("pending");
+
+                    b.Property<DateTimeOffset>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TransactionType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("SubmittedByOperatorId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SyncStatus")
+                        .HasDatabaseName("idx_offline_sync_billings_status");
+
+                    b.HasIndex("SyncedAt")
+                        .HasDatabaseName("idx_offline_sync_billings_date");
+
+                    b.ToTable("offline_sync_billings", (string)null);
+                });
+
+            modelBuilder.Entity("AppleEsportsErp.Domain.Entities.OfflineSyncSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("DurationSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("OfflineStartTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PcId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("RawPayload")
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid?>("ResolvedPcId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SessionType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("SubmittedByOperatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("SyncedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("SyncStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasDefaultValue("pending");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PcId")
+                        .HasDatabaseName("idx_offline_sync_sessions_pc");
+
+                    b.HasIndex("SyncStatus")
+                        .HasDatabaseName("idx_offline_sync_sessions_status");
+
+                    b.HasIndex("SyncedAt")
+                        .HasDatabaseName("idx_offline_sync_sessions_date");
+
+                    b.ToTable("offline_sync_sessions", (string)null);
+                });
+
             modelBuilder.Entity("AppleEsportsErp.Domain.Entities.Operator", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1839,6 +1959,9 @@ namespace AppleEsportsErp.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("DashboardPermissions")
+                        .HasColumnType("text");
 
                     b.Property<string>("DeviceInfo")
                         .HasColumnType("jsonb");

@@ -39,6 +39,15 @@ public class JwtTokenService
         return GenerateToken(claims, _refreshSecret, _refreshExpiry);
     }
 
+    /// <summary>
+    /// Generate a long-lived emergency offline token (30 days) signed with the access secret.
+    /// Intended for storage in IndexedDB — PIN protection is the responsibility of the client.
+    /// </summary>
+    public string GenerateEmergencyToken(Dictionary<string, string> claims)
+    {
+        return GenerateToken(claims, _secret, "720h");
+    }
+
     public ClaimsPrincipal? ValidateRefreshToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();

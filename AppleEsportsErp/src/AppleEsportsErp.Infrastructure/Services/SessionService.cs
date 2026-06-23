@@ -487,6 +487,9 @@ public class SessionService : ISessionService
             
             session.PcId = targetPc.Id;
             session.UpdatedAt = DateTimeOffset.UtcNow;
+            
+            var transferLog = $"[Transfer: {oldPc.PcName ?? oldPc.PcNumber} -> {targetPc.PcName ?? targetPc.PcNumber} at {DateTimeOffset.Now:HH:mm}]";
+            session.Notes = string.IsNullOrEmpty(session.Notes) ? transferLog : session.Notes + "\n" + transferLog;
 
             oldPc.State = PcState.Idle;
             oldPc.CurrentSessionId = null;

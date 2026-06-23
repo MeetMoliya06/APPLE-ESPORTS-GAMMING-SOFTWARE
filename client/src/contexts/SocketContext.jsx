@@ -89,7 +89,7 @@ export function SocketProvider({ children }) {
           notifHub.on('ForceLogout', (reason) => {
             console.warn('Forced logout received:', reason);
             logout();
-            window.location.href = '/login?reason=forced_logout';
+            window.location.href = '/?reason=forced_logout';
           });
         }
       } catch (err) {

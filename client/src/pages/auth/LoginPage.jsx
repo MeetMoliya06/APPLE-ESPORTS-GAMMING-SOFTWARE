@@ -23,16 +23,18 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated (page refresh / revisit)
   useEffect(() => {
     if (isAuthenticated) {
-      if (isSuperAdmin) {
+      const role = (typeof window !== 'undefined' && JSON.parse(localStorage.getItem('user') || '{}'))?.role || '';
+      if (role === 'super_admin') {
         navigate('/app/dashboard', { replace: true });
       } else {
         navigate('/app/billing', { replace: true });
       }
     }
-  }, [isAuthenticated, isSuperAdmin, navigate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   // Fetch active branches for Operator dropdown
   useEffect(() => {
@@ -61,8 +63,15 @@ export default function LoginPage() {
     try {
       setError('');
       setIsLoading(true);
-      await loginAdmin(email, password);
-      navigate('/app/dashboard');
+      const userData = await loginAdmin(email, password);
+      // Navigate based on the role in the RETURNED userData, not from context state
+      // (context state may not have updated yet due to React batching)
+      const role = userData?.role || userData?.Role || '';
+      if (role === 'super_admin' || role.toLowerCase().includes('admin')) {
+        navigate('/app/dashboard', { replace: true });
+      } else {
+        navigate('/app/billing', { replace: true });
+      }
     } catch (err) {
       setError(err.message || 'Invalid admin credentials');
     } finally {
@@ -81,7 +90,7 @@ export default function LoginPage() {
       setError('');
       setIsLoading(true);
       await loginOperator(selectedBranch, username.trim(), password.trim());
-      navigate('/app/billing');
+      navigate('/app/billing', { replace: true });
     } catch (err) {
       setError(err.message || 'Invalid operator credentials');
     } finally {

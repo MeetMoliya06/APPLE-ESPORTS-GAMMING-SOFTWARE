@@ -755,7 +755,7 @@ export default function ReservationsPage() {
 // ── Reusable Status Badge ──
 function StatusBadge({ state }) {
   const configs = {
-    Pending: 'border-neon-purple/50 bg-neon-purple/10 text-neon-purple',
+    Pending: 'border-pc-reserved/50 bg-pc-reserved/10 text-pc-reserved',
     Active: 'border-pc-active/50 bg-pc-active/10 text-pc-active',
     Expired: 'border-border bg-bg-3 text-text-3',
     Cancelled: 'border-neon-red/50 bg-neon-red/10 text-neon-red',

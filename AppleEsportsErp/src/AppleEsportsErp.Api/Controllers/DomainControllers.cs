@@ -91,7 +91,7 @@ public class InventoryController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = "SuperAdminOnly")]
+    [Authorize(Policy = "Dashboard:menu_editor")]
     public async Task<IActionResult> Create([FromBody] CreateInventoryItemDto dto)
     {
         var targetBranchId = dto.BranchId ?? Guid.Parse(HttpContext.Items["BranchId"]!.ToString()!);
@@ -150,7 +150,7 @@ public class InventoryController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Policy = "SuperAdminOnly")]
+    [Authorize(Policy = "Dashboard:menu_editor")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateInventoryItemDto dto)
     {
         var item = await _unitOfWork.Repository<AppleEsportsErp.Domain.Entities.InventoryItem>()
@@ -246,7 +246,7 @@ public class InventoryController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Policy = "SuperAdminOnly")]
+    [Authorize(Policy = "Dashboard:menu_editor")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var item = await _unitOfWork.Repository<AppleEsportsErp.Domain.Entities.InventoryItem>()
@@ -274,7 +274,7 @@ public class InventoryController : ControllerBase
     }
 
     [HttpPost("{id}/reconcile")]
-    [Authorize(Policy = "SuperAdminOnly")]
+    [Authorize(Policy = "Dashboard:menu_editor")]
     public async Task<IActionResult> Reconcile(Guid id, [FromBody] ReconcileStockDto dto)
     {
         var item = await _unitOfWork.Repository<AppleEsportsErp.Domain.Entities.InventoryItem>()
@@ -325,7 +325,7 @@ public class InventoryController : ControllerBase
     }
 
     [HttpGet("discrepancies")]
-    [Authorize(Policy = "SuperAdminOnly")]
+    [Authorize(Policy = "Dashboard:reports")]
     public async Task<IActionResult> GetDiscrepancies([FromQuery] Guid? branchId = null)
     {
         Console.WriteLine($"[DEBUG GetDiscrepancies] HttpContext is null: {HttpContext == null}");
@@ -447,7 +447,7 @@ public class ReconcileStockDto
 /// <summary>SOP §16: Branches — maps from branches.routes.js (Super Admin only)</summary>
 [ApiController]
 [Route("api/branches")]
-[Authorize(Policy = "SuperAdminOnly")]
+[Authorize(Policy = "Dashboard:settings")]
 public class BranchesController : ControllerBase
 {
     private readonly AppleEsportsErp.Application.Interfaces.IUnitOfWork _unitOfWork;
@@ -591,7 +591,7 @@ public class BranchesController : ControllerBase
 /// <summary>SOP §5: Operators — maps from operators.routes.js</summary>
 [ApiController]
 [Route("api/operators")]
-[Authorize(Policy = "SuperAdminOnly")]
+[Authorize(Policy = "Dashboard:settings")]
 public class OperatorsController : ControllerBase
 {
     private readonly AppleEsportsErp.Application.Interfaces.IUnitOfWork _unitOfWork;
@@ -774,7 +774,7 @@ public class DashboardController : ControllerBase
     }
 
     [HttpGet("branches-summary")]
-    [Authorize(Policy = "SuperAdminOnly")]
+    [Authorize(Policy = "OperatorOrAdmin")]
     public async Task<IActionResult> GetBranchSummaries()
     {
         var result = await _dashboardService.GetBranchSummariesAsync();

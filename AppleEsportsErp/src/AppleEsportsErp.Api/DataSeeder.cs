@@ -17,6 +17,12 @@ public static class DataSeeder
         var defaultPassword = BCrypt.Net.BCrypt.HashPassword("12345");
         var adminRoleUserId = (await db.Users.FirstOrDefaultAsync(u => u.Role == "super_admin"))?.Id ?? Guid.Empty;
 
+        if (adminRoleUserId == Guid.Empty)
+        {
+            await db.Database.ExecuteSqlRawAsync("INSERT INTO users (\"Email\", \"PasswordHash\", \"FullName\", \"Role\", \"Status\", \"CreatedAt\", \"UpdatedAt\") VALUES ('admin@appleesports.com', {0}, 'System Admin', 'super_admin', 'active', NOW(), NOW())", defaultPassword);
+            adminRoleUserId = (await db.Users.FirstOrDefaultAsync(u => u.Role == "super_admin"))?.Id ?? Guid.Empty;
+        }
+
         // --- Adajan ---
         var adajan = new Branch
         {

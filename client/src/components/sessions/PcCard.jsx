@@ -54,6 +54,10 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
   const [showExtendModal, setShowExtendModal] = useState(false);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
 
+  // Drag and Drop state for transferring sessions
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [isTransferring, setIsTransferring] = useState(false);
+
   // Live charge: if fixed session, just totalAmount. if open-ended, totalAmount + elapsed rate.
   const liveCharge = pc.sessionEndTime
     ? (pc.totalAmount || 0)
@@ -81,12 +85,57 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
 
   // ── FREE (Idle) Card ──
   if (isIdle) {
+    const handleDragOver = (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+    };
+
+    const handleDragEnter = (e) => {
+      e.preventDefault();
+      setIsDragOver(true);
+    };
+
+    const handleDragLeave = (e) => {
+      e.preventDefault();
+      setIsDragOver(false);
+    };
+
+    const handleDrop = async (e) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      try {
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        if (!data.sessionId || data.sourcePcId === pc.id) return;
+        
+        setIsTransferring(true);
+        await api.post(`/sessions/${data.sessionId}/transfer`, { targetPcId: pc.id });
+        toast.success(`Session transferred to ${pc.name}!`);
+        onRefresh?.();
+      } catch (err) {
+        console.error('Transfer failed:', err);
+        toast.error(err.response?.data?.error || err.response?.data?.message || 'Failed to transfer session');
+      } finally {
+        setIsTransferring(false);
+      }
+    };
+
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative rounded-lg border border-border bg-bg-2 p-4 flex flex-col gap-3 select-none"
+        onDragOver={handleDragOver}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`relative rounded-lg border bg-bg-2 p-4 flex flex-col gap-3 select-none transition-colors ${
+          isDragOver ? 'border-pc-active bg-pc-active/5 shadow-[0_0_15px_rgba(34,211,166,0.2)]' : 'border-border'
+        }`}
       >
+        {isTransferring && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-bg/80 backdrop-blur-sm rounded-lg">
+            <span className="w-6 h-6 border-2 border-pc-active border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <span className="font-heading font-bold text-text text-sm tracking-wider">{pc.name}</span>
           <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 border border-border text-text-3 rounded">FREE</span>
@@ -97,7 +146,7 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
         </div>
         <button
           onClick={() => onStartSession?.(pc)}
-          className="w-full py-1.5 rounded border border-pc-active/40 bg-pc-active/10 text-pc-active text-[11px] font-bold uppercase tracking-widest hover:bg-pc-active/20 transition-colors"
+          className="w-full py-1.5 rounded border border-pc-idle/40 bg-pc-idle/10 text-pc-idle text-[11px] font-bold uppercase tracking-widest hover:bg-pc-idle/20 transition-colors"
         >
           START SESSION
         </button>
@@ -111,7 +160,15 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative rounded-lg border border-pc-active/50 bg-bg-2 p-4 flex flex-col gap-2.5 shadow-[0_0_12px_rgba(220,38,38,0.08)]"
+        draggable={true}
+        onDragStart={(e) => {
+          e.dataTransfer.setData('text/plain', JSON.stringify({
+            sessionId: pc.activeSessionId,
+            sourcePcId: pc.id
+          }));
+          e.dataTransfer.effectAllowed = 'move';
+        }}
+        className="relative rounded-lg border border-pc-active/50 bg-bg-2 p-4 flex flex-col gap-2.5 shadow-[0_0_12px_rgba(34,211,166,0.08)] cursor-grab active:cursor-grabbing"
       >
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -173,14 +230,14 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
             color="orange"
             icon={<Receipt className="w-3 h-3" />}
             label="Bill"
-            onClick={() => navigate('/app/billing')}
+            onClick={() => navigate('/app/billing', { state: { autoSelectPcId: pc.id } })}
             small
           />
           <ActionBtn
             color="green"
             icon={<Coffee className="w-3 h-3" />}
             label="Food"
-            onClick={() => navigate('/app/food-orders')}
+            onClick={() => navigate('/app/food-orders', { state: { autoSelectPcId: pc.id } })}
             small
           />
           {isSuperAdmin && (
@@ -231,6 +288,12 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
           <span>{pc.customerName || 'Awaiting checkout'}</span>
         </div>
         <div className="text-[10px] text-text-3 font-mono text-center py-1">Pending at billing counter</div>
+        <ActionBtn
+          color="orange"
+          icon={<Receipt className="w-3.5 h-3.5" />}
+          label="Go to Billing"
+          onClick={() => navigate('/app/billing', { state: { autoSelectPcId: pc.id } })}
+        />
       </motion.div>
     );
   }
@@ -241,19 +304,19 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative rounded-lg border border-neon-purple/40 bg-bg-2 p-4 flex flex-col gap-3 shadow-[0_0_12px_rgba(168,85,247,0.08)]"
+        className="relative rounded-lg border border-pc-reserved/40 bg-bg-2 p-4 flex flex-col gap-3 shadow-[0_0_12px_rgba(234,179,8,0.08)]"
       >
         <div className="flex items-center justify-between">
           <span className="font-heading font-bold text-text text-sm tracking-wider">{pc.name}</span>
-          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 border border-neon-purple/50 text-neon-purple rounded">RESERVED</span>
+          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 border border-pc-reserved/50 text-pc-reserved rounded">RESERVED</span>
         </div>
-        <div className="flex items-center gap-1.5 text-neon-purple text-xs">
+        <div className="flex items-center gap-1.5 text-pc-reserved text-xs">
           <User className="w-3.5 h-3.5" />
           <span>{pc.customerName || 'Reserved slot'}</span>
         </div>
         {pc.nextReservationTime && (
           <div className="flex items-center gap-1 text-[10px] text-text-3 font-mono">
-            <Clock className="w-3 h-3 text-neon-purple" />
+            <Clock className="w-3 h-3 text-pc-reserved" />
             <span>Starts: {new Date(pc.nextReservationTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
           </div>
         )}
@@ -302,13 +365,13 @@ const PcCard = memo(({ pc, onStartSession, onRefresh, onStartReservedSession, on
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative rounded-lg border border-neon-red/30 bg-bg-2/60 p-4 flex flex-col gap-3 opacity-75"
+        className="relative rounded-lg border border-pc-offline/30 bg-bg-2/60 p-4 flex flex-col gap-3 opacity-75"
       >
         <div className="flex items-center justify-between">
           <span className="font-heading font-bold text-text-2 text-sm tracking-wider">{pc.name}</span>
-          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 border border-neon-red/30 text-neon-red rounded">MAINT</span>
+          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 border border-pc-offline/30 text-pc-offline rounded">MAINT</span>
         </div>
-        <div className="flex items-center gap-1.5 text-neon-red text-xs">
+        <div className="flex items-center gap-1.5 text-pc-offline text-xs">
           <Wrench className="w-3.5 h-3.5" />
           <span>Under maintenance</span>
         </div>

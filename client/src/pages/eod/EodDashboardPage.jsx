@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ShieldCheck, AlertTriangle, FileText, CheckCircle, Lock } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, FileText, CheckCircle, Lock, Monitor, Utensils } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useBranch } from '../../contexts/BranchContext';
 import api from '../../config/api';
@@ -16,6 +16,10 @@ export default function EodDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [error, setError] = useState(null);
+
+  const [pcs, setPcs] = useState([]);
+  const [allBills, setAllBills] = useState([]);
+  const [selectedPcId, setSelectedPcId] = useState(null);
 
   const targetBranchId = isSuperAdmin ? activeBranch?.id : user?.branchId;
 
@@ -58,6 +62,21 @@ export default function EodDashboardPage() {
           throw historyErr;
         }
       }
+
+      // Also fetch range-report to get allBills and PCs for PC-Wise Grid
+      const [pcsRes, billsRes] = await Promise.all([
+        api.get('/pcs', { params: { branchId: targetBranchId } }),
+        api.get('/eod/range-report', {
+          params: {
+            startDate: `${targetDate}T00:00:00Z`,
+            endDate: `${targetDate}T23:59:59Z`,
+            branchId: targetBranchId
+          }
+        })
+      ]);
+      setPcs(pcsRes.data?.data || []);
+      setAllBills(billsRes.data?.data?.allBills || []);
+
     } catch (err) {
       setError(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch EOD data.');
     } finally {
@@ -114,6 +133,130 @@ export default function EodDashboardPage() {
             </span>
           )}
         </div>
+      </div>
+
+      {/* PC-Wise Personalised Billing Section */}
+      <div className="card bg-bg-2 border border-border p-6 rounded-xl">
+        <h2 className="font-heading font-extrabold text-sm uppercase tracking-wider text-text flex items-center gap-2 mb-6">
+          <Monitor className="w-4.5 h-4.5 text-neon-blue" />
+          PC-Wise Personalised Billing
+        </h2>
+
+        {/* PC Grid */}
+        <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-8 gap-3 mb-6">
+          {pcs.map(pc => (
+            <button
+              key={pc.id}
+              onClick={() => setSelectedPcId(pc.id)}
+              className={`p-3 rounded-lg border flex flex-col items-center justify-center transition-all ${
+                selectedPcId === pc.id 
+                  ? 'bg-neon-blue/20 border-neon-blue shadow-[0_0_15px_rgba(0,240,255,0.3)]' 
+                  : 'bg-bg-3 border-border hover:border-neon-blue/50'
+              }`}
+            >
+              <div className="w-8 h-8 rounded-full bg-bg-2 flex items-center justify-center mb-2">
+                <Monitor className={`w-4 h-4 ${selectedPcId === pc.id ? 'text-neon-blue' : 'text-text-3'}`} />
+              </div>
+              <div className="font-heading font-bold text-xs text-text truncate w-full text-center">
+                {pc.name || pc.pcName || pc.pcNumber}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Selected PC Details */}
+        {selectedPcId && (
+          <div className="space-y-6 animate-fade-in border-t border-border/50 pt-6">
+            {(() => {
+              const pcBills = allBills?.filter(b => 
+                selectedPcId === 'walkin' ? (!b.pcId) : (b.pcId === selectedPcId)
+              ) || [];
+              
+              const pcTotalGaming = pcBills.reduce((sum, d) => sum + d.gamingRevenue, 0);
+              const pcTotalFood = pcBills.reduce((sum, d) => sum + d.foodRevenue, 0);
+              const pcTotalDiscount = pcBills.reduce((sum, d) => sum + d.discount, 0);
+              const pcTotalNet = pcBills.reduce((sum, d) => sum + d.totalRevenue, 0);
+
+              return (
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="bg-bg-3 p-4 rounded-lg border border-border flex flex-col justify-center">
+                      <div className="text-[10px] text-text-3 font-bold uppercase tracking-wider">Total Bills</div>
+                      <div className="text-xl font-mono font-bold text-text">{pcBills.length}</div>
+                    </div>
+                    <div className="bg-bg-3 p-4 rounded-lg border border-border flex flex-col justify-center">
+                      <div className="text-[10px] text-text-3 font-bold uppercase tracking-wider">Net Gaming</div>
+                      <div className="text-xl font-mono font-bold text-neon-blue">₹{pcTotalGaming.toFixed(2)}</div>
+                    </div>
+                    <div className="bg-bg-3 p-4 rounded-lg border border-border flex flex-col justify-center">
+                      <div className="text-[10px] text-text-3 font-bold uppercase tracking-wider">Net Food</div>
+                      <div className="text-xl font-mono font-bold text-accent">₹{pcTotalFood.toFixed(2)}</div>
+                    </div>
+                    <div className="bg-bg-3 p-4 rounded-lg border border-border flex flex-col justify-center">
+                      <div className="text-[10px] text-text-3 font-bold uppercase tracking-wider">Discounts</div>
+                      <div className="text-xl font-mono font-bold text-neon-orange">₹{pcTotalDiscount.toFixed(2)}</div>
+                    </div>
+                    <div className="bg-bg-3 p-4 rounded-lg border border-border flex flex-col justify-center relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-16 h-16 bg-neon-green/10 rounded-full blur-xl" />
+                      <div className="text-[10px] text-text-3 font-bold uppercase tracking-wider relative">Net Revenue</div>
+                      <div className="text-xl font-mono font-bold text-neon-green relative">₹{pcTotalNet.toFixed(2)}</div>
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto mt-4">
+                    {pcBills.length === 0 ? (
+                      <div className="text-center text-text-3 text-xs italic py-8 border border-dashed border-border rounded-lg">
+                        No billing records found for this PC.
+                      </div>
+                    ) : (
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="border-b border-border text-text-3 uppercase tracking-wider font-bold text-[10px]">
+                            <th className="py-3 px-4">Start Time</th>
+                            <th className="py-3 px-4">End Time</th>
+                            <th className="py-3 px-4">Duration</th>
+                            <th className="py-3 px-4">Bill Number</th>
+                            <th className="py-3 px-4">Operator</th>
+                            <th className="py-3 px-4">Customer</th>
+                            <th className="py-3 px-4 text-center">Payment</th>
+                            <th className="py-3 px-4 text-right">Gaming</th>
+                            <th className="py-3 px-4 text-right">Food</th>
+                            <th className="py-3 px-4 text-right">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border/40 font-mono">
+                          {pcBills.map(bill => {
+                            const startStr = bill.sessionStartTime ? new Date(bill.sessionStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+                            const endStr = bill.sessionEndTime ? new Date(bill.sessionEndTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+                            const durationMinutes = Math.floor(bill.sessionDurationMinutes || 0);
+                            const h = Math.floor(durationMinutes / 60);
+                            const m = durationMinutes % 60;
+                            const durationStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+
+                            return (
+                              <tr key={bill.billId} className="hover:bg-bg-3/40 transition-colors">
+                                <td className="py-3 px-4 text-text-2">{startStr}</td>
+                                <td className="py-3 px-4 text-text-2">{endStr}</td>
+                                <td className="py-3 px-4 text-neon-blue font-bold">{bill.sessionStartTime ? durationStr : '-'}</td>
+                                <td className="py-3 px-4 text-text font-bold">{bill.billId}</td>
+                                <td className="py-3 px-4 text-text-2">{bill.operator}</td>
+                                <td className="py-3 px-4 text-text-2 font-sans">{bill.customer}</td>
+                                <td className="py-3 px-4 text-center text-text-3 uppercase">{bill.paymentType}</td>
+                                <td className="py-3 px-4 text-right text-text">₹{bill.gamingRevenue.toFixed(2)}</td>
+                                <td className="py-3 px-4 text-right text-text">₹{bill.foodRevenue.toFixed(2)}</td>
+                                <td className="py-3 px-4 text-right text-neon-green font-bold">₹{bill.totalRevenue.toFixed(2)}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        )}
       </div>
 
       {error && (

@@ -42,6 +42,7 @@ public class EodController : ControllerBase
             .Query()
             .Include(b => b.DiscountByAdmin)
             .Include(b => b.Operator)
+            .Include(b => b.Session)
             .Where(b => b.BranchId == targetBranchId 
                      && b.Status == AppleEsportsErp.Domain.Enums.BillStatus.Completed 
                      && b.CompletedAt >= startUtc 
@@ -98,7 +99,15 @@ public class EodController : ControllerBase
             FoodRevenue = b.FoodAmount,
             Discount = b.DiscountAmount,
             TotalRevenue = b.TotalAmount,
-            PaymentType = b.PaymentType?.ToString() ?? "Unknown"
+            PaymentType = b.PaymentType?.ToString() ?? "Unknown",
+            SessionNotes = b.Session?.Notes,
+            SessionStartTime = b.Session != null ? b.Session.StartTime : (DateTimeOffset?)null,
+            SessionEndTime = b.Session != null ? b.Session.EndTime : (DateTimeOffset?)null,
+            SessionDurationMinutes = b.Session != null && b.Session.EndTime.HasValue 
+                ? (b.Session.EndTime.Value - b.Session.StartTime).TotalMinutes 
+                : 0,
+            PcId = b.PcId,
+            PcName = b.Pc != null ? (b.Pc.PcName ?? b.Pc.PcNumber.ToString()) : "Walk-in"
         })
         .OrderByDescending(b => b.Date)
         .ToList();

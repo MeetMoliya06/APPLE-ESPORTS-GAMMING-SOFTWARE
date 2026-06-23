@@ -143,6 +143,30 @@ public class AuthController : ControllerBase
             op.Status = AppleEsportsErp.Domain.Enums.OperatorStatus.Active;
         }
 
+        var managerHash = BCrypt.Net.BCrypt.HashPassword("Manager123!");
+        var manager = await db.Users.FirstOrDefaultAsync(u => u.Email == "manager@appleesports.com");
+        if (manager != null)
+        {
+            manager.PasswordHash = managerHash;
+            manager.Status = AppleEsportsErp.Domain.Enums.UserStatus.Active;
+        }
+        else
+        {
+            manager = new AppleEsportsErp.Domain.Entities.User
+            {
+                Id = Guid.NewGuid(),
+                FullName = "Global Manager",
+                Email = "manager@appleesports.com",
+                Role = AppleEsportsErp.Application.Constants.Roles.Admin,
+                Status = AppleEsportsErp.Domain.Enums.UserStatus.Active,
+                PasswordHash = managerHash,
+                DashboardPermissions = "{\"settings\": true, \"reports\": true, \"pc_status\": true, \"menu_editor\": true}",
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
+            };
+            db.Users.Add(manager);
+        }
+
         await db.SaveChangesAsync();
         return Ok(new { message = "Passwords reset successfully", adminEmail = admin?.Email });
     }
@@ -158,6 +182,24 @@ public class AuthController : ControllerBase
             return BadRequest(ApiResponse.Fail("Invalid admin password", "INVALID_ADMIN_PASSWORD"));
         }
         return Ok(ApiResponse.Ok());
+    }
+
+    /// <summary>
+    /// Emergency Offline JWT Generation — POST /api/auth/emergency-token.
+    /// Returns a 30-day signed JWT embedding the caller's role, branchId, and dashboard permissions.
+    /// The client stores this in IndexedDB behind a 4-digit PIN for offline operation.
+    /// </summary>
+    [HttpPost("emergency-token")]
+    [Authorize(Policy = "OperatorOrAdmin")]
+    public async Task<IActionResult> GenerateEmergencyToken()
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var role = User.FindFirstValue(ClaimTypes.Role)!;
+        var branchId = User.FindFirstValue("branchId");
+        var dashboardPermissions = User.FindFirstValue("dashboardPermissions");
+
+        var token = await _authService.GenerateEmergencyTokenAsync(userId, role, branchId, dashboardPermissions);
+        return Ok(new { token });
     }
 }
 

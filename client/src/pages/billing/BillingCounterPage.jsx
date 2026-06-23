@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Receipt } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useBranch } from '../../contexts/BranchContext';
@@ -14,6 +15,8 @@ export default function BillingCounterPage() {
   const { isSuperAdmin, user } = useAuth();
   const { activeBranch } = useBranch();
   const { subscribe, connected, SIGNALR_HUBS } = useSocket();
+  const { state } = useLocation();
+  const autoSelectPcId = state?.autoSelectPcId;
 
   const [bills, setBills] = useState([]);
   const [activeSessions, setActiveSessions] = useState([]);
@@ -53,6 +56,20 @@ export default function BillingCounterPage() {
       setReservations(reservationsList);
       if (summaryRes?.data?.data) {
         setSummary(summaryRes.data.data);
+      }
+
+      if (autoSelectPcId) {
+        // Try to find in unpaid bills first
+        const bill = unpaidBills.find(b => b.pcId === autoSelectPcId);
+        if (bill) {
+          setSelectedItem({ type: 'bill', id: bill.id });
+        } else {
+          // Try to find in active sessions
+          const session = sessions.find(s => s.pcId === autoSelectPcId && (s.status === 1 || s.status === 'Active'));
+          if (session) {
+             setSelectedItem({ type: 'session', id: session.billId });
+          }
+        }
       }
 
     } catch (err) {

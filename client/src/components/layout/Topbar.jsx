@@ -193,7 +193,7 @@ export default function Topbar({ onToggleSidebar, sidebarOpen, onLogoutClick }) 
                 {user?.fullName || user?.full_name || 'User'}
               </div>
               <div className="text-[9px] text-text-2 font-mono">
-                {isSuperAdmin ? 'SUPER ADMIN' : 'OPERATOR'}
+                {user?.role === ROLES.SUPER_ADMIN ? 'SUPER ADMIN' : isSuperAdmin ? 'ADMIN' : 'OPERATOR'}
               </div>
             </div>
           </button>
@@ -205,7 +205,7 @@ export default function Topbar({ onToggleSidebar, sidebarOpen, onLogoutClick }) 
                   {user?.fullName || user?.full_name}
                 </div>
                 <div className="text-[10px] text-text-2 font-mono mt-0.5">
-                  {isSuperAdmin ? 'Super Admin' : `Operator · ${user?.branchName || ''}`}
+                  {user?.role === ROLES.SUPER_ADMIN ? 'Super Admin' : isSuperAdmin ? 'Global Admin' : `Operator · ${user?.branchName || ''}`}
                 </div>
               </div>
               <button

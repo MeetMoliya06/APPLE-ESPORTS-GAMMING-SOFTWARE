@@ -4,7 +4,7 @@ import { X, ShoppingCart, Plus, Minus, AlertTriangle, Monitor, User } from 'luci
 import api from '../../config/api';
 import { useBranch } from '../../contexts/BranchContext';
 
-export default function CreateFoodOrderModal({ onClose, onOrderPlaced }) {
+export default function CreateFoodOrderModal({ onClose, onOrderPlaced, initialPcId }) {
   const { activeBranch } = useBranch();
   const [inventory, setInventory] = useState([]);
   const [cart, setCart] = useState([]); // { item, quantity }
@@ -29,6 +29,11 @@ export default function CreateFoodOrderModal({ onClose, onOrderPlaced }) {
         // Only active sessions
         const activeSess = (sessRes.data?.data?.items || []).filter(s => s.status === 1 || s.status === 'Active');
         setActiveSessions(activeSess);
+
+        if (initialPcId) {
+          const match = activeSess.find(s => s.pcId === initialPcId);
+          if (match) setSelectedSessionId(match.id);
+        }
       } catch (err) {
         setError('Failed to load menu or sessions.');
       } finally {

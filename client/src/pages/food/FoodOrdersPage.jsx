@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { UtensilsCrossed, Plus, LayoutGrid, List, Bell, Volume2, VolumeX, Settings } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useBranch } from '../../contexts/BranchContext';
@@ -47,6 +48,16 @@ export default function FoodOrdersPage() {
   const prevPendingCount = useRef(0);
 
   const targetBranchId = isSuperAdmin ? activeBranch?.id : user?.branchId;
+
+  const { state } = useLocation();
+  const autoSelectPcId = state?.autoSelectPcId;
+
+  // Auto-open create modal if navigating from PC card
+  useEffect(() => {
+    if (autoSelectPcId) {
+      setIsCreateModalOpen(true);
+    }
+  }, [autoSelectPcId]);
 
   // Request browser notification permission
   useEffect(() => {
@@ -241,6 +252,7 @@ export default function FoodOrdersPage() {
         <CreateFoodOrderModal 
           onClose={() => setIsCreateModalOpen(false)}
           onOrderPlaced={fetchOrders}
+          initialPcId={autoSelectPcId}
         />
       )}
     </div>

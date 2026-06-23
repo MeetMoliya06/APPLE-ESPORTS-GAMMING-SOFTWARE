@@ -29,11 +29,12 @@ export default function ProtectedRoute({ children, allowedRoles, dashboardKey })
 
   // Not logged in → redirect to login
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   // Check role restriction
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  const userRole = user.role || user.Role;
+  if (allowedRoles && !allowedRoles.some(r => r === userRole || (typeof userRole === 'string' && userRole.toLowerCase().includes(r.replace('_', ''))))) {
     return <Navigate to="/unauthorized" replace />;
   }
 

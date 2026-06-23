@@ -28,7 +28,7 @@ public class AuditLogsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Policy = "SuperAdminOnly")]
+    [Authorize(Policy = "Dashboard:settings")]
     public async Task<IActionResult> GetAll([FromQuery] int limit = 100, [FromQuery] int offset = 0)
     {
         // Super Admin can see all logs

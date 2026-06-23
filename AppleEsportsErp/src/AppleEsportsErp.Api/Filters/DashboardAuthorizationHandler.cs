@@ -35,8 +35,8 @@ public class DashboardAuthorizationHandler : AuthorizationHandler<DashboardRequi
             return Task.CompletedTask;
         }
 
-        // Check if dashboard is admin-only
-        if (Dashboards.AdminOnly.Contains(requirement.DashboardKey))
+        // Check if dashboard is admin-only (block Operators)
+        if (role == Roles.Operator && Dashboards.AdminOnly.Contains(requirement.DashboardKey))
         {
             _logger.LogWarning("Operator attempted admin-only dashboard: {Dashboard}", requirement.DashboardKey);
             context.Fail();

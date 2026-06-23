@@ -163,8 +163,8 @@ export default function SessionsPage() {
           icon={<Clock className="w-4 h-4" />}
           label="AWAITING BILLING"
           value={stats.awaitingBilling}
-          color="text-neon-purple"
-          borderColor="border-neon-purple/20"
+          color="text-neon-orange"
+          borderColor="border-neon-orange/20"
         />
       </div>
 
@@ -175,11 +175,11 @@ export default function SessionsPage() {
 
       {/* ── Legend ── */}
       <div className="flex flex-wrap items-center gap-3 text-[10px] font-bold uppercase tracking-wider">
-        <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-text-3" /> Idle</div>
+        <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-pc-idle" /> Idle</div>
         <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-pc-active" /> Active</div>
-        <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-neon-purple" /> Reserved</div>
+        <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-pc-reserved" /> Reserved</div>
         <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-neon-orange" /> Awaiting Bill</div>
-        <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-neon-red" /> Maintenance</div>
+        <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-pc-offline" /> Maintenance</div>
       </div>
 
       {/* ── PC Grid ── */}
