@@ -1,10 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, MonitorStop, ShieldAlert } from 'lucide-react';
 
 export default function LandingGatewayPage() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const pcId = localStorage.getItem('dedicatedPcId');
+    if (pcId) {
+      navigate(`/pc-overlay/${pcId}`, { replace: true });
+    }
+  }, [navigate]);
 
   const cards = [
     {

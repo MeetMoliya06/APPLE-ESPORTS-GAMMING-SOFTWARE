@@ -104,6 +104,8 @@ services:
     image: node:20-alpine
     container_name: appleesports-v2-client-dev
     working_dir: /app
+    environment:
+      - VITE_PROXY_TARGET=http://api:8080
     ports:
       - "5173:5173"
     volumes:

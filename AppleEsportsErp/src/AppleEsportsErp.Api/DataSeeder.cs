@@ -184,6 +184,28 @@ public static class DataSeeder
         for (int i = 11; i <= 20; i++) db.Pcs.Add(new Pc { Id = Guid.NewGuid(), PcNumber = $"VAR-PC-{i:D2}", PcName = $"GOD PC {i:D2}", BranchId = varachha.Id, State = PcState.Idle, Zone = "GOD-TIER ARENA", PricingProfileId = varachhaPricing2.Id, HardwareNotes = "i7 14th Gen | RTX 5060 Ti Gaming 2X | 400Hz", CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow });
         for (int i = 1; i <= 3; i++) db.Pcs.Add(new Pc { Id = Guid.NewGuid(), PcNumber = $"VAR-PS5-{i:D2}", PcName = $"PS5 SOFA {i:D2}", BranchId = varachha.Id, State = PcState.Idle, Zone = "SOFA CLUB COUCH", PricingProfileId = varachhaPricing3.Id, HardwareNotes = "PlayStation 5 | 4K OLED", CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow });
 
+        // --- Seed Default Member ---
+        if (!await db.Members.AnyAsync(m => m.Username == "testmember"))
+        {
+            db.Members.Add(new Member
+            {
+                Id = Guid.NewGuid(),
+                MemberNumber = "MEM-0001",
+                FullName = "Test Member",
+                MobileNumber = "9876543210",
+                Email = "testmember@appleesports.com",
+                Username = "testmember",
+                PasswordHash = defaultPassword,
+                GamingBalance = 500m,
+                FoodBalance = 200m,
+                TotalPoints = 150,
+                JoinDate = DateTimeOffset.UtcNow,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow,
+                HomeBranchId = adajan.Id
+            });
+        }
+
         await db.SaveChangesAsync();
     }
 }

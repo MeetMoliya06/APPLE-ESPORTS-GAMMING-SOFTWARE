@@ -7,25 +7,26 @@ export default function UserFlowSelectionPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-bg">
-      <div className="absolute inset-0 z-0 bg-bg-surface opacity-80" />
+    <div className="min-h-screen bg-bg flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Background glow effects - matching LandingGatewayPage */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/20 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-4xl w-full">
         <button 
           onClick={() => navigate('/')}
-          className="absolute -top-16 left-0 flex items-center gap-2 text-text-muted hover:text-white transition-colors"
+          className="absolute -top-16 left-0 flex items-center gap-2 text-text-2 hover:text-text transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span className="font-outfit text-lg">Back</span>
+          <span className="font-heading font-semibold text-lg uppercase tracking-wider">Back</span>
         </button>
 
         <div className="text-center mb-12">
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="font-outfit text-4xl md:text-5xl font-bold tracking-tight text-white mb-4"
+            className="font-heading text-4xl md:text-5xl font-bold tracking-wide text-text mb-4"
           >
-            Choose User Type
+            CHOOSE USER TYPE
           </motion.h1>
         </div>
 
@@ -34,26 +35,28 @@ export default function UserFlowSelectionPage() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            whileHover={{ scale: 1.03 }}
+            whileHover={{ scale: 1.03, translateY: -5 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/user/limited')}
-            className="glass-panel p-8 flex flex-col items-center text-center cursor-pointer hover:border-neon-primary/50 transition-all duration-300 bg-gradient-to-br from-white/5 to-transparent"
+            className="card group relative flex flex-col items-center text-center p-8 bg-bg-2/80 backdrop-blur-xl border-border/60 shadow-xl shadow-black/50 hover:border-accent hover:shadow-[0_0_20px_rgba(220,38,38,0.15)] cursor-pointer transition-all duration-300"
           >
-            <UserPlus className="w-16 h-16 text-neon-primary mb-6" />
-            <h2 className="font-outfit text-3xl font-semibold text-white mb-3">Walk-in User</h2>
-            <p className="text-text-muted font-inter">Play as a guest. Proceed to the counter for PC assignment.</p>
+            <UserPlus className="w-16 h-16 text-accent mb-6 group-hover:scale-110 transition-transform" />
+            <h2 className="font-heading text-3xl font-bold text-text mb-3 tracking-wider">WALK-IN USER</h2>
+            <p className="text-text-2 font-body text-sm leading-relaxed">Play as a guest. Proceed to the counter for PC assignment and billing.</p>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            whileHover={{ scale: 1.03 }}
+            whileHover={{ scale: 1.03, translateY: -5 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/user/member-login')}
-            className="glass-panel p-8 flex flex-col items-center text-center cursor-pointer hover:border-neon-secondary/50 transition-all duration-300 bg-gradient-to-bl from-white/5 to-transparent"
+            className="card group relative flex flex-col items-center text-center p-8 bg-bg-2/80 backdrop-blur-xl border-border/60 shadow-xl shadow-black/50 hover:border-accent hover:shadow-[0_0_20px_rgba(220,38,38,0.15)] cursor-pointer transition-all duration-300"
           >
-            <UserCheck className="w-16 h-16 text-neon-secondary mb-6" />
-            <h2 className="font-outfit text-3xl font-semibold text-white mb-3">Member</h2>
-            <p className="text-text-muted font-inter">Log in to your account, manage wallet, and start sessions directly.</p>
+            <UserCheck className="w-16 h-16 text-accent mb-6 group-hover:scale-110 transition-transform" />
+            <h2 className="font-heading text-3xl font-bold text-text mb-3 tracking-wider">MEMBER</h2>
+            <p className="text-text-2 font-body text-sm leading-relaxed">Log in to your account, manage wallet balance, and start sessions directly.</p>
           </motion.div>
         </div>
       </div>

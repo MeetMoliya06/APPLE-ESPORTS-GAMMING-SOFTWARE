@@ -26,6 +26,7 @@ import UserFlowSelectionPage from './pages/public/UserFlowSelectionPage';
 import MemberLoginPage from './pages/public/MemberLoginPage';
 import LimitedUserPage from './pages/public/LimitedUserPage';
 import MemberPortalPage from './pages/public/MemberPortalPage';
+import UserOverlayApp from './pages/overlay/UserOverlayApp';
 
 // ── Operations ──
 import BillingCounterPage from './pages/billing/BillingCounterPage';
@@ -50,6 +51,8 @@ import MainDashboardPage from './pages/dashboard/MainDashboardPage';
 import PcStatusPage from './pages/admin/PcStatusPage';
 import SettingsPage from './pages/admin/SettingsPage';
 import ReportsPage from './pages/admin/ReportsPage';
+
+import SetupPcPage from './pages/admin/SetupPcPage';
 
 // ── End of imports ──
 function HomeRedirect() {
@@ -80,6 +83,7 @@ export default function App() {
                 <Route path="/user/member-login" element={<MemberLoginPage />} />
                 <Route path="/user/limited" element={<LimitedUserPage />} />
                 <Route path="/user/member-portal" element={<MemberPortalPage />} />
+                <Route path="/pc-overlay/:pcId/*" element={<UserOverlayApp />} />
 
                 {/* ══════════ Protected App Shell ══════════ */}
                 <Route
@@ -226,6 +230,7 @@ export default function App() {
                 </Route>
 
                 {/* ══════════ Root Redirects ══════════ */}
+                <Route path="/setup-pc" element={<SetupPcPage />} />
                 <Route path="/" element={<LandingGatewayPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>

@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using AppleEsportsErp.Api.Hubs;
 using AppleEsportsErp.Application.DTOs.Common;
 using AppleEsportsErp.Application.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using AppleEsportsErp.Infrastructure.Data;
+using AppleEsportsErp.Domain.Enums;
 
 namespace AppleEsportsErp.Api.Services;
 
@@ -14,6 +17,7 @@ public class HubNotificationService : IHubNotificationService
     private readonly IHubContext<BillingHub> _billingHub;
     private readonly IHubContext<FoodOrderHub> _foodOrderHub;
     private readonly IHubContext<CashHub> _cashHub;
+    private readonly IHubContext<PcOverlayHub> _pcOverlayHub;
     private readonly IServiceScopeFactory _scopeFactory;
 
     public HubNotificationService(
@@ -23,6 +27,7 @@ public class HubNotificationService : IHubNotificationService
         IHubContext<BillingHub> billingHub,
         IHubContext<FoodOrderHub> foodOrderHub,
         IHubContext<CashHub> cashHub,
+        IHubContext<PcOverlayHub> pcOverlayHub,
         IServiceScopeFactory scopeFactory)
     {
         _pcStatusHub = pcStatusHub;
@@ -31,6 +36,7 @@ public class HubNotificationService : IHubNotificationService
         _billingHub = billingHub;
         _foodOrderHub = foodOrderHub;
         _cashHub = cashHub;
+        _pcOverlayHub = pcOverlayHub;
         _scopeFactory = scopeFactory;
     }
 
@@ -51,6 +57,42 @@ public class HubNotificationService : IHubNotificationService
         var payload = new { sessionId, branchId };
         await _sessionHub.Clients.Group($"branch:{branchId}")
             .SendAsync("SessionUpdated", new EventEnvelope<object>(payload));
+            
+        // Also notify PC Overlay
+        using (var scope = _scopeFactory.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var session = await db.Sessions.Include(s => s.Pc).FirstOrDefaultAsync(s => s.Id == sessionId);
+            if (session != null)
+            {
+                var pcIdStr = session.PcId.ToString();
+                var pcNumStr = session.Pc?.PcNumber ?? pcIdStr;
+
+                if (session.State == SessionState.Completed)
+                {
+                    // Find if there's an unpaid bill
+                    var hasUnpaidBill = await db.Bills.AnyAsync(b => b.SessionId == sessionId && b.Status != BillStatus.Completed);
+                    if (hasUnpaidBill)
+                    {
+                        var bill = await db.Bills.FirstOrDefaultAsync(b => b.SessionId == sessionId && b.Status != BillStatus.Completed);
+                        var totalBill = bill?.TotalAmount ?? session.TotalAmount;
+                        await _pcOverlayHub.Clients.Group($"pc:{pcIdStr}").SendAsync("SessionStopped", new { totalBill });
+                        await _pcOverlayHub.Clients.Group($"pc:{pcNumStr}").SendAsync("SessionStopped", new { totalBill });
+                    }
+                    else
+                    {
+                        await _pcOverlayHub.Clients.Group($"pc:{pcIdStr}").SendAsync("SessionEnded");
+                        await _pcOverlayHub.Clients.Group($"pc:{pcNumStr}").SendAsync("SessionEnded");
+                    }
+                }
+                else if (session.State == SessionState.Active)
+                {
+                    await _pcOverlayHub.Clients.Group($"pc:{pcIdStr}").SendAsync("SessionUpdated", payload);
+                    await _pcOverlayHub.Clients.Group($"pc:{pcNumStr}").SendAsync("SessionUpdated", payload);
+                }
+            }
+        }
+
         await InvalidateDashboardCacheAsync(branchId);
     }
 

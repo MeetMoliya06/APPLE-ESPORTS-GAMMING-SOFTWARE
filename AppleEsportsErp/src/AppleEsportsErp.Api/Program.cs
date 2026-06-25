@@ -327,6 +327,7 @@ app.MapHub<FoodOrderHub>("/hubs/food-orders");
 app.MapHub<CashHub>("/hubs/cash");
 app.MapHub<NotificationHub>("/hubs/notifications");
 app.MapHub<DashboardHub>("/hubs/dashboard");
+app.MapHub<PcOverlayHub>("/hubs/pc-overlay");
 
 // ── Startup banner ──
 app.Lifetime.ApplicationStarted.Register(() =>
