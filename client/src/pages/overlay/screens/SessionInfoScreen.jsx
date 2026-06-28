@@ -14,6 +14,15 @@ export default function SessionInfoScreen() {
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  const [now, setNow] = React.useState(Date.now());
+
+  React.useEffect(() => {
+    if (sessionData && (!sessionData.plannedDurationMin || sessionData.plannedDurationMin <= 0)) {
+      const interval = setInterval(() => setNow(Date.now()), 1000);
+      return () => clearInterval(interval);
+    }
+  }, [sessionData]);
+
   if (!sessionData) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-6 text-center">
@@ -42,7 +51,24 @@ export default function SessionInfoScreen() {
     );
   }
 
-  const isLowTime = sessionData.remainingTime < 900; // less than 15 mins
+  const isPayAsYouGo = !sessionData.plannedDurationMin || sessionData.plannedDurationMin <= 0;
+  const isLowTime = !isPayAsYouGo && sessionData.remainingTime < 900; // less than 15 mins
+
+  // Calculate live data for Pay As You Go
+  let displayTime = '00:00:00';
+  let displayBill = sessionData.totalBill || 0;
+
+  if (isPayAsYouGo) {
+    const elapsedSeconds = Math.max(0, Math.floor((now - new Date(sessionData.sessionStart).getTime()) / 1000));
+    displayTime = formatTime(elapsedSeconds);
+    
+    const elapsedMins = elapsedSeconds / 60;
+    const ratePerHour = sessionData.memberLinked || sessionData.memberId ? 80 : 100;
+    const liveGamingCharge = Math.max(elapsedMins / 60, 1 / 60) * ratePerHour;
+    displayBill = (sessionData.foodCharges || 0) + liveGamingCharge;
+  } else {
+    displayTime = formatTime(sessionData.remainingTime);
+  }
 
   return (
     <div className="p-6 h-full flex flex-col">
@@ -68,15 +94,17 @@ export default function SessionInfoScreen() {
         {/* Remaining Time */}
         <div className={`col-span-2 p-6 rounded-xl border relative overflow-hidden ${isLowTime ? 'bg-neon-orange/10 border-neon-orange/50 shadow-[0_0_15px_rgba(255,165,0,0.2)]' : 'bg-bg-3 border-border shadow-inner'}`}>
           <div className="flex items-center justify-between mb-2 relative z-10">
-            <span className="text-text-2 font-heading tracking-widest uppercase text-sm font-bold">Remaining Time</span>
+            <span className="text-text-2 font-heading tracking-widest uppercase text-sm font-bold">
+              {!isPayAsYouGo ? 'Remaining Time' : 'Elapsed Time (PAYG)'}
+            </span>
             <Clock className={`w-5 h-5 ${isLowTime ? 'text-neon-orange' : 'text-accent'}`} />
           </div>
           <div className={`font-mono text-5xl font-bold relative z-10 ${isLowTime ? 'text-neon-orange' : 'text-text'}`}>
-            {formatTime(sessionData.remainingTime)}
+            {displayTime}
           </div>
           
           {/* Progress bar background indicator */}
-          <div className="absolute bottom-0 left-0 h-1 bg-accent/20 w-full" />
+          {!isPayAsYouGo && <div className="absolute bottom-0 left-0 h-1 bg-accent/20 w-full" />}
         </div>
 
         {/* Current Bill */}
@@ -86,7 +114,7 @@ export default function SessionInfoScreen() {
             <DollarSign className="w-4 h-4 text-text-2" />
           </div>
           <div className="font-mono text-2xl font-bold text-text">
-            ₹{sessionData.totalBill.toFixed(2)}
+            ₹{displayBill.toFixed(2)}
           </div>
         </div>
 

@@ -88,8 +88,12 @@ export default function PcLockScreen() {
   const handleStartSession = async () => {
     if (!profile) return;
     
-    if (profile.gamingBalance < expectedAmount) {
+    if (durationMinutes > 0 && profile.gamingBalance < expectedAmount) {
       showToast('Insufficient gaming balance', 'error');
+      return;
+    }
+    if (durationMinutes === 0 && profile.gamingBalance <= 0) {
+      showToast('Insufficient gaming balance for Pay As You Go', 'error');
       return;
     }
 
@@ -223,7 +227,7 @@ export default function PcLockScreen() {
           </div>
           <h2 className="font-heading text-2xl font-bold text-text mb-4 uppercase tracking-widest">Request Sent!</h2>
           <p className="text-text-2 font-body mb-8 leading-relaxed max-w-sm">
-            Please wait while the operator reviews your request for {durationMinutes / 60} hour(s). Your session will start automatically once approved.
+            Please wait while the operator reviews your request for {durationMinutes === 0 ? 'a Pay As You Go session' : `${durationMinutes >= 60 ? durationMinutes / 60 : durationMinutes} ${durationMinutes === 30 ? 'minute' : 'hour'}(s)`}. Your session will start automatically once approved.
           </p>
           <div className="flex gap-2 items-center justify-center">
             <span className="w-2 h-2 bg-accent rounded-full animate-ping" style={{ animationDelay: '0ms' }} />
@@ -253,17 +257,19 @@ export default function PcLockScreen() {
             <div>
               <label className="block text-sm font-medium text-text-2 mb-2 font-body tracking-wide uppercase">Select Duration</label>
               <div className="grid grid-cols-2 gap-3">
-                {[30, 60, 120, 180].map((mins) => (
+                {[30, 60, 120, 180, 0].map((mins) => (
                   <button
                     key={mins}
                     onClick={() => setDurationMinutes(mins)}
-                    className={`p-3 rounded-lg border transition-all flex flex-col items-center justify-center gap-1 ${
+                    className={`p-3 rounded-lg border transition-all flex flex-col items-center justify-center gap-1 ${mins === 0 ? 'col-span-2' : ''} ${
                       durationMinutes === mins 
                         ? 'bg-accent/20 border-accent shadow-[0_0_10px_rgba(220,38,38,0.2)] text-text' 
                         : 'bg-bg-3 border-border hover:border-text-3 text-text-2'
                     }`}
                   >
-                    <span className="font-mono font-bold">{mins / 60} {mins === 30 ? 'Min' : 'Hr'}</span>
+                    <span className={`font-mono font-bold ${mins === 0 ? 'text-xs uppercase tracking-widest' : ''}`}>
+                      {mins === 0 ? 'PAY AS YOU GO' : `${mins >= 60 ? mins / 60 : mins} ${mins === 30 ? 'Min' : 'Hr'}`}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -407,11 +413,11 @@ export default function PcLockScreen() {
       <h3 className="font-heading text-sm font-bold text-text-2 uppercase tracking-widest mb-4">Select Duration</h3>
       
       <div className="grid grid-cols-2 gap-4 mb-8">
-        {[30, 60, 120, 180].map((mins) => (
+        {[30, 60, 120, 180, 0].map((mins) => (
           <button
             key={mins}
             onClick={() => setDurationMinutes(mins)}
-            className={`p-4 rounded-lg border transition-all flex flex-col items-center justify-center gap-2 ${
+            className={`p-4 rounded-lg border transition-all flex flex-col items-center justify-center gap-2 ${mins === 0 ? 'col-span-2' : ''} ${
               durationMinutes === mins 
                 ? 'bg-accent/20 border-accent shadow-[0_0_15px_rgba(220,38,38,0.2)]' 
                 : 'bg-bg-3 border-border hover:border-text-3'
@@ -419,7 +425,7 @@ export default function PcLockScreen() {
           >
             <Clock className={`w-6 h-6 ${durationMinutes === mins ? 'text-accent' : 'text-text-3'}`} />
             <span className={`font-mono font-bold text-lg ${durationMinutes === mins ? 'text-text' : 'text-text-2'}`}>
-              {mins / 60} {mins === 30 ? 'Min' : 'Hr'}
+              {mins === 0 ? 'PAY AS YOU GO' : `${mins >= 60 ? mins / 60 : mins} ${mins === 30 ? 'Min' : 'Hr'}`}
             </span>
           </button>
         ))}
@@ -428,12 +434,14 @@ export default function PcLockScreen() {
       <div className="bg-bg-3 p-4 rounded-xl border border-border">
         <div className="flex justify-between items-center mb-4">
           <span className="text-text-2 font-body">Estimated Cost</span>
-          <span className="font-mono font-bold text-text text-2xl">₹{expectedAmount.toFixed(2)}</span>
+          <span className="font-mono font-bold text-text text-2xl">
+            {durationMinutes === 0 ? 'Variable' : `₹${expectedAmount.toFixed(2)}`}
+          </span>
         </div>
 
         <button
           onClick={handleStartSession}
-          disabled={isStarting || (profile?.gamingBalance || 0) < expectedAmount}
+          disabled={isStarting || (durationMinutes > 0 && (profile?.gamingBalance || 0) < expectedAmount) || (durationMinutes === 0 && (profile?.gamingBalance || 0) <= 0)}
           className="w-full bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-4 rounded-sm transition-all duration-200 flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.3)] disabled:opacity-50 disabled:cursor-not-allowed border border-accent/50 gap-2"
         >
           {isStarting ? (
@@ -446,8 +454,11 @@ export default function PcLockScreen() {
           )}
         </button>
         
-        {(profile?.gamingBalance || 0) < expectedAmount && (
+        {durationMinutes > 0 && (profile?.gamingBalance || 0) < expectedAmount && (
           <p className="text-neon-orange text-sm text-center mt-3 font-body">Insufficient balance for this duration.</p>
+        )}
+        {durationMinutes === 0 && (profile?.gamingBalance || 0) <= 0 && (
+          <p className="text-neon-orange text-sm text-center mt-3 font-body">You need a positive balance to start a Pay As You Go session.</p>
         )}
       </div>
     </motion.div>

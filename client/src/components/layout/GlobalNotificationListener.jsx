@@ -16,7 +16,6 @@ export default function GlobalNotificationListener() {
   useEffect(() => {
     if (!connected) return;
 
-    // Listen for Alert from NotificationHub
     const unsubscribe = subscribe(SIGNALR_HUBS.NOTIFICATIONS, 'Alert', (data) => {
       if (data.type === 'WalkinSessionRequest') {
         // Add to our list of active requests
@@ -29,7 +28,17 @@ export default function GlobalNotificationListener() {
       }
     });
 
-    return () => unsubscribe();
+    const unsubscribeStatus = subscribe(SIGNALR_HUBS.PC_STATUS, 'PcStatusUpdated', (data) => {
+      // If PC becomes active, remove any pending walk-in requests for it
+      if (data.status === 'active') {
+        setRequests(prev => prev.filter(r => r.pcId !== data.pcId));
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      if (unsubscribeStatus) unsubscribeStatus();
+    };
   }, [connected, subscribe, SIGNALR_HUBS.NOTIFICATIONS, showToast]);
 
   const handleApprove = async (req) => {
@@ -107,11 +116,15 @@ export default function GlobalNotificationListener() {
               </div>
               <div className="flex justify-between items-center mb-2">
                 <span className="text-text-3 font-body text-xs">Duration</span>
-                <span className="text-text font-mono font-bold text-sm">{req.duration / 60} Hr</span>
+                <span className="text-text font-mono font-bold text-sm">
+                  {req.duration === 0 ? 'Pay As You Go' : `${req.duration >= 60 ? req.duration / 60 : req.duration} ${req.duration === 30 ? 'Min' : 'Hr'}`}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-text-3 font-body text-xs">Expected Bill</span>
-                <span className="text-text font-mono font-bold text-sm text-accent">₹{(req.duration / 60) * 100}</span>
+                <span className="text-text font-mono font-bold text-sm text-accent">
+                  {req.duration === 0 ? 'Variable' : `₹${(req.duration / 60) * 100}`}
+                </span>
               </div>
             </div>
 

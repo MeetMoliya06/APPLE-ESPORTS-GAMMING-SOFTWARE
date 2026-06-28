@@ -131,7 +131,7 @@ export function OverlaySocketProvider({ children, pcId, isMinimized: initialMini
     });
 
     newConnection.on('SessionUpdated', (updates) => {
-      setSessionData(prev => ({ ...prev, ...updates }));
+      fetchSession();
     });
 
     newConnection.on('SessionStopped', (finalBill) => {

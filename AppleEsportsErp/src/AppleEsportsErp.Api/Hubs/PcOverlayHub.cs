@@ -191,7 +191,7 @@ public class PcOverlayHub : Hub
             CustomerName = payload.CustomerName,
             Duration = payload.Duration,
             Timestamp = DateTimeOffset.UtcNow.ToString("o"),
-            Message = $"Walk-in request: {payload.CustomerName} wants {payload.Duration} mins at {payload.PcId}" 
+            Message = payload.Duration == 0 ? $"Walk-in request: {payload.CustomerName} wants a Pay As You Go session at {payload.PcId}" : $"Walk-in request: {payload.CustomerName} wants {payload.Duration} mins at {payload.PcId}" 
         });
         
         return new { success = true, status = "pending_operator_approval" };

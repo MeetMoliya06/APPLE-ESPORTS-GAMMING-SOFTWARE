@@ -29,8 +29,12 @@ export default function MemberTimeSelectionScreen() {
     if (!profile) return;
     
     // Quick validation
-    if (profile.gamingBalance < expectedAmount) {
+    if (durationMinutes > 0 && profile.gamingBalance < expectedAmount) {
       showToast('Insufficient gaming balance', 'error');
+      return;
+    }
+    if (durationMinutes === 0 && profile.gamingBalance <= 0) {
+      showToast('Insufficient gaming balance for Pay As You Go', 'error');
       return;
     }
 
@@ -104,11 +108,11 @@ export default function MemberTimeSelectionScreen() {
         <h3 className="font-heading text-sm font-bold text-text-2 uppercase tracking-widest mb-4">Select Duration</h3>
         
         <div className="grid grid-cols-2 gap-3 mb-6">
-          {[30, 60, 120, 180].map((mins) => (
+          {[30, 60, 120, 180, 0].map((mins) => (
             <button
               key={mins}
               onClick={() => setDurationMinutes(mins)}
-              className={`p-3 rounded-lg border transition-all flex flex-col items-center justify-center gap-1 ${
+              className={`p-3 rounded-lg border transition-all flex flex-col items-center justify-center gap-1 ${mins === 0 ? 'col-span-2' : ''} ${
                 durationMinutes === mins 
                   ? 'bg-accent/20 border-accent shadow-[0_0_10px_rgba(220,38,38,0.2)]' 
                   : 'bg-bg-3 border-border hover:border-text-3'
@@ -116,7 +120,7 @@ export default function MemberTimeSelectionScreen() {
             >
               <Clock className={`w-5 h-5 ${durationMinutes === mins ? 'text-accent' : 'text-text-3'}`} />
               <span className={`font-mono font-bold ${durationMinutes === mins ? 'text-text' : 'text-text-2'}`}>
-                {mins / 60} {mins === 30 ? 'Min' : 'Hr'}
+                {mins === 0 ? 'PAY AS YOU GO' : `${mins >= 60 ? mins / 60 : mins} ${mins === 30 ? 'Min' : 'Hr'}`}
               </span>
             </button>
           ))}
@@ -125,12 +129,14 @@ export default function MemberTimeSelectionScreen() {
         <div className="mt-auto bg-bg-3 p-4 rounded-xl border border-border">
           <div className="flex justify-between items-center mb-4">
             <span className="text-text-2 text-sm font-body">Estimated Cost</span>
-            <span className="font-mono font-bold text-text text-xl">₹{expectedAmount.toFixed(2)}</span>
+            <span className="font-mono font-bold text-text text-xl">
+              {durationMinutes === 0 ? 'Variable' : `₹${expectedAmount.toFixed(2)}`}
+            </span>
           </div>
 
           <button
             onClick={handleStartSession}
-            disabled={isStarting || profile.gamingBalance < expectedAmount}
+            disabled={isStarting || (durationMinutes > 0 && profile.gamingBalance < expectedAmount) || (durationMinutes === 0 && profile.gamingBalance <= 0)}
             className="w-full bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-4 rounded-sm transition-all duration-200 flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.3)] disabled:opacity-50 disabled:cursor-not-allowed border border-accent/50 gap-2"
           >
             {isStarting ? (
